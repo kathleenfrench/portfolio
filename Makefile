@@ -3,23 +3,23 @@
 
 .PHONY: build
 build: ## compile the rust binary
-	@cd api && cargo build
+	@cargo build
 
 .PHONY: run
 run: ## run the rust app locally
-	@cd api && cargo run
+	@cargo run
 
 .PHONY: test
 test: ## run rust tests
-	@cd api && cargo test
+	@cargo test
 
 .PHONY: release
 release: ## compile a release build
-	@cd api && cargo build --release
+	@cargo build --release
 
 .PHONY: check
 check: ## verify the rust bin is able to be compiled
-	@cd api && cargo check
+	@cargo check
 
 ## frontend ops
 
