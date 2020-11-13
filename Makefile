@@ -9,6 +9,14 @@ run: ## run the rust app locally
 test: ## run rust tests
 	@cd api && cargo test
 
+.PHONY: release
+release: ## compile a release build
+	@cd api && cargo build --release
+
+.PHONY: check
+check: ## verify the rust bin is able to be compiled
+	@cd app && cargo check
+
 ## frontend ops
 
 .PHONY: help
