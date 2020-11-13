@@ -1,6 +1,10 @@
 
 ## rust ops
 
+.PHONY: build
+build: ## compile the rust binary
+	@cd api && cargo build
+
 .PHONY: run
 run: ## run the rust app locally
 	@cd api && cargo run
