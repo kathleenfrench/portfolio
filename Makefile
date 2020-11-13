@@ -19,7 +19,7 @@ release: ## compile a release build
 
 .PHONY: check
 check: ## verify the rust bin is able to be compiled
-	@cd app && cargo check
+	@cd api && cargo check
 
 ## frontend ops
 
