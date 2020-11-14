@@ -23,9 +23,17 @@ check: ## verify the rust bin is able to be compiled
 
 ## frontend ops
 
+.PHONY: css
+css: ## bundle css
+	@cd web && npm run css
+
 .PHONY: js
 js: ## compile js
 	@cd web && npx spack
+
+.PHONY: assets
+assets: js css ## compile all frontend assets to /dist
+	@successfully compiled assets!
 
 .PHONY: watch
 watch: ## run the hot-reload server for rust
