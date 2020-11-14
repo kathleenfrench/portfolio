@@ -21,26 +21,35 @@ release: ## compile a release build
 check: ## verify the rust bin is able to be compiled
 	@cargo check
 
-## frontend ops
-
-.PHONY: css
-css: ## bundle css
-	@cd web && npm run css
-
-.PHONY: js
-js: ## compile js
-	@cd web && npx spack
-
-.PHONY: assets
-assets: js css ## compile all frontend assets to /dist
-	@successfully compiled assets!
-
 .PHONY: watch
 watch: ## run the hot-reload server for rust
 	@systemfd --no-pid -s http::3000 -- cargo watch -x run
 
+## frontend ops
+
+DIST_DIR := $(PWD)/dist
+
+${DIST_DIR}:
+	@if [ ! -d $(DIST_DIR) ]; then \
+		echo "creating /dist directory..."; \
+		mkdir -p $(DIST_DIR); \
+	fi;
+
+.PHONY: css
+css: | ${DIST_DIR} ## bundle css
+	@cd web && npm run css
+
+.PHONY: js
+js: | ${DIST_DIR} ## compile js
+	@cd web && npx spack
+
+.PHONY: assets
+assets: js css ## compile all frontend assets to /dist
+	@echo successfully compiled assets!
+
 .PHONY: clean
 clean: ## remove compiled js assets
+	@echo "nuking /dist directory..."
 	@rm -rf dist
 
 .PHONY: help
