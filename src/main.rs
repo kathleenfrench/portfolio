@@ -84,7 +84,7 @@ async fn main() -> io::Result<()> {
     server = if let Some(l) = listenfd.take_tcp_listener(0).unwrap() {
         server.listen(l)?
     } else {
-        server.bind("127.0.0.1:8080")?
+        server.bind("127.0.0.1:3000")?
     };
 
     server.run().await
