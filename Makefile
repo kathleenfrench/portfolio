@@ -27,6 +27,10 @@ check: ## verify the rust bin is able to be compiled
 js: ## compile js
 	@cd web && npx spack
 
+.PHONY: watch
+watch: ## run the hot-reload server for rust
+	@systemfd --no-pid -s http::3000 -- cargo watch -x run
+
 .PHONY: clean
 clean: ## remove compiled js assets
 	@rm -rf dist

@@ -10,6 +10,7 @@ use actix_web::dev::ServiceResponse;
 use actix_web::http::StatusCode;
 use actix_web::middleware::errhandlers::{ErrorHandlerResponse, ErrorHandlers};
 use actix_web::{middleware, web, App, HttpResponse, HttpServer, Result};
+use listenfd::ListenFd;
 
 use handlebars::Handlebars;
 
@@ -46,6 +47,8 @@ async fn main() -> io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
 
+    let mut listenfd = ListenFd::from_env();
+
     // handlebars uses a repository for the compiled templates
     // this object must be shared between the application thread
     // and is passed to the application builder as an
@@ -57,7 +60,7 @@ async fn main() -> io::Result<()> {
     
     let handlerbars_ref = web::Data::new(handlebars);
 
-    HttpServer::new(move || {
+    let mut server = HttpServer::new(move || {
         App::new()
             .wrap(error_handlers())
             // enable the logger
@@ -76,10 +79,15 @@ async fn main() -> io::Result<()> {
             .app_data(handlerbars_ref.clone())
             .service(index)
             .service(user)
-    })
-    .bind("127.0.0.1:8080")?
-    .run()
-    .await
+    });
+
+    server = if let Some(l) = listenfd.take_tcp_listener(0).unwrap() {
+        server.listen(l)?
+    } else {
+        server.bind("127.0.0.1:3000")?
+    };
+
+    server.run().await
 }
 
 // custom error handler for returning html error pages
