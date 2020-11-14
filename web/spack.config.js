@@ -1,7 +1,7 @@
 const { config } = require('@swc/core/spack')
 const path = require('path');
 
-const _distDir = path.resolve(__dirname, '../dist/js');
+const _distDir = path.resolve(__dirname, '../static/assets/js');
 const _rootDir = path.resolve(__dirname, 'src');
 
 module.exports = config({
