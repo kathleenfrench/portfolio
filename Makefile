@@ -39,6 +39,10 @@ ${DIST_DIR}:
 css: | ${DIST_DIR} ## bundle css
 	@cd web && npm run css
 
+.PHONY: hot-css
+hot-css: ## hot reload css scripts
+	@cd web && npm run css-watch
+
 .PHONY: js
 js: | ${DIST_DIR} ## compile js
 	@cd web && npx spack
