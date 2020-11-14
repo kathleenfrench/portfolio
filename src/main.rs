@@ -4,21 +4,32 @@ extern crate serde_json;
 #[macro_use]
 extern crate actix_web;
 
+#[macro_use]
+extern crate lazy_static;
+
 use actix_files::Files;
 use actix_web::{middleware, web, App, HttpServer, http::header};
 use actix_cors::Cors;
 use listenfd::ListenFd;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
-
 use handlebars::Handlebars;
 use std::io;
 
 mod handlers;
+mod settings;
+
+lazy_static! {
+    static ref CONFIG: settings::Settings = settings::Settings::new().expect("config can be loaded");
+}
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
-    std::env::set_var("RUST_LOG", "actix_web=info");
+    let cfg = CONFIG.clone();
+
+    println!("CONFIG: {:#?}", cfg);
+
+    std::env::set_var("RUST_LOG", format!("actix_web={}", cfg.log.level));
     env_logger::init();
 
     let mut listenfd = ListenFd::from_env();
@@ -26,9 +37,9 @@ async fn main() -> io::Result<()> {
     // load ssl keys
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
     builder
-        .set_private_key_file("key.pem", SslFiletype::PEM)
+        .set_private_key_file(&cfg.ssl.key_file, SslFiletype::PEM)
         .unwrap();
-    builder.set_certificate_chain_file("cert.pem").unwrap();
+    builder.set_certificate_chain_file(&cfg.ssl.cert_file).unwrap();
 
     // handlebars uses a repository for the compiled templates
     // this object must be shared between the application thread
@@ -36,7 +47,7 @@ async fn main() -> io::Result<()> {
     // atomic reference-counted pointer
     let mut handlebars = Handlebars::new();
     handlebars
-        .register_templates_directory(".html", "./static/templates")
+        .register_templates_directory(".html", format!("./{}", &cfg.static_paths.templates))
         .unwrap();
     
     let handlerbars_ref = web::Data::new(handlebars);
@@ -45,7 +56,7 @@ async fn main() -> io::Result<()> {
         App::new()
             .wrap(
                 Cors::default()
-                    .allowed_origin("https://localhost:3000")
+                    .allowed_origin(&cfg.server.full_url)
                     .allowed_methods(vec!["GET", "POST"])
                     .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT])
                     .allowed_header(header::CONTENT_TYPE)
@@ -56,8 +67,8 @@ async fn main() -> io::Result<()> {
             // enable the logger
             .wrap(middleware::Logger::default())
             // allow visitor to see index of assets at /assets
-            .service(Files::new("/assets", "static/assets/").show_files_listing())
-            .service(Files::new("/dist", "dist/").show_files_listing())
+            .service(Files::new("/assets", format!("{}/", &cfg.static_paths.assets)).show_files_listing())
+            .service(Files::new("/dist", format!("{}/", &cfg.static_paths.dist)).show_files_listing())
             // [note]: you can serve a tree of static files at the web root
             // and specify the index file
             // the root path should always be defined as the last
@@ -75,7 +86,9 @@ async fn main() -> io::Result<()> {
     server = if let Some(l) = listenfd.take_tcp_listener(0).unwrap() {
         server.listen_openssl(l, builder)?
     } else {
-        server.bind_openssl("127.0.0.1:3000", builder)?
+        // TODO: fix this to use a closure and avoid redundancy of re-cloning
+        let cfg = CONFIG.clone();
+        server.bind_openssl(format!("{}:{}", &cfg.server.hostname, &cfg.server.port), builder)?
     };
 
     server.run().await

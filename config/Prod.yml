@@ -1,0 +1,4 @@
+server:
+  full_url: "https://www.kathleenfrench.co"
+  hostname: "www.kathleenfrench.co"
+  port: 80

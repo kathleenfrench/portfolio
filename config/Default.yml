@@ -1,0 +1,12 @@
+log:
+  level: "info"
+
+static_paths:
+  dist: "dist"
+  assets: "static/assets"
+  templates: "static/templates"
+  favicon: "static/favicon.ico"
+
+ssl:
+  key_file: "key.pem"
+  cert_file: "cert.pem"
