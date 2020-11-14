@@ -4,14 +4,16 @@
   "description": "",
   "main": "src/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "css": "sass ./scss/style.scss ../static/assets/css/main.css --style compressed --no-source-map"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@swc/cli": "^0.1.27",
     "@swc/core": "^1.2.38",
-    "chokidar": "^3.4.3"
+    "chokidar": "^3.4.3",
+    "sass": "^1.29.0"
   },
   "dependencies": {
     "path": "^0.12.7"

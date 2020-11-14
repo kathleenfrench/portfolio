@@ -1,10 +1,1 @@
-body, html {
-  height: 100%;
-  margin: 0;
-  padding: 2vw;
-}
-
-img {
-  max-width: 300px;
-  height: auto;
-}
+body,html{height:100%;margin:0;padding:2vw}img{max-width:300px;height:auto}
