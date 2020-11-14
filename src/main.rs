@@ -7,6 +7,7 @@ extern crate actix_web;
 use actix_files::Files;
 use actix_web::{middleware, web, App, HttpServer};
 use listenfd::ListenFd;
+use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
 use handlebars::Handlebars;
 use std::io;
@@ -19,6 +20,13 @@ async fn main() -> io::Result<()> {
     env_logger::init();
 
     let mut listenfd = ListenFd::from_env();
+
+    // load ssl keys
+    let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
+    builder
+        .set_private_key_file("key.pem", SslFiletype::PEM)
+        .unwrap();
+    builder.set_certificate_chain_file("cert.pem").unwrap();
 
     // handlebars uses a repository for the compiled templates
     // this object must be shared between the application thread
@@ -54,9 +62,9 @@ async fn main() -> io::Result<()> {
     });
 
     server = if let Some(l) = listenfd.take_tcp_listener(0).unwrap() {
-        server.listen(l)?
+        server.listen_openssl(l, builder)?
     } else {
-        server.bind("127.0.0.1:3000")?
+        server.bind_openssl("127.0.0.1:3000", builder)?
     };
 
     server.run().await
