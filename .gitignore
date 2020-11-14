@@ -1,6 +1,5 @@
 target
 web/node_modules
-dist
 
 static/assets/js
 static/assets/css

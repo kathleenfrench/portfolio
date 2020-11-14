@@ -18,7 +18,7 @@ pub async fn index(session: Session, hb: web::Data<Handlebars<'_>>) -> Result<Ht
     let mut visit_count = 1;
 
     if let Some(count) = session.get::<i32>("visit_count")? {
-        println!("SESSION VALUE: {}", count);
+        println!("visit_count: {}", count);
         visit_count = count + 1;
     }
 
