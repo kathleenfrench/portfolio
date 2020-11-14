@@ -5,7 +5,6 @@ use actix_web::middleware::errhandlers::{ErrorHandlerResponse, ErrorHandlers};
 use actix_web::{web, HttpResponse, Result};
 use actix_files::NamedFile;
 use actix_session::Session;
-use actix_utils::mpsc;
 
 use handlebars::Handlebars;
 
@@ -16,13 +15,14 @@ async fn favicon() -> Result<NamedFile> {
 
 #[get("/")]
 pub async fn index(session: Session, hb: web::Data<Handlebars<'_>>) -> Result<HttpResponse> {
-    let mut counter = 1;
-    if let Some(count) = session.get::<i32>("counter")? {
+    let mut visit_count = 1;
+
+    if let Some(count) = session.get::<i32>("visit_count")? {
         println!("SESSION VALUE: {}", count);
-        counter = count + 1;
+        visit_count = count + 1;
     }
 
-    session.set("counter", counter)?;
+    session.set("visit_count", visit_count)?;
 
     let data = json!({
         "name": "kathleenfrench.co"
