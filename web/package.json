@@ -5,7 +5,8 @@
   "main": "src/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "css": "sass ./scss/style.scss ../dist/css/main.css --style compressed --no-source-map"
+    "css": "sass ./scss/style.scss ../dist/css/main.css --style compressed --no-source-map",
+    "css-watch": "sass ./scss/style.scss ../dist/css/main.css --style compressed --no-source-map --watch"
   },
   "author": "",
   "license": "ISC",
