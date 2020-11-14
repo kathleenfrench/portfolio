@@ -1,4 +1,10 @@
 
+## local
+
+.PHONY: local
+local: run assets | cert ## configures ssl, compiles/bundles all code, starts the rust server
+	@echo "success! visit the site in the browser at https://127.0.0.1:3000!"
+
 ## rust ops
 
 .PHONY: build
@@ -51,10 +57,17 @@ js: | ${DIST_DIR} ## compile js
 assets: js css ## compile all frontend assets to /dist
 	@echo successfully compiled assets!
 
+## utils
+
 .PHONY: clean
 clean: ## remove compiled js assets
 	@echo "nuking /dist directory..."
 	@rm -rf dist
+
+.PHONY: cert
+cert: | cert.pem key.pem ## create a local self-signed cert for dev and install it
+	@mkcert --cert-file cert.pem --key-file key.pem 127.0.0.1
+	@mkcert -install
 
 .PHONY: help
 help: ## lists some available makefile commands
