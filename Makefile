@@ -33,16 +33,8 @@ watch: ## run the hot-reload server for rust
 
 ## frontend ops
 
-DIST_DIR := $(PWD)/dist
-
-${DIST_DIR}:
-	@if [ ! -d $(DIST_DIR) ]; then \
-		echo "creating /dist directory..."; \
-		mkdir -p $(DIST_DIR); \
-	fi;
-
 .PHONY: css
-css: | ${DIST_DIR} ## bundle css
+css: ## bundle css
 	@cd web && npm run css
 
 .PHONY: hot-css
@@ -50,19 +42,20 @@ hot-css: ## hot reload css scripts
 	@cd web && npm run css-watch
 
 .PHONY: js
-js: | ${DIST_DIR} ## compile js
+js: ## compile js
 	@cd web && npx spack
 
 .PHONY: assets
-assets: js css ## compile all frontend assets to /dist
+assets: js css ## compile all frontend assets to /static/assets
 	@echo successfully compiled assets!
 
 ## utils
 
 .PHONY: clean
-clean: ## remove compiled js assets
-	@echo "nuking /dist directory..."
-	@rm -rf dist
+clean: ## remove generated assets
+	@echo "nuking generated directories..."
+	@rm -rf static/assets/js
+	@rm -rf static/assets/css
 
 .PHONY: cert
 cert: | cert.pem key.pem ## create a local self-signed cert for dev and install it

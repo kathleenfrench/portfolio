@@ -5,7 +5,6 @@ log:
   level: "info"
 
 static_paths:
-  dist: "dist"
   assets: "static/assets"
   templates: "static/templates"
 

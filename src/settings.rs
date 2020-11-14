@@ -17,7 +17,6 @@ pub struct Log {
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct StaticPaths {
-  pub dist: String,
   pub assets: String,
   pub templates: String,
 }
