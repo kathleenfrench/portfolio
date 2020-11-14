@@ -27,8 +27,6 @@ lazy_static! {
 async fn main() -> io::Result<()> {
     let cfg = CONFIG.clone();
 
-    println!("CONFIG: {:#?}", cfg);
-
     std::env::set_var("RUST_LOG", format!("actix_web={}", cfg.log.level));
     env_logger::init();
 
