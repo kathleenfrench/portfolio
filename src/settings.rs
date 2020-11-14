@@ -7,6 +7,7 @@ pub struct Server {
   pub full_url: String,
   pub hostname: String,
   pub port: u32,
+  pub session_key: String,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -19,7 +20,6 @@ pub struct StaticPaths {
   pub dist: String,
   pub assets: String,
   pub templates: String,
-  pub favicon: String
 }
 
 #[derive(Debug, Deserialize, Clone)]

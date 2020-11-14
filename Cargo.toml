@@ -11,6 +11,8 @@ actix-web = { version = "3", features = ["openssl"] }
 actix-cors = "0.5"
 actix-rt = "1.1.1"
 actix-files = "0.3"
+actix-session = "0.4"
+actix-utils = "2"
 env_logger = "0.7"
 actix-http = "2"
 handlebars = { version = "3.0.0", features = ["dir_source"] }

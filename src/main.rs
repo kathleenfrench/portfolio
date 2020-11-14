@@ -12,6 +12,7 @@ use actix_web::{middleware, web, App, HttpServer, http::header};
 use actix_cors::Cors;
 use listenfd::ListenFd;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+use actix_session::CookieSession;
 
 use handlebars::Handlebars;
 use std::io;
@@ -53,6 +54,12 @@ async fn main() -> io::Result<()> {
     let mut server = HttpServer::new(move || {
         App::new()
             .wrap(
+                CookieSession::signed(&[0; 32])
+                    .domain(&cfg.server.hostname)
+                    .name(&cfg.server.session_key)
+                    .secure(false)
+            )
+            .wrap(
                 Cors::default()
                     .allowed_origin(&cfg.server.full_url)
                     .allowed_methods(vec!["GET", "POST"])
@@ -74,7 +81,7 @@ async fn main() -> io::Result<()> {
             // defined. if this would be placed before the /assets
             // path, then the service for the static assets would
             // never be reached
-            .service(Files::new("/favicon.ico", "./static/favicon.ico"))
+            .service(handlers::favicon)
             .route("/health", web::get().to(handlers::health_check))
             .app_data(handlerbars_ref.clone())
             .service(handlers::index)

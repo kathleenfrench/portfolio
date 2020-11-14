@@ -1,3 +1,6 @@
+server:
+  session_key: "kf_session"
+
 log:
   level: "info"
 
@@ -5,7 +8,6 @@ static_paths:
   dist: "dist"
   assets: "static/assets"
   templates: "static/templates"
-  favicon: "static/favicon.ico"
 
 ssl:
   key_file: "key.pem"

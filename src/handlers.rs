@@ -3,18 +3,35 @@ use actix_web::dev::ServiceResponse;
 use actix_web::http::StatusCode;
 use actix_web::middleware::errhandlers::{ErrorHandlerResponse, ErrorHandlers};
 use actix_web::{web, HttpResponse, Result};
+use actix_files::NamedFile;
+use actix_session::Session;
+use actix_utils::mpsc;
 
 use handlebars::Handlebars;
 
+#[get("/favicon")]
+async fn favicon() -> Result<NamedFile> {
+    Ok(NamedFile::open("static/favicon.ico")?)
+}
+
 #[get("/")]
-pub async fn index(hb: web::Data<Handlebars<'_>>) -> HttpResponse {
+pub async fn index(session: Session, hb: web::Data<Handlebars<'_>>) -> Result<HttpResponse> {
+    let mut counter = 1;
+    if let Some(count) = session.get::<i32>("counter")? {
+        println!("SESSION VALUE: {}", count);
+        counter = count + 1;
+    }
+
+    session.set("counter", counter)?;
+
     let data = json!({
         "name": "kathleenfrench.co"
     });
 
     let body = hb.render("index", &data).unwrap();
 
-    HttpResponse::Ok().body(body)
+    Ok(HttpResponse::build(StatusCode::OK)
+        .content_type("text/html; charset=utf-8").body(body))
 }
 
 #[get("/{user}/{data}")]
