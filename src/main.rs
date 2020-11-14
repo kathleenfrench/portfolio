@@ -5,9 +5,11 @@ extern crate serde_json;
 extern crate actix_web;
 
 use actix_files::Files;
-use actix_web::{middleware, web, App, HttpServer};
+use actix_web::{middleware, web, App, HttpServer, http::header};
+use actix_cors::Cors;
 use listenfd::ListenFd;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+
 
 use handlebars::Handlebars;
 use std::io;
@@ -41,6 +43,15 @@ async fn main() -> io::Result<()> {
 
     let mut server = HttpServer::new(move || {
         App::new()
+            .wrap(
+                Cors::default()
+                    .allowed_origin("https://localhost:3000")
+                    .allowed_methods(vec!["GET", "POST"])
+                    .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT])
+                    .allowed_header(header::CONTENT_TYPE)
+                    .supports_credentials()
+                    .max_age(3600)
+            )
             .wrap(handlers::error_handlers())
             // enable the logger
             .wrap(middleware::Logger::default())
