@@ -1,0 +1,4 @@
+server:
+  full_url: "https://127.0.0.1:3000"
+  hostname: "127.0.0.1"
+  port: 3000
