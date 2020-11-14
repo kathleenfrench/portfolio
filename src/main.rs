@@ -64,14 +64,15 @@ async fn main() -> io::Result<()> {
             .wrap(middleware::Logger::default())
             // allow visitor to see index of assets at /assets
             .service(Files::new("/assets", "static/assets/").show_files_listing())
-            // serve a tree of static files at the web root
+            .service(Files::new("/dist", "dist/").show_files_listing())
+            // [note]: you can serve a tree of static files at the web root
             // and specify the index file
             // the root path should always be defined as the last
             // item, the paths are resolved in the order they are 
             // defined. if this would be placed before the /assets
-            // path,t hen the service for the static assets would
+            // path, then the service for the static assets would
             // never be reached
-            // .service(Files::new("/", "./static/root/").index_file("index.html"))
+            .service(Files::new("/favicon.ico", "./static/favicon.ico"))
             .app_data(handlerbars_ref.clone())
             .service(index)
             .service(user)
