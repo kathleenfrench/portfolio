@@ -22,7 +22,6 @@ async fn main() -> io::Result<()> {
     let mut listenfd = ListenFd::from_env();
 
     // load ssl keys
-    // load ssl keys
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
     builder
         .set_private_key_file("key.pem", SslFiletype::PEM)
