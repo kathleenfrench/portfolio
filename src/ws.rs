@@ -1,21 +1,25 @@
 use std::time::{Duration, Instant};
+use std::fs;
 
 use actix::prelude::*;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
+
+use serde_json::json;
 
 /// how often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
 /// how long before lack of client response causes a timeout
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 
+// perform ws handshake and start the TermWebSocket actor
 pub async fn ws_index(r: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
-    println!("{:?}", r);
     let res = ws::start(TermWebSocket::new(), &r, stream);
-    println!("{:?}", res);
+    println!("{:?}", res.as_ref().unwrap());
     res
 }
 
+// ws connection
 struct TermWebSocket {
     /// client must send ping at least once per 10 seconds (CLIENT_TIMEOUT),
     /// otherwise we drop connection.
@@ -29,6 +33,11 @@ impl Actor for TermWebSocket {
     fn started(&mut self, ctx: &mut Self::Context) {
         self.hb(ctx);
     }
+}
+
+pub fn read_faux_logs(p: String) -> String {
+    let res = fs::read_to_string(p).unwrap();
+    res
 }
 
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for TermWebSocket {
@@ -45,7 +54,20 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for TermWebSocket {
                 self.hb = Instant::now();
             }
 
-            Ok(ws::Message::Text(text)) => ctx.text(text),
+            Ok(ws::Message::Text(text)) => {
+                let m = String::from_utf8(Vec::from(&text[..])).unwrap();
+                println!("M: {:?}", m);
+                if m == "print_faux_logs" {
+                    let faux_logs = read_faux_logs(String::from("logs.txt"));
+                    let data = json!({
+                        "key": m,
+                        "message": faux_logs,
+                    });
+                    ctx.text(data.to_string())
+                } else {
+                    ctx.text(text)
+                }
+            },
             Ok(ws::Message::Binary(bin)) => ctx.binary(bin),
             Ok(ws::Message::Close(reason)) => {
                 ctx.close(reason);
