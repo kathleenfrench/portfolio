@@ -59,7 +59,7 @@ clean: ## remove generated assets
 
 .PHONY: cert
 cert: | cert.pem key.pem ## create a local self-signed cert for dev and install it
-	@mkcert --cert-file cert.pem --key-file key.pem 127.0.0.1
+	@mkcert --cert-file cert.pem --key-file key.pem localhost dev.local 127.0.0.1 ::1
 	@mkcert -install
 
 .PHONY: help

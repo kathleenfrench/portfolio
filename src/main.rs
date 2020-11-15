@@ -71,8 +71,8 @@ async fn main() -> io::Result<()> {
             .wrap(handlers::error_handlers())
             .wrap(middleware::Logger::default())
             .app_data(handlerbars_ref.clone())
-            .service(Files::new("/assets", format!("{}/", &cfg.static_paths.assets)).show_files_listing())
             .service(handlers::favicon)
+            .service(Files::new("/assets", format!("{}/", &cfg.static_paths.assets)).show_files_listing())
             .service(
                 web::resource("/health").route(web::get().to(handlers::health_check))
             )

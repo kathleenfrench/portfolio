@@ -8,7 +8,7 @@ use actix_session::Session;
 
 use handlebars::Handlebars;
 
-#[get("/favicon")]
+#[get("/favicon.ico")]
 async fn favicon() -> Result<NamedFile> {
     Ok(NamedFile::open("static/favicon.ico")?)
 }
