@@ -1,10 +1,10 @@
+use actix_files::NamedFile;
 use actix_http::{body::Body, Response};
+use actix_session::Session;
 use actix_web::dev::ServiceResponse;
 use actix_web::http::StatusCode;
 use actix_web::middleware::errhandlers::{ErrorHandlerResponse, ErrorHandlers};
 use actix_web::{web, HttpResponse, Result};
-use actix_files::NamedFile;
-use actix_session::Session;
 
 use handlebars::Handlebars;
 
@@ -31,13 +31,12 @@ pub async fn index(session: Session, hb: web::Data<Handlebars<'_>>) -> Result<Ht
     let body = hb.render("index", &data).unwrap();
 
     Ok(HttpResponse::build(StatusCode::OK)
-        .content_type("text/html; charset=utf-8").body(body))
+        .content_type("text/html; charset=utf-8")
+        .body(body))
 }
 
 #[get("/about")]
-pub async fn about(
-    hb: web::Data<Handlebars<'_>>,
-) -> HttpResponse {
+pub async fn about(hb: web::Data<Handlebars<'_>>) -> HttpResponse {
     let data = json!({
         "location": "brooklyn, ny"
     });
