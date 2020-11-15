@@ -13,7 +13,7 @@ build: ## compile the rust binary
 
 .PHONY: run
 run: ## run the rust app server locally
-	@RUST_BACKTRACE=1 cargo run
+	@cargo run
 
 .PHONY: test
 test: ## run rust tests
