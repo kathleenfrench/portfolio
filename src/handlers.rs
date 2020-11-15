@@ -8,7 +8,7 @@ use actix_session::Session;
 
 use handlebars::Handlebars;
 
-#[get("/favicon")]
+#[get("/favicon.ico")]
 async fn favicon() -> Result<NamedFile> {
     Ok(NamedFile::open("static/favicon.ico")?)
 }
@@ -32,6 +32,18 @@ pub async fn index(session: Session, hb: web::Data<Handlebars<'_>>) -> Result<Ht
 
     Ok(HttpResponse::build(StatusCode::OK)
         .content_type("text/html; charset=utf-8").body(body))
+}
+
+#[get("/about")]
+pub async fn about(
+    hb: web::Data<Handlebars<'_>>,
+) -> HttpResponse {
+    let data = json!({
+        "location": "brooklyn, ny"
+    });
+
+    let body = hb.render("about", &data).unwrap();
+    HttpResponse::Ok().body(body)
 }
 
 #[get("/{user}/{data}")]
