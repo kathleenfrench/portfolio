@@ -1,7 +1,7 @@
 use std::time::{Duration, Instant};
 
 use actix::prelude::*;
-use actix_web::{web, HttpRequest, HttpResponse, Error};
+use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
 
 /// how often heartbeat pings are sent
@@ -32,11 +32,7 @@ impl Actor for TermWebSocket {
 }
 
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for TermWebSocket {
-    fn handle(
-        &mut self,
-        msg: Result<ws::Message, ws::ProtocolError>,
-        ctx: &mut Self::Context,
-    ) {
+    fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
         // process ws messages
         println!("WS: {:?}", msg);
         match msg {

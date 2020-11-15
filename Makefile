@@ -15,8 +15,12 @@ build: ## compile the rust binary
 run: ## run the rust app server locally
 	@cargo run
 
+.PHONY: lint
+lint: ## lint the rust code
+	@cargo fmt
+
 .PHONY: test
-test: ## run rust tests
+test: lint ## run rust tests
 	@cargo test
 
 .PHONY: release
