@@ -6,7 +6,6 @@ use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
 
 use serde_json::json;
-use std::sync::RwLock;
 
 /// how often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
@@ -39,10 +38,6 @@ impl Actor for TermWebSocket {
 pub fn read_faux_logs(p: String) -> String {
     let res = fs::read_to_string(p).unwrap();
     res
-}
-
-lazy_static! {
-    static ref WS_COMMAND: RwLock<String> = RwLock::new("".to_string());
 }
 
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for TermWebSocket {

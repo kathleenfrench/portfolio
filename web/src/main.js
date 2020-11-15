@@ -1,9 +1,6 @@
 import { A } from './common';
 import { xtermOptions, generatePrompt } from './terminal';
-import { colorize } from './colors';
 import { fauxLogTimeMessageMap } from './faux_logs';
-
-console.log("a: ", A);
 
 const opener = [
   "hey, i'm kathleen - it looks like you found my website!",
