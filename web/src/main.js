@@ -1,27 +1,21 @@
 import { A } from './common';
+import { xtermOptions, generatePrompt } from './terminal';
+import { colorize } from './colors';
 
 console.log("a: ", A);
 
 const opener = [
   "hey, it looks like you found my website!",
   "one sec, let me prepare a few things...",
-  "won't be much longer",
-  "...didn't know you were coming haha",
-]
-
-const closer = [
-  "ehh..this is taking longer than i thought -",
-  "you know what, why don't you just take a look around?",
+  "won't take too long",
+  "just have a couple loose ends to tie up first...",
 ]
 
 Terminal.applyAddon(terminado);
 Terminal.applyAddon(fit);
 Terminal.applyAddon(search);
 
-var term = new Terminal({
-  fontSize: 10,
-  cursorBlink: true,
-});
+var term = new Terminal(xtermOptions);
 var protocol = (location.protocol === 'https:') ? 'wss://' : 'ws://';
 var socketURL = protocol + location.hostname + ((location.port) ? (':' + location.port) : '') + "/ws/";
 var sock = new WebSocket(socketURL);
@@ -81,32 +75,32 @@ sock.addEventListener('message', function(event) {
         
             if (i == 70) {
               term.clear();
-              term.writeln("rebooting....")
+              term.writeln(colorize("bold_yellow", "rebooting...."))
             }
 
             if (i == 150) {
               term.clear();
-              term.writeln("makin' it pretty");
-              term.writeln("promise we're almost there...");
+              term.writeln(colorize("bold_yellow", "makin' it pretty"));
+              term.writeln(colorize("bold_yellow", "promise we're almost there..."));
             }
 
             if (i == 200) {
               term.clear();
-              term.writeln("powering up the server farm (jk)")
+              term.writeln(colorize("bold_yellow", "powering up the server farm (jk)"));
             }
 
             if (i == 250) {
               term.clear();
-              term.writeln("juuuuuust one more second....");
+              term.writeln(colorize("bold_yellow", "juuuuuust one more second...."));
             }
 
             loopFauxLogs()
           } else {
             clearTimeout(loopLogs);
             term.clear();
-            term.write("kathleenfrench@portfolio $ ");
+            term.write(generatePrompt());
           }
-        }, 20);
+        }, 30);
       }
 
       loopFauxLogs();
