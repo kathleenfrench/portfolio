@@ -19,6 +19,7 @@ use std::io;
 
 mod handlers;
 mod settings;
+mod ws;
 
 lazy_static! {
     static ref CONFIG: settings::Settings = settings::Settings::new().expect("config can be loaded");
@@ -76,8 +77,12 @@ async fn main() -> io::Result<()> {
             .service(
                 web::resource("/health").route(web::get().to(handlers::health_check))
             )
+            .service(
+                web::resource("/ws/").route(web::get().to(ws::ws_index))
+            )
             .service(handlers::index)
             .service(handlers::user)
+            .service(handlers::about)
     });
 
     server = if let Some(l) = listenfd.take_tcp_listener(0).unwrap() {

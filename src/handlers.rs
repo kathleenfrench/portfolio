@@ -34,6 +34,18 @@ pub async fn index(session: Session, hb: web::Data<Handlebars<'_>>) -> Result<Ht
         .content_type("text/html; charset=utf-8").body(body))
 }
 
+#[get("/about")]
+pub async fn about(
+    hb: web::Data<Handlebars<'_>>,
+) -> HttpResponse {
+    let data = json!({
+        "location": "brooklyn, ny"
+    });
+
+    let body = hb.render("about", &data).unwrap();
+    HttpResponse::Ok().body(body)
+}
+
 #[get("/{user}/{data}")]
 pub async fn user(
     hb: web::Data<Handlebars<'_>>,

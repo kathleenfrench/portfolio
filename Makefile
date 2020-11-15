@@ -12,8 +12,8 @@ build: ## compile the rust binary
 	@cargo build
 
 .PHONY: run
-run: ## run the rust app locally
-	@cargo run
+run: ## run the rust app server locally
+	@cargo run --bin portfolio-server
 
 .PHONY: test
 test: ## run rust tests
