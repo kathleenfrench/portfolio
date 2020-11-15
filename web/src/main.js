@@ -62,6 +62,8 @@ sock.addEventListener('message', function(event) {
   var responseMessage = parsed.message;
 
   switch(responseKey) {
+    // TODO: add a 'you've been here before' based on the cookie, so you know the drill etc
+    // but if you wanna see me start things up again, do 'replay'
     case "print_faux_logs":
       var i = 0;
       var loopLogs;
@@ -72,24 +74,32 @@ sock.addEventListener('message', function(event) {
           if (i < fakeLogs.length) {
             term.writeln(fakeLogs[i]);
             i++;
+
+            if (i == 1) {
+              term.writeln(colorize("bold_yellow", "initializing...."))
+            }
         
+            if (i == 20) {
+              term.clear();
+              term.writeln(colorize("bold_yellow", "powering up the server farm...."))
+            }
+
+            if (i == 50) {
+              term.clear();
+              term.writeln(colorize("bold_yellow", "provisioning v necessary 32 core instance..."));
+            }
+
             if (i == 70) {
               term.clear();
-              term.writeln(colorize("bold_yellow", "rebooting...."))
+              term.writeln(colorize("bold_yellow", "...btw pls sponsor my 32 core instance"));
             }
 
-            if (i == 150) {
+            if (i == 95) {
               term.clear();
-              term.writeln(colorize("bold_yellow", "makin' it pretty"));
-              term.writeln(colorize("bold_yellow", "promise we're almost there..."));
+              term.writeln(colorize("bold_yellow", "making things look pretty for the aesthetically inclined..."));
             }
 
-            if (i == 200) {
-              term.clear();
-              term.writeln(colorize("bold_yellow", "powering up the server farm (jk)"));
-            }
-
-            if (i == 250) {
+            if (i == 120) {
               term.clear();
               term.writeln(colorize("bold_yellow", "juuuuuust one more second...."));
             }
@@ -100,7 +110,7 @@ sock.addEventListener('message', function(event) {
             term.clear();
             term.write(generatePrompt());
           }
-        }, 30);
+        }, 90);
       }
 
       loopFauxLogs();
