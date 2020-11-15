@@ -8,7 +8,7 @@ extern crate actix_web;
 extern crate lazy_static;
 
 use actix_files::Files;
-use actix_web::{middleware, web, App, HttpServer, http::header};
+use actix_web::{guard, middleware, web, App, HttpServer, http::header};
 use actix_cors::Cors;
 use listenfd::ListenFd;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
@@ -62,11 +62,14 @@ async fn main() -> io::Result<()> {
             )
             .wrap(
                 Cors::default()
-                    .allowed_origin(&cfg.server.full_url)
+                    .allow_any_origin()
                     .allowed_methods(vec!["GET", "POST"])
-                    .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT])
-                    .allowed_header(header::CONTENT_TYPE)
-                    .supports_credentials()
+                    .allowed_headers(vec![
+                        header::ORIGIN, 
+                        header::AUTHORIZATION, 
+                        header::ACCEPT,
+                        header::CONTENT_TYPE,
+                    ])
                     .max_age(3600)
             )
             .wrap(handlers::error_handlers())
@@ -78,7 +81,7 @@ async fn main() -> io::Result<()> {
                 web::resource("/health").route(web::get().to(handlers::health_check))
             )
             .service(
-                web::resource("/ws/").route(web::get().to(ws::ws_index))
+                web::resource("/ws/").route(web::get().guard(guard::Header("upgrade", "websocket")).to(ws::ws_index))
             )
             .service(handlers::index)
             .service(handlers::user)

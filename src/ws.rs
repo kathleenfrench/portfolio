@@ -50,9 +50,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for TermWebSocket {
             }
 
             Ok(ws::Message::Text(text)) => ctx.text(text),
-
             Ok(ws::Message::Binary(bin)) => ctx.binary(bin),
-
             Ok(ws::Message::Close(reason)) => {
                 ctx.close(reason);
                 ctx.stop();
@@ -75,9 +73,7 @@ impl TermWebSocket {
             // check client heartbeats
             if Instant::now().duration_since(act.hb) > CLIENT_TIMEOUT {
                 println!("websocket client heartbeat failed, disconnecting");
-
                 ctx.stop();
-
                 return;
             }
 
