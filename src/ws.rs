@@ -6,6 +6,7 @@ use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
 
 use serde_json::json;
+use std::sync::RwLock;
 
 /// how often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
@@ -40,10 +41,15 @@ pub fn read_faux_logs(p: String) -> String {
     res
 }
 
+lazy_static! {
+    static ref WS_COMMAND: RwLock<String> = RwLock::new("".to_string());
+}
+
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for TermWebSocket {
     fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
         // process ws messages
         println!("WS: {:?}", msg);
+
         match msg {
             Ok(ws::Message::Ping(msg)) => {
                 self.hb = Instant::now();
@@ -58,13 +64,17 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for TermWebSocket {
                 let m = String::from_utf8(Vec::from(&text[..])).unwrap();
                 println!("M: {:?}", m);
                 if m == "print_faux_logs" {
-                    let faux_logs = read_faux_logs(String::from("logs.txt"));
+                    let faux_logs = read_faux_logs(String::from("static/assets/files/logs.txt"));
                     let data = json!({
                         "key": m,
                         "message": faux_logs,
                     });
                     ctx.text(data.to_string())
                 } else {
+                    if text.contains("stdin") {
+                        println!("stdin input: {}", text);
+                    }
+
                     ctx.text(text)
                 }
             },

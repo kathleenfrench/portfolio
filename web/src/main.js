@@ -1,14 +1,14 @@
 import { A } from './common';
 import { xtermOptions, generatePrompt } from './terminal';
 import { colorize } from './colors';
+import { fauxLogTimeMessageMap } from './faux_logs';
 
 console.log("a: ", A);
 
 const opener = [
-  "hey, it looks like you found my website!",
-  "one sec, let me prepare a few things...",
-  "won't take too long",
-  "just have a couple loose ends to tie up first...",
+  "hey, i'm kathleen - it looks like you found my website!",
+  "give me a sec to get organized...",
+  "i won't take too long, just a few loose ends to tie up...",
 ]
 
 Terminal.applyAddon(terminado);
@@ -35,8 +35,10 @@ sock.addEventListener('open', function(){
         loopIntro();
       } else {
         killIntroLoop();
-        term.clear();
-        sock.send('print_faux_logs');
+        setTimeout(function(){
+          term.clear();
+          sock.send('print_faux_logs');
+        }, 3000);
       }
     }, 1000);
   }
@@ -48,8 +50,8 @@ sock.addEventListener('open', function(){
   loopIntro();
 })
 
-sock.addEventListener('close', function(){
-  console.log('[ws]: connection closed');
+sock.addEventListener('close', function(event){
+  console.log('[ws]: connection closed: ', event);
   term.writeln("");
   term.writeln("connection closed");
   term.terminadoDetach(sock);
@@ -75,33 +77,12 @@ sock.addEventListener('message', function(event) {
             term.writeln(fakeLogs[i]);
             i++;
 
-            if (i == 1) {
-              term.writeln(colorize("bold_yellow", "initializing...."))
-            }
-        
-            if (i == 20) {
-              term.clear();
-              term.writeln(colorize("bold_yellow", "powering up the server farm...."))
-            }
-
-            if (i == 50) {
-              term.clear();
-              term.writeln(colorize("bold_yellow", "provisioning v necessary 32 core instance..."));
-            }
-
-            if (i == 70) {
-              term.clear();
-              term.writeln(colorize("bold_yellow", "...btw pls sponsor my 32 core instance"));
-            }
-
-            if (i == 95) {
-              term.clear();
-              term.writeln(colorize("bold_yellow", "making things look pretty for the aesthetically inclined..."));
-            }
-
-            if (i == 120) {
-              term.clear();
-              term.writeln(colorize("bold_yellow", "juuuuuust one more second...."));
+            switch(fauxLogTimeMessageMap[i.toString()] != undefined) {
+              case true:
+                term.clear();
+                term.writeln(fauxLogTimeMessageMap[i.toString()])
+              default:
+                break
             }
 
             loopFauxLogs()
