@@ -1,4 +1,3 @@
-import { A } from './common';
 import { xtermOptions, generatePrompt } from './terminal';
 import { fauxLogTimeMessageMap } from './faux_logs';
 
