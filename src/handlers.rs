@@ -1,81 +1,10 @@
-use actix_files::NamedFile;
 use actix_http::{body::Body, Response};
-use actix_session::Session;
 use actix_web::dev::ServiceResponse;
 use actix_web::http::StatusCode;
 use actix_web::middleware::errhandlers::{ErrorHandlerResponse, ErrorHandlers};
-use actix_web::{web, HttpResponse, HttpRequest, Error, Result};
-use actix_web_actors::ws;
-
-use crate::ws::TermWebSocket;
+use actix_web::{web, Result};
 
 use handlebars::Handlebars;
-
-
-#[get("/ws/")]
-async fn ws_index(r: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
-    let res = ws::start(TermWebSocket::new(), &r, stream);
-    println!("{:?}", res.as_ref().unwrap());
-    res
-}
-
-#[get("/favicon.ico")]
-async fn favicon() -> Result<NamedFile> {
-    Ok(NamedFile::open("static/favicon.ico")?)
-}
-
-#[get("/")]
-pub async fn index(session: Session, hb: web::Data<Handlebars<'_>>) -> Result<HttpResponse> {
-    let mut visit_count = 1;
-
-    if let Some(count) = session.get::<i32>("visit_count")? {
-        println!("visit_count: {}", count);
-        visit_count = count + 1;
-    }
-
-    session.set("visit_count", visit_count)?;
-
-    let data = json!({
-        "name": "kathleenfrench.co"
-    });
-
-    let body = hb.render("index", &data).unwrap();
-
-    Ok(HttpResponse::build(StatusCode::OK)
-        .content_type("text/html; charset=utf-8")
-        .body(body))
-}
-
-#[get("/about")]
-pub async fn about(hb: web::Data<Handlebars<'_>>) -> HttpResponse {
-    let data = json!({
-        "location": "brooklyn, ny"
-    });
-
-    let body = hb.render("about", &data).unwrap();
-    HttpResponse::Ok().body(body)
-}
-
-#[get("/{user}/{data}")]
-pub async fn user(
-    hb: web::Data<Handlebars<'_>>,
-    web::Path(info): web::Path<(String, String)>,
-) -> HttpResponse {
-    let data = json!({
-        "user": info.0,
-        "data": info.1,
-    });
-
-    let body = hb.render("user", &data).unwrap();
-
-    HttpResponse::Ok().body(body)
-}
-
-/// a health check endpoint
-#[get("/health")]
-pub async fn health_check() -> HttpResponse {
-    HttpResponse::Ok().finish()
-}
 
 // custom error handler for returning html error pages
 pub fn error_handlers() -> ErrorHandlers<Body> {

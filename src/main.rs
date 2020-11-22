@@ -2,9 +2,6 @@
 extern crate serde_json;
 
 #[macro_use]
-extern crate actix_web;
-
-#[macro_use]
 extern crate lazy_static;
 
 use actix_cors::Cors;
@@ -20,10 +17,15 @@ use std::io;
 mod handlers;
 mod settings;
 mod ws;
+mod ctx;
+mod conn;
+mod messages;
+mod websocket;
+mod routes;
 
 lazy_static! {
     static ref CONFIG: settings::Settings =
-        settings::Settings::new().expect("config can be loaded");
+        settings::Settings::new().expect("config can't be loaded");
 }
 
 #[actix_web::main]
@@ -61,6 +63,7 @@ async fn main() -> io::Result<()> {
                     .name(&CONFIG.server.session_key)
                     .secure(false),
             )
+            // .wrap(actix_web::middleware::Compress::default())
             .wrap(
                 Cors::default()
                     .allow_any_origin()
@@ -76,16 +79,11 @@ async fn main() -> io::Result<()> {
             .wrap(handlers::error_handlers())
             .wrap(middleware::Logger::default())
             .app_data(handlerbars_ref.clone())
-            .service(handlers::favicon)
             .service(
                 Files::new("/assets", format!("{}/", &CONFIG.static_paths.assets))
                     .show_files_listing(),
             )
-            .service(handlers::health_check)
-            .service(handlers::ws_index)
-            .service(handlers::index)
-            .service(handlers::user)
-            .service(handlers::about)
+            .configure(|s| routes::add_routes(s))
     });
 
     server = if let Some(l) = listenfd.take_tcp_listener(0).unwrap() {
