@@ -2,7 +2,6 @@ use std::time::{Duration, Instant};
 use std::fs;
 
 use actix::prelude::*;
-use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
 
 use serde_json::json;
@@ -12,15 +11,8 @@ const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
 /// how long before lack of client response causes a timeout
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 
-// perform ws handshake and start the TermWebSocket actor
-pub async fn ws_index(r: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
-    let res = ws::start(TermWebSocket::new(), &r, stream);
-    println!("{:?}", res.as_ref().unwrap());
-    res
-}
-
 // ws connection
-struct TermWebSocket {
+pub struct TermWebSocket {
     /// client must send ping at least once per 10 seconds (CLIENT_TIMEOUT),
     /// otherwise we drop connection.
     hb: Instant,
@@ -85,7 +77,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for TermWebSocket {
 }
 
 impl TermWebSocket {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self { hb: Instant::now() }
     }
 

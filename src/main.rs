@@ -10,7 +10,7 @@ extern crate lazy_static;
 use actix_cors::Cors;
 use actix_files::Files;
 use actix_session::CookieSession;
-use actix_web::{guard, http::header, middleware, web, App, HttpServer};
+use actix_web::{http::header, middleware, web, App, HttpServer};
 use listenfd::ListenFd;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
@@ -28,9 +28,7 @@ lazy_static! {
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
-    let cfg = CONFIG.clone();
-
-    std::env::set_var("RUST_LOG", format!("actix_web={}", cfg.log.level));
+    std::env::set_var("RUST_LOG", format!("actix_web={}", &CONFIG.log.level));
     env_logger::init();
 
     let mut listenfd = ListenFd::from_env();
@@ -38,10 +36,10 @@ async fn main() -> io::Result<()> {
     // load ssl keys
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
     builder
-        .set_private_key_file(&cfg.ssl.key_file, SslFiletype::PEM)
+        .set_private_key_file(&CONFIG.ssl.key_file, SslFiletype::PEM)
         .unwrap();
     builder
-        .set_certificate_chain_file(&cfg.ssl.cert_file)
+        .set_certificate_chain_file(&CONFIG.ssl.cert_file)
         .unwrap();
 
     // handlebars uses a repository for the compiled templates
@@ -50,7 +48,7 @@ async fn main() -> io::Result<()> {
     // atomic reference-counted pointer
     let mut handlebars = Handlebars::new();
     handlebars
-        .register_templates_directory(".html", format!("./{}", &cfg.static_paths.templates))
+        .register_templates_directory(".html", format!("./{}", &CONFIG.static_paths.templates))
         .unwrap();
 
     let handlerbars_ref = web::Data::new(handlebars);
@@ -59,8 +57,8 @@ async fn main() -> io::Result<()> {
         App::new()
             .wrap(
                 CookieSession::signed(&[0; 32])
-                    .domain(&cfg.server.hostname)
-                    .name(&cfg.server.session_key)
+                    .domain(&CONFIG.server.hostname)
+                    .name(&CONFIG.server.session_key)
                     .secure(false),
             )
             .wrap(
@@ -80,17 +78,11 @@ async fn main() -> io::Result<()> {
             .app_data(handlerbars_ref.clone())
             .service(handlers::favicon)
             .service(
-                Files::new("/assets", format!("{}/", &cfg.static_paths.assets))
+                Files::new("/assets", format!("{}/", &CONFIG.static_paths.assets))
                     .show_files_listing(),
             )
-            .service(web::resource("/health").route(web::get().to(handlers::health_check)))
-            .service(
-                web::resource("/ws/").route(
-                    web::get()
-                        .guard(guard::Header("upgrade", "websocket"))
-                        .to(ws::ws_index),
-                ),
-            )
+            .service(handlers::health_check)
+            .service(handlers::ws_index)
             .service(handlers::index)
             .service(handlers::user)
             .service(handlers::about)
@@ -99,10 +91,8 @@ async fn main() -> io::Result<()> {
     server = if let Some(l) = listenfd.take_tcp_listener(0).unwrap() {
         server.listen_openssl(l, builder)?
     } else {
-        // TODO: fix this to use a closure and avoid redundancy of re-cloning
-        let cfg = CONFIG.clone();
         server.bind_openssl(
-            format!("{}:{}", &cfg.server.hostname, &cfg.server.port),
+            format!("{}:{}", &CONFIG.server.hostname, &CONFIG.server.port),
             builder,
         )?
     };
