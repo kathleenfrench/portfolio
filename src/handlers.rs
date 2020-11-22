@@ -4,9 +4,20 @@ use actix_session::Session;
 use actix_web::dev::ServiceResponse;
 use actix_web::http::StatusCode;
 use actix_web::middleware::errhandlers::{ErrorHandlerResponse, ErrorHandlers};
-use actix_web::{web, HttpResponse, Result};
+use actix_web::{web, HttpResponse, HttpRequest, Error, Result};
+use actix_web_actors::ws;
+
+use crate::ws::TermWebSocket;
 
 use handlebars::Handlebars;
+
+
+#[get("/ws/")]
+async fn ws_index(r: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
+    let res = ws::start(TermWebSocket::new(), &r, stream);
+    println!("{:?}", res.as_ref().unwrap());
+    res
+}
 
 #[get("/favicon.ico")]
 async fn favicon() -> Result<NamedFile> {
@@ -60,7 +71,8 @@ pub async fn user(
     HttpResponse::Ok().body(body)
 }
 
-// a health check endpoint
+/// a health check endpoint
+#[get("/health")]
 pub async fn health_check() -> HttpResponse {
     HttpResponse::Ok().finish()
 }
@@ -111,16 +123,5 @@ fn get_error_response<B>(res: &ServiceResponse<B>, error: &str) -> Response<Body
             }
         }
         None => fallback(error),
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[actix_rt::test]
-    async fn health_check_succss() {
-        let response = health_check().await;
-        assert!(response.status().is_success())
     }
 }
