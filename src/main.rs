@@ -16,12 +16,11 @@ use std::io;
 
 mod handlers;
 mod settings;
-mod ws;
 mod ctx;
 mod conn;
 mod messages;
-mod websocket;
 mod routes;
+mod socket;
 
 lazy_static! {
     static ref CONFIG: settings::Settings =

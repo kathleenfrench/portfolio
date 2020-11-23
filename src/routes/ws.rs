@@ -13,19 +13,25 @@ use uuid::Uuid;
 use crate::messages::handlers::MessageHandler;
 use crate::ctx::request_context;
 
-use crate::websocket::socket::WebSocket;
+use crate::socket::ws::TermWebSocket;
 use handlebars::Handlebars;
 
-#[get("/ws/")]
-async fn ws_index(r: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
-    let bin = match r.query_string() {
-        x if x.contains("t=b") => true,
-        _ => false
-    };
+// #[get("/ws/")]
+// async fn ws_index(r: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
+//     let bin = match r.query_string() {
+//         x if x.contains("t=b") => true,
+//         _ => false
+//     };
 
-    let id = Uuid::new_v4();
-    let handler = MessageHandler::new(id, r.path().to_string(), );
-    let res = ws::start(WebSocket::new(binary, handler), &r, stream);
+//     let id = Uuid::new_v4();
+//     let handler = MessageHandler::new(id, r.path().to_string(), );
+//     let res = ws::start(WebSocket::new(bin, handler), &r, stream);
+//     println!("{:?}", res.as_ref().unwrap());
+//     res
+// }
+
+pub async fn ws_index(r: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
+    let res = ws::start(TermWebSocket::new(), &r, stream);
     println!("{:?}", res.as_ref().unwrap());
     res
 }

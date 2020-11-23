@@ -5,6 +5,7 @@ mod user;
 mod about;
 mod home;
 mod static_files;
+mod ws;
 
 pub fn add_routes(s: &mut ServiceConfig) {
   let _ = s
@@ -12,5 +13,6 @@ pub fn add_routes(s: &mut ServiceConfig) {
     .service(resource("/{user}/{data}").name("user").route(get().to(user::get_user)))
     .service(resource("/about").name("about").route(get().to(about::about)))
     .service(resource("/").name("home").route(get().to(home::index)))
-    .service(resource("/favicon.ico").name("favicon").route(get().to(static_files::favicon)));
+    .service(resource("/favicon.ico").name("favicon").route(get().to(static_files::favicon)))
+    .service(resource("/ws/").name("websocket").route(get().to(ws::ws_index)));
 }
