@@ -22,6 +22,9 @@ sock.addEventListener('open', function(){
   term.terminadoAttach(sock);
   term.writeln("");
 
+  // remove
+  term.clear();
+
   var i = 0, loopTimeout;
   function loopIntro() {
     loopTimeout = setTimeout(function(){
@@ -46,18 +49,37 @@ sock.addEventListener('open', function(){
   loopIntro();
 })
 
+term.on('key', (key, ev) => {
+  if (key.charCodeAt(0) == 13) {
+    term.write("\n");
+    term.write(key);
+  }
+})
+
 sock.addEventListener('close', function(event){
   console.log('[ws]: connection closed: ', event);
   term.writeln("");
-  term.writeln("connection closed");
+  term.writeln("connection closed :(");
   term.terminadoDetach(sock);
 })
 
+function canParse(c) {
+  try {
+    return JSON.parse(c) && true;
+  } catch(err) {
+    return false
+  }
+}
+
 sock.addEventListener('message', function(event) {
   console.log("[ws]: message from server: ", event);
-  var parsed = JSON.parse(event.data);
-  var responseKey = parsed.key;
-  var responseMessage = parsed.message;
+  var parsed, responseKey, responseMessage;
+
+  if (canParse(event.data)) {
+    parsed = JSON.parse(event.data);
+    responseKey = parsed.key;
+    responseMessage = parsed.message;
+  }
 
   switch(responseKey) {
     // TODO: add a 'you've been here before' based on the cookie, so you know the drill etc
