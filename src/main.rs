@@ -62,7 +62,6 @@ async fn main() -> io::Result<()> {
                     .name(&CONFIG.server.session_key)
                     .secure(false),
             )
-            // .wrap(actix_web::middleware::Compress::default())
             .wrap(
                 Cors::default()
                     .allow_any_origin()
