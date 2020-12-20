@@ -10,9 +10,11 @@ use actix_session::CookieSession;
 use actix_web::{http::header, middleware, web, App, HttpServer};
 use listenfd::ListenFd;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+use structopt::StructOpt;
 
 use handlebars::Handlebars;
 use std::io;
+use std::process::Command;
 
 mod handlers;
 mod settings;
@@ -25,6 +27,19 @@ mod socket;
 lazy_static! {
     static ref CONFIG: settings::Settings =
         settings::Settings::new().expect("config can't be loaded");
+}
+
+#[derive(StructOpt, Debug)]
+#[structopt(name = "pterm-server")]
+struct Opt {
+    #[structopt(short, long, default_value = "8080")]
+    port: u16,
+
+    #[structopt(short, long, default_value = "localhost")]
+    host: String,
+
+    #[structopt(short, long, default_value = "/bin/sh")]
+    command: String,
 }
 
 #[actix_web::main]
@@ -76,6 +91,7 @@ async fn main() -> io::Result<()> {
             )
             .wrap(handlers::error_handlers())
             .wrap(middleware::Logger::default())
+            .wrap(middleware::Compress::default())
             .app_data(handlerbars_ref.clone())
             .service(
                 Files::new("/assets", format!("{}/", &CONFIG.static_paths.assets))

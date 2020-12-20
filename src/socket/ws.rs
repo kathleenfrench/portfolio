@@ -94,8 +94,6 @@ pub fn from_json(json: &str) -> Result<String, ()> {
     eprintln!("type field is not a string");
   })? {
     "stdin" => {
-      println!("STDIN VALUE -> {}", list.last().unwrap().to_string());
-
       match list.last() {
         Some(x) => {
           let s: String = x.to_string().replace('"', "");
@@ -105,8 +103,6 @@ pub fn from_json(json: &str) -> Result<String, ()> {
       }
     }
     "stdout" => {
-      println!("STDOUT VALUE -> {}", list.last().unwrap().to_string());
-
       match list.last() {
         Some(x) => {
           let s: String = x.to_string().replace('"', "");
@@ -116,7 +112,7 @@ pub fn from_json(json: &str) -> Result<String, ()> {
       }
     }
     v => {
-      eprintln!("error ocurred: {}", v);
+      eprintln!("an error ocurred: {}", v);
       Err(())
     }
   }

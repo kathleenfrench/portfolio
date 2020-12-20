@@ -1,11 +1,5 @@
-import { xtermOptions, generatePrompt } from './terminal';
+import { xtermOptions, generatePrompt, opener } from './terminal';
 import { fauxLogTimeMessageMap } from './faux_logs';
-
-const opener = [
-  "hey, i'm kathleen - it looks like you found my website!",
-  "give me a sec to get organized...",
-  "i won't take too long, just a few loose ends to tie up...",
-]
 
 Terminal.applyAddon(terminado);
 Terminal.applyAddon(fit);
@@ -18,12 +12,9 @@ var sock = new WebSocket(socketURL);
 
 sock.addEventListener('open', function(){
   console.log("[ws]: connection opened")
-  term.fit();
   term.terminadoAttach(sock);
+  term.fit();
   term.writeln("");
-
-  // remove
-  term.clear();
 
   var i = 0, loopTimeout;
   function loopIntro() {
@@ -47,6 +38,7 @@ sock.addEventListener('open', function(){
   }
 
   loopIntro();
+  term.write(generatePrompt());
 })
 
 term.on('key', (key, ev) => {
@@ -64,6 +56,10 @@ sock.addEventListener('close', function(event){
 })
 
 function canParse(c) {
+  if (c.length == 1) {
+    return false
+  }
+
   try {
     return JSON.parse(c) && true;
   } catch(err) {
@@ -125,4 +121,7 @@ sock.addEventListener('error', function(event) {
 })
 
 term.open(document.getElementById('terminal'));
-window.onresize = function() {term.fit();};
+
+window.onresize = function() {
+  term.fit();
+};
