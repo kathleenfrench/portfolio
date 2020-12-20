@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["kathleenfrench <kfrench09@gmail.com>"]
 edition = "2018"
 
+[workspace]
+exclude = ["pterm"]
+
 [dependencies]
 actix = "0.10"
 actix-codec = "0.3"

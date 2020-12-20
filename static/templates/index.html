@@ -54,7 +54,15 @@
 
     window.pterm = pterm;
   </script>
-  <!-- <script src="/assets/js/bundle.js"></script> -->
+  <script type="module">
+    import init from "pterm";
+    
+    async function run() {
+      await init();
+    }
+
+    run();
+  </script>
 </body>
 
 </html>
