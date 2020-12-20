@@ -5,6 +5,7 @@ export const xtermOptions = {
   fontSize: 12,
   cursorWidth: 8,
   rightClickSelectsWord: true,
+  scrollback: 0,
 }
 
 export function generatePrompt() {
