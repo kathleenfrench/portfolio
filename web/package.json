@@ -5,7 +5,8 @@
   "main": "src/main.js",
   "scripts": {
     "css": "sass ./scss/style.scss ../static/assets/css/main.css --style compressed --no-source-map",
-    "css-watch": "sass ./scss/style.scss ../static/assets/css/main.css --style compressed --no-source-map --watch"
+    "css-watch": "sass ./scss/style.scss ../static/assets/css/main.css --style compressed --no-source-map --watch",
+    "build": "webpack --config webpack.config.js"
   },
   "author": "",
   "license": "ISC",

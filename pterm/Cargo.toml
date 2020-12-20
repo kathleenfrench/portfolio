@@ -4,6 +4,36 @@ version = "0.1.0"
 authors = ["kathleenfrench <kfrench09@gmail.com>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+anyhow = "1"
+chrono = { version = "0.4", features = ["wasmbind"] }
+colored = "2"
+console_error_panic_hook = "0.1"
+fake = { version = "2.2", features = ["wasm-bindgen", "chrono"] }
+futures = "0.3"
+humansize = "1"
+humantime = "2"
+instant = { version = "0.1", features = ["now", "wasm-bindgen"] }
+js-sys = "0.3"
+lazy_static = "1.4"
+progress_string = "0.1"
+rand = { version = "0.7.0", features = ["wasm-bindgen"] }
+rand_distr = "0.3.0"
+regex = "1.4"
+url = "2.2"
+wasm-bindgen = "0.2.69"
+wasm-bindgen-futures = "0.4"
+yansi = "0.5"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+async-std = { version = "1.8", features = ["attributes"] }
+ctrlc = { version = "3.1", features = ["termination"] }
+structopt = "0.3"
+term_size = "1.0.0-beta1"
+
+[dependencies.web-sys]
+features = ["Window", "Location", "console"]
+version = "0.3.46"

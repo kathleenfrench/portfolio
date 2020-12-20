@@ -35,6 +35,10 @@ check: ## verify the rust bin is able to be compiled
 watch: ## run the hot-reload server for rust
 	@systemfd --no-pid -s http::3000 -- cargo watch -x run
 
+.PHONY: pterm
+pterm:
+	cd pterm && cargo build
+
 .PHONY: term
 term: ## build the wasm rust faux terminal
 	@wasm-pack build pterm --out-dir ../web/pkg && cd pterm && npm install
