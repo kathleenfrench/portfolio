@@ -3,10 +3,11 @@ pub mod app;
 mod io;
 mod content;
 mod sections;
+mod utils;
 
 pub static PORTFOLIO_SECTIONS: &[&str] = &[
     "intro",
-    // "resume",
+    "resume",
     // "about",
 ];
 
@@ -41,7 +42,11 @@ pub async fn run(cfg: AppConfig) {
         let choice: &str = cfg.sections.choose(&mut thread_range).unwrap();
 
         match choice {
-            "intro" => sections::intro::run(&cfg).await,
+            "intro" => {
+                sections::intro::run(&cfg).await;
+                sections::resume::run(&cfg).await;
+                return
+            },
             // "resume",
             // "about",
             _ => panic!("unknown section '{}'!", choice),

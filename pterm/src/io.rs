@@ -66,7 +66,7 @@ pub async fn new_line() {
 
 /// erase the entire line
 pub async fn clear_line() {
-  print("\x1b[2K\x1b[0G").await;
+  print("\x1b[H\x1b[2J").await;
 }
 
 // pub async fn clear_line_with_prompt() {

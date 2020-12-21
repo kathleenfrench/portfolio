@@ -1,31 +1,31 @@
 use crate::app::AppConfig;
-use crate::io::{csleep, delayed_print, new_line, print};
+use crate::io::{csleep, delayed_print, new_line, print, clear_line};
 use yansi::Paint;
 use rand::prelude::*;
-use colored::*;
 
 use crate::content::{INTRO_LOGS_FULL, INTRO_MSG_FULL};
 
 pub async fn run(cfg: &AppConfig) {
-  const SPINNERS: &[&str] = &["/", "-", "\\", "|"];
-  const SPINNER_SLEEP: u64 = 50;
+  const LINE_SLEEP: u64 = 1;
   const TEXT_SLEEP: u64 = 15;
-  const MAX_SPINNER_LOOPS: u64 = 20;
-  const SPINNER_START: u64 = 0;
-  const SPINNER_LIMIT: u64 = 150;
-
+  const FAST_TEXT_SLEEP: u64 = 0.75 as u64;
+  const MAX_SPINNER_LOOPS: u64 = 10;
+  const INTRO_LOG_START: u64 = 0;
+  const INTRO_LOG_LIMIT: u64 = 150;
+  
+  let faux_log_len = INTRO_LOGS_FULL.len() as u64;
 
   for l in INTRO_MSG_FULL.iter() {
-    // let ll = format!("{}\r\n", l.green().bold()).to_string();
-    // delayed_print(ll, TEXT_SLEEP).await;
-    delayed_print(Paint::yellow(format!("{}\r\n", l)).to_string(), TEXT_SLEEP).await;
-    print("").await;
+    delayed_print(Paint::yellow(format!("{}\r\n", l)).bold().to_string(), TEXT_SLEEP).await;
+    new_line().await;
   }
+
+  clear_line().await;
 
   let mut rng = thread_rng();
   let mut log = "";
 
-  for n in SPINNER_START..SPINNER_LIMIT {
+  for n in INTRO_LOG_START..INTRO_LOG_LIMIT {
     let spinner_loops = rng.gen_range(1, MAX_SPINNER_LOOPS);
 
     let last_log = log;
@@ -35,56 +35,49 @@ pub async fn run(cfg: &AppConfig) {
       log = &INTRO_LOGS_FULL.choose(&mut rng).unwrap_or(&"");
     }
 
-    let resolution_id = 1 + rng.gen::<u8>() % 100;
-    let mut resolution = match resolution_id {
-        1..=4 => "FAIL",
-        5..=9 => "YES",
-        10..=14 => "SUCCESS",
-        _ => "OK",
-    };
+    match n {
+      0 => {
+        delayed_print(Paint::green(format!("{}\r\n", "initializing....")).bold().to_string(), TEXT_SLEEP).await;
+      },
+      20 => { 
+        clear_line().await;
+        delayed_print(Paint::green(format!("{}\r\n", "powering up the server farm....")).bold().to_string(), TEXT_SLEEP).await;
+      },
+      45 => {
+        clear_line().await;
+        delayed_print(Paint::green(format!("{}\r\n", "provisioning a fleet of 32 core instances...")).bold().to_string(), TEXT_SLEEP).await;
+      },
+      65 => {
+        clear_line().await;
+        delayed_print(Paint::green(format!("{}\r\n", "...btw pls sponsor my fleet of 32 core instances")).bold().to_string(), TEXT_SLEEP).await;
+      },
+      90 => {
+        clear_line().await;
+        delayed_print(Paint::green(format!("{}\r\n", "burying treasure...maybe you can find it?")).bold().to_string(), TEXT_SLEEP).await
+      },
+      115 => {
+        clear_line().await;
+        delayed_print(Paint::green(format!("{}\r\n", "juuuuuust one more second....")).bold().to_string(), TEXT_SLEEP).await;
+      },
+      _ => println!("n: {}", n),
+    }
 
-    let mut first = true;
+    'outer: for _ in INTRO_LOG_START..spinner_loops {
+      let msg = format!("{}", log);
 
-    'outer: for _ in SPINNER_START..spinner_loops {
-      for spinner in SPINNERS {
-        let msg = format!("{}... {}", log, spinner);
+      print(msg).await;
+      csleep(LINE_SLEEP).await;
+      print("\r").await;
 
-        if first {
-          delayed_print(msg, TEXT_SLEEP).await;
-          first = false;
-        } else {
-          print(msg).await;
-        }
-
-        csleep(SPINNER_SLEEP).await;
-        print("\r").await;
-
-        if cfg.should_quit() {
-          resolution = "ABORTED";
-          break 'outer;
-        }
+      if n >= faux_log_len {
+        break 'outer;
       }
     }
 
-    let color_func = if resolution == "FAIL" || resolution == "ABORTED" {
-        Paint::red
-    } else if resolution_id > 50 {
-        Paint::white
-    } else {
-        let color_id = 1 + rng.gen::<u8>() % 20;
-        match color_id {
-            1..=2 => Paint::red,
-            3..=4 => Paint::green,
-            5..=6 => Paint::cyan,
-            7..=10 => Paint::blue,
-            _ => Paint::white,
-        }
-    };
+    delayed_print(Paint::white(format!("{}", log)).to_string(), FAST_TEXT_SLEEP).await;
 
-    print(color_func(format!("{}... {}", log, resolution)).to_string()).await;
-
-    if cfg.should_quit() {
-      print("\nALL DONE\n").await;
+    if n >= faux_log_len {
+      print(Paint::green(format!("\r\n{}\r\n", "DONE")).bold().to_string()).await;
       return;
     }
 
