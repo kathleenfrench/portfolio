@@ -4,4 +4,5 @@ use yansi::Paint;
 
 pub async fn run(cfg: &AppConfig) {
   print(Paint::white(format!("{}", "RESUME")).to_string()).await;
+  clear_line().await;
 }

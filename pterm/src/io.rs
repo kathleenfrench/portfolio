@@ -60,18 +60,9 @@ pub async fn new_line() {
   print("\r\n").await;
 }
 
-// pub async fn new_line_with_prompt() {
-//   print(format!("{}{}", "\r\n", "kathleenfrench@portfolio $ ".green().bold())).await;
-// }
-
-/// erase the entire line
 pub async fn clear_line() {
   print("\x1b[H\x1b[2J").await;
 }
-
-// pub async fn clear_line_with_prompt() {
-//   print(format!("{}{}", "\x1b[2K\x1b[0G", "kathleenfrench@portfolio $ ".green().bold())).await;
-// }
 
 pub async fn arrow_up(v: u64) {
   print(format!("\x1b[{}A", v)).await;

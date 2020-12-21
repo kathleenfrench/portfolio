@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "pterm": "file:pkg",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "xterm": "^4.5.0"
   }
 }

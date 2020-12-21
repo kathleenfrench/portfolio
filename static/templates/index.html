@@ -23,6 +23,7 @@
 </head>
 
 <body>
+  <div id="intro-terminal"></div>
   <div id="terminal"></div>
   <!-- scripts -->
   <script>
@@ -36,36 +37,22 @@
 
     const pterm = new Terminal(xtermOptions);
 
-    // addons
     const fitAddon = new FitAddon.FitAddon();
     const webLinksAddon = new WebLinksAddon.WebLinksAddon();
     const searchAddon = new SearchAddon.SearchAddon();
     const serializeAddon = new SerializeAddon.SerializeAddon();
-    // const attachAddon = new AttachAddon.AttachAddon();
 
     pterm.loadAddon(fitAddon);
     pterm.loadAddon(webLinksAddon);
     pterm.loadAddon(searchAddon);
     pterm.loadAddon(serializeAddon);
 
-    pterm.open(document.getElementById("terminal"));
-
+    pterm.open(document.getElementById("intro-terminal"));
     fitAddon.fit();
 
     window.pterm = pterm;
   </script>
   <script src="/assets/js/bundle.js"></script>
-  <!-- <script type="module">
-    import init from "./pkg/pterm";
-
-    console.log("init: ", init);
-    
-    async function run() {
-      await init();
-    }
-
-    run();
-  </script> -->
+  <!-- /scripts -->
 </body>
-
 </html>
