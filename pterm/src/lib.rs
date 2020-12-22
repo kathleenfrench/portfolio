@@ -17,17 +17,38 @@ use rand::prelude::*;
 use std::sync::atomic::{AtomicBool, AtomicU32};
 use xterm_js_rs::{OnKeyEvent, Terminal, TerminalOptions, Theme};
 use wasm_bindgen::JsCast;
+use web_sys::{Document, Element, HtmlElement, Window};
+use colored::*;
 
 use app::AppConfig;
 use rand::thread_rng;
 
+use ansi_term::{Colour, Style};
+
 use crate::io::{csleep, delayed_print, new_line, print, clear_line};
 
-const PROMPT: &str = "$ ";
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(a: &str);
+}
+
+macro_rules! console_log {
+    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
+}
+
+lazy_static::lazy_static! {
+    pub static ref PROMPT: String = Colour::Yellow.bold().paint("kathleenfrench@portfolio $ ").to_string();
+}
 
 fn prompt(term: &Terminal) {
     term.writeln("");
-    term.write(PROMPT);
+    term.write(&PROMPT);
+}
+
+fn testing(term: &Terminal) {
+    term.write("\x1b[H\x1b[2J");
+    term.writeln("HELLO THIS IS A TEST");
 }
 
 lazy_static::lazy_static! {
@@ -93,11 +114,26 @@ pub fn quit() {
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
+// fn setup_intro_term(window: &Window, document: &Document) -> Result<(), JsValue> {
+//     let intro_term = document.get_element_by_id("intro-term").expect("should have #intro-term on the page");
+
+//     let a = Closure::wrap(Box::new(move || ))
+
+//     fn update_term(current_term: &Element) {
+//         current_term.set_inner_html(&String::from(
+
+//         ));
+//     }
+// }
+
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(start)]
 pub async fn main() -> Result<(), JsValue> {
     use std::panic;
     panic::set_hook(Box::new(console_error_panic_hook::hook));
+
+    // let window = web_sys::window().expect("should have a window in this context");
+    // let document = window.document().expect("window should have a document");
 
     let cfg = app::parse_inputs();
     *SPEED_FACTOR.lock().await = cfg.speed_factor;
@@ -107,15 +143,12 @@ pub async fn main() -> Result<(), JsValue> {
     let terminal: Terminal = Terminal::new(
         TerminalOptions::new()
         .with_rows(50)
+        .with_cols(100)
         .with_cursor_blink(true)
         .with_cursor_width(10)
         .with_font_size(12)
         .with_draw_bold_text_in_bright_colors(true)
-        .with_right_click_selects_word(true)
-        .with_theme(
-            Theme::new()
-                .with_foreground("#29FF00"),
-        ),
+        .with_right_click_selects_word(true),
     );
 
     let elem = web_sys::window()
@@ -124,6 +157,8 @@ pub async fn main() -> Result<(), JsValue> {
         .unwrap()
         .get_element_by_id("terminal")
         .unwrap();
+
+    console_log!("terminal element: {:?}", elem);
 
     terminal.writeln("Supported keys in this example: <Printable-Characters> <Enter> <Backspace> <Left-Arrow> <Right-Arrow> <Ctrl-C> <Ctrl-L>");
     terminal.open(elem.dyn_into()?);
