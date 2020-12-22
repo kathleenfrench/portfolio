@@ -6,9 +6,8 @@ mod sections;
 mod utils;
 
 pub static PORTFOLIO_SECTIONS: &[&str] = &[
-    "intro",
     "resume",
-    "botnet",
+    // "botnet",
     // "about",
 ];
 
@@ -47,7 +46,6 @@ lazy_static::lazy_static! {
     pub static ref CTRLC_PRESSED: AtomicBool = AtomicBool::new(false);
 }
 
-// Keyboard keys
 // https://notes.burke.libbey.me/ansi-escape-codes/
 const KEY_ENTER: u32 = 13;
 const KEY_BACKSPACE: u32 = 8;
@@ -66,26 +64,11 @@ pub async fn run_intro(cfg: &AppConfig) {
 pub async fn run(cfg: AppConfig) {
     let mut thread_range = thread_rng();
 
-    // for l in cfg.sections.iter() {
-    //     match l as &str {
-    //         "intro" => sections::intro::run(&cfg).await,
-    //         "resume" => sections::resume::run(&cfg).await,
-    //         "botnet" => print!("hi"),
-    //         _ => panic!("unknown section '{}'!", l),
-    //     }
-    // }
-
     loop {
         let choice: &str = cfg.sections.choose(&mut thread_range).unwrap();
         match choice {
-            // "intro" => {
-            //     sections::intro::run(&cfg).await;
-            //     sections::resume::run(&cfg).await;
-            //     return
-            // },
-            // "resume",
-            // "about",
-            "botnet" => sections::botnet::run(&cfg).await,
+            "resume" => sections::resume::run(&cfg).await,
+            // "botnet" => sections::botnet::run(&cfg).await,
             _ => print!("fix me later"),
             // _ => panic!("unknown section '{}'!", choice),
         }
@@ -132,7 +115,6 @@ pub async fn main() -> Result<(), JsValue> {
         .with_theme(
             Theme::new()
                 .with_foreground("#29FF00"),
-                // .with_background("#000000"),
         ),
     );
 

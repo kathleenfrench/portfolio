@@ -83,4 +83,6 @@ pub async fn run(cfg: &AppConfig) {
 
     new_line().await;
   }
+
+  clear_line().await;
 }
