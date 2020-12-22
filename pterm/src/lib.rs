@@ -46,6 +46,18 @@ fn prompt(term: &Terminal) {
     term.write(&PROMPT);
 }
 
+fn help_text(term: &Terminal) {
+    term.writeln("");
+    term.writeln("[COMMANDS]:");
+    term.writeln("");
+    term.writeln("about:          learn more about me");
+    term.writeln("resume:         view my resume");
+    term.writeln("projects:       see various projects i've worked on");
+    term.writeln("contact:        contact me");
+    term.writeln("");
+    term.writeln("");
+}
+
 fn testing(term: &Terminal) {
     term.write("\x1b[H\x1b[2J");
     term.writeln("HELLO THIS IS A TEST");
@@ -156,23 +168,10 @@ pub async fn main() -> Result<(), JsValue> {
         .with_right_click_selects_word(true),
     );
 
-    let elem = web_sys::window()
-        .unwrap()
-        .document()
-        .unwrap()
-        .get_element_by_id("terminal")
-        .unwrap();
+    let elem = web_sys::window().unwrap().document().unwrap().get_element_by_id("terminal").unwrap();
+    let intro_elem = web_sys::window().unwrap().document().unwrap().get_element_by_id("intro-terminal").unwrap();
 
-    console_log!("terminal element: {:?}", elem);
-
-    let intro_elem = web_sys::window()
-    .unwrap()
-    .document()
-    .unwrap()
-    .get_element_by_id("intro-terminal")
-    .unwrap();
-
-    terminal.writeln("Supported keys in this example: <Printable-Characters> <Enter> <Backspace> <Left-Arrow> <Right-Arrow> <Ctrl-C> <Ctrl-L>");
+    help_text(&terminal);
     terminal.open(elem.dyn_into()?);
     prompt(&terminal);
 
