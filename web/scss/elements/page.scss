@@ -13,18 +13,14 @@ html, body {
 
 #intro-terminal {
   width: 100vw;
-  height: 50vh !important;
+  height: 100vh;
 }
 
 #terminal {
   width: 100vw;
-  height: 0;
+  height: auto !important;
 }
 
-// .full-height {
-//   height: 100vh !important;
-// }
-
-// .hidden {
-//   display: none !important;
-// }
+.shrink {
+  height: 20vh !important;
+}

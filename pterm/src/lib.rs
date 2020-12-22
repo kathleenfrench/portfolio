@@ -82,8 +82,13 @@ pub async fn run_intro(cfg: &AppConfig) {
     sections::intro::run(cfg).await;
 }
 
-pub async fn run(cfg: AppConfig) {
+pub async fn run(cfg: AppConfig, el: Element) {
     let mut thread_range = thread_rng();
+
+    console_log!("RUN EL: {:?}", el);
+
+    let shrinkClass = "shrink";
+    el.set_class_name(&shrinkClass);
 
     loop {
         let choice: &str = cfg.sections.choose(&mut thread_range).unwrap();
@@ -160,6 +165,13 @@ pub async fn main() -> Result<(), JsValue> {
 
     console_log!("terminal element: {:?}", elem);
 
+    let intro_elem = web_sys::window()
+    .unwrap()
+    .document()
+    .unwrap()
+    .get_element_by_id("intro-terminal")
+    .unwrap();
+
     terminal.writeln("Supported keys in this example: <Printable-Characters> <Enter> <Backspace> <Left-Arrow> <Right-Arrow> <Ctrl-C> <Ctrl-L>");
     terminal.open(elem.dyn_into()?);
     prompt(&terminal);
@@ -222,7 +234,7 @@ pub async fn main() -> Result<(), JsValue> {
     callback.forget();
     terminal.focus();
 
-    run(cfg).await;
+    run(cfg, intro_elem).await;
 
     Ok(())
 }
