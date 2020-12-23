@@ -3,22 +3,90 @@
 
 <head>
   <title>{{name}}</title>
+  <!-- fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+
   <!-- stylesheets -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.css" integrity="sha512-iLYuqv+v/P4u9erpk+KM83Ioe/l7SEmr7wB6g+Kg1qmEit8EShDKnKtLHlv2QXUp7GGJhmqDI+1PhJYLTsfb8w==" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@4.9.0/css/xterm.css" integrity="sha256-QIY4PCy8QFMjISW7DEmeaROMHswpbJfnbLPUH3/GHxw=" crossorigin="anonymous">
   <link rel="stylesheet" href="/assets/css/main.css"/>
 
-  <!-- imported xterm scripts-->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js" integrity="sha512-2PRgAav8Os8vLcOAh1gSaDoNLe1fAyq8/G3QSdyjFFD+OqNjLeHE/8q4+S4MEZgPsuo+itHopj+hJvqS8XUQ8A==" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/addons/attach/attach.min.js" integrity="sha512-43J76SR5UijcuJTzs73z8NpkyWon8a8EoV+dX6obqXW7O26Yb268H2vP6EiJjD7sWXqxS3G/YOqPyyLF9fmqgA==" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/addons/terminado/terminado.min.js" integrity="sha512-TtKncBxqCuka3yQ40VKwx1Jm3cfx1JyWCbRjAFIu7gQ+pvi8b4RwDIbTfmckBi2hpTSdIxxIN2nn23U6tcoboQ==" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/addons/fit/fit.min.js" integrity="sha512-+wh8VA1djpWk3Dj9/IJDu6Ufi4vVQ0zxLv9Vmfo70AbmYFJm0z3NLnV98vdRKBdPDV4Kwpi7EZdr8mDY9L8JIA==" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/addons/search/search.min.js" integrity="sha512-OkVnWNhmCMHw8pYndhQ+yEMJzD1VrgqF12deRfRcqR6iWL4s8IkxTBwSrJZ2WgpevhD71S68dAqBPHv/VHGDAw==" crossorigin="anonymous"></script>
+  <!-- xterm 4.9.0 imports -->
+  <!-- xterm -->
+  <script src="https://cdn.jsdelivr.net/npm/xterm@4.9.0/lib/xterm.min.js"></script>
+  <!-- xterm-addon-fit -->
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.4.0/lib/xterm-addon-fit.min.js"></script>
+  <!-- xterm-addon-attach -->
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-attach@0.6.0/lib/xterm-addon-attach.min.js"></script>
+  <!-- xterm-addon-web-links -->
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-web-links@0.4.0/lib/xterm-addon-web-links.min.js"></script>
+  <!-- xterm-addon-serialize -->
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-serialize@0.4.0/lib/xterm-addon-serialize.min.js"></script>
+  <!-- xterm-addon-search -->
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-search@0.7.0/lib/xterm-addon-search.min.js"></script>
 </head>
 
 <body>
-  <div id="terminal"></div>
-  <!-- scripts -->
-  <script src="/assets/js/bundle.js"></script>
-</body>
 
+  <!-- CONTENT -->
+  <div class="main">
+    <!-- ANIMATIONS -->
+    <div id="intro-terminal"></div>
+
+    <div class="hidden" id="content"></div>
+
+    <!-- ABOUT SECTION -->
+    <div class="hidden" id="about">
+      <div class="flex-container">
+        <img src="/assets/images/me.png" alt="moi" />
+      </div>
+      <div class="flex-container">
+        <p> 
+          this is my personal website hi 
+  
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>
+      </div>
+      <div class="flex-container">
+        <h1>kathleen french</h1>
+        <h2 class="logo"></h2>
+        <h6>software engineer | writer</h6> 
+      </div>
+    </div>
+
+    <!-- MAIN TERMINAL -->
+    <div id="terminal"></div>
+
+  </div>
+
+  <!-- scripts -->
+  <script>
+    const xtermOptions = {
+      cursorBlink: true,
+      fontSize: 12,
+      cursorWidth: 8,
+      rightClickSelectsWord: true,
+      scrollback: 0,
+    }
+
+    const pterm = new Terminal(xtermOptions);
+
+    const fitAddon = new FitAddon.FitAddon();
+    const webLinksAddon = new WebLinksAddon.WebLinksAddon();
+    const searchAddon = new SearchAddon.SearchAddon();
+    const serializeAddon = new SerializeAddon.SerializeAddon();
+
+    pterm.loadAddon(fitAddon);
+    pterm.loadAddon(webLinksAddon);
+    pterm.loadAddon(searchAddon);
+    pterm.loadAddon(serializeAddon);
+
+    pterm.open(document.getElementById("intro-terminal"));
+    fitAddon.fit();
+
+    window.pterm = pterm;
+  </script>
+  <script src="/assets/js/bundle.js"></script>
+  <!-- /scripts -->
+</body>
 </html>

@@ -8,3 +8,10 @@ cert.pem
 key.pem
 
 Cargo.lock
+
+pterm/target
+pterm/node_modules
+pterm/Cargo.lock
+pterm/package-lock.json
+
+web/pkg

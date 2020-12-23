@@ -1,3 +1,8 @@
+* {
+  font-family: 'IBM Plex Mono', monospace;
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
 }
@@ -6,7 +11,84 @@ html {
   background-color: black;
 }
 
-html, body, #terminal {
+html, body {
   width: 100vw;
   height: 100vh;
+}
+
+#intro-terminal {
+  width: 100vw;
+  height: 100vh;
+}
+
+#terminal {
+  width: 100vw;
+  height: auto !important;
+  padding: 5px;
+}
+
+.shrink {
+  height: 10vh !important;
+}
+
+.expand {
+  padding-bottom: 20px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.visible {
+  display: "" !important;
+}
+
+.main {
+  padding: 10px;
+}
+
+#about {
+  display: inline-flex;
+  flex-direction: row;
+  flex-flow: row;
+  justify-content: space-between;
+  color: #ffffff;
+  width: 95vw;
+  position: relative;
+
+  p {
+    margin: 1em;
+    font-size: 12px;
+  }
+
+  h1 {
+    margin: 1em;
+  }
+
+  h6 {
+    margin: 1em;
+  }
+}
+
+#content {
+  position: relative;
+  width: 95vw;
+  justify-self: center;
+}
+
+.flex-container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+}
+
+.parent {
+  display: flex;
+  height: 30vh;
+}
+
+.child {
+  width: 100vw;
+  height: 15vh;
+  margin: auto;
 }
