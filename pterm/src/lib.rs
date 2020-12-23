@@ -67,12 +67,12 @@ fn help_text(term: &Terminal) {
     term.writeln("");
     term.writeln(&format!("{}", Colour::Green.bold().paint("type a command and hit the 'Enter' key to execute").to_string()));
     term.writeln("");
-    term.writeln("about:          learn more about me");
-    term.writeln("resume:         view available subcommands");
-    term.writeln("projects:       see various projects i've worked on");
-    term.writeln("george:         show a random picture of my dog");
-    term.writeln("contact:        contact me");
-    term.writeln("clear:          clear the terminal window");
+    term.writeln("about          learn more about me");
+    term.writeln("resume         view available subcommands");
+    term.writeln("projects       see various projects i've worked on");
+    term.writeln("george         show a random picture of my dog");
+    term.writeln("contact        contact me");
+    term.writeln("clear          clear the terminal window");
     term.writeln("");
     term.writeln(&format!("{}", Colour::Green.bold().paint("run `help` at any point to show this screen").to_string()));
     term.writeln("");
@@ -221,6 +221,7 @@ pub async fn main() -> Result<(), JsValue> {
 
     let mut line = String::new();
     let mut cursor_col = 0;
+    let mut last_george_pic = "";
 
     let term: Terminal = terminal.clone().dyn_into()?;
 
@@ -232,7 +233,7 @@ pub async fn main() -> Result<(), JsValue> {
                 if !line.is_empty() {
                     term.writeln("");
 
-                    let mut line_match: &str = &line;
+                    let mut line_match: &str = &line.trim();
 
                     match line_match {
                         "help" => {
