@@ -5,8 +5,8 @@ log:
   level: "info"
 
 static_paths:
-  assets: "static/assets"
-  templates: "static/templates"
+  assets: "dist/assets"
+  templates: "dist/templates"
 
 ssl:
   key_file: "key.pem"
