@@ -5,7 +5,12 @@ mod content;
 mod sections;
 mod utils;
 
+#[cfg(feature = "wee_alloc")]
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
 pub static PORTFOLIO_SECTIONS: &[&str] = &[
+    "faux_downloads",
     "resume",
     // "botnet",
     // "about",
@@ -28,11 +33,12 @@ use ansi_term::{Colour, Style};
 use crate::io::{csleep, delayed_print, new_line, print, clear_line};
 
 #[wasm_bindgen]
-extern "C" {
+pub extern "C" {
     #[wasm_bindgen(js_namespace = console)]
-    fn log(a: &str);
+    pub fn log(a: &str);
 }
 
+#[macro_export]
 macro_rules! console_log {
     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
 }
@@ -105,25 +111,27 @@ pub async fn run(cfg: AppConfig, el: Element) {
     console_log!("RUN EL: {:?}", el);
     el.set_class_name(&SHRINK_CLASS);
 
-    loop {
-        let choice: &str = cfg.sections.choose(&mut thread_range).unwrap();
-        match choice {
-            "resume" => sections::resume::run(&cfg).await,
-            // "botnet" => sections::botnet::run(&cfg).await,
-            _ => print!("fix me later"),
-            // _ => panic!("unknown section '{}'!", choice),
-        }
+    sections::downloads::run(&cfg).await;
 
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            use std::sync::atomic::Ordering;
-            SECTIONS_SHOWN.fetch_add(1, Ordering::SeqCst);
+    // loop {
+    //     let choice: &str = cfg.sections.choose(&mut thread_range).unwrap();
+    //     match choice {
+    //         "faux_downloads" => sections::downloads::run(&cfg).await,
+    //         // "botnet" => sections::botnet::run(&cfg).await,
+    //         _ => print!("fix me later"),
+    //         // _ => panic!("unknown section '{}'!", choice),
+    //     }
 
-            if cfg.should_quit() {
-                quit();
-            }
-        }
-    }
+    //     #[cfg(not(target_arch = "wasm32"))]
+    //     {
+    //         use std::sync::atomic::Ordering;
+    //         SECTIONS_SHOWN.fetch_add(1, Ordering::SeqCst);
+
+    //         if cfg.should_quit() {
+    //             quit();
+    //         }
+    //     }
+    // }
 }
 
 #[cfg(not(target_arch = "wasm32"))]
