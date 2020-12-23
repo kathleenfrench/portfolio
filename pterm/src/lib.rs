@@ -185,29 +185,7 @@ pub async fn run(cfg: AppConfig) {
 
 #[cfg(target_arch = "wasm32")]
 pub async fn run(cfg: AppConfig, intro_animation: Element) {
-    // let mut thread_range = thread_rng();
-
     intro_animation.set_class_name(&HIDDEN);
-
-    // loop {
-    //     let choice: &str = cfg.sections.choose(&mut thread_range).unwrap();
-    //     match choice {
-    //         "faux_downloads" => sections::downloads::run(&cfg).await,
-    //         "botnet" => sections::botnet::run(&cfg).await,
-    //         _ => print!("fix me later"),
-    //         // _ => panic!("unknown section '{}'!", choice),
-    //     }
-
-    //     #[cfg(not(target_arch = "wasm32"))]
-    //     {
-    //         use std::sync::atomic::Ordering;
-    //         SECTIONS_SHOWN.fetch_add(1, Ordering::SeqCst);
-
-    //         if cfg.should_quit() {
-    //             quit();
-    //         }
-    //     }
-    // }
 }
 
 #[cfg(not(target_arch = "wasm32"))]
