@@ -98,6 +98,7 @@ fn subcommand_help_text(cmd: &str, example: &str, term: &Terminal) {
 
     match cmd {
         "resume" => {
+            term.writeln(&format!("pdf           - download the full resume in pdf form"));
             term.writeln(&format!("languages     ({})", Colour::Blue.bold().paint("lang").to_string()));
             term.writeln(&format!("technologies  ({})", Colour::Blue.bold().paint("tech").to_string()));
             term.writeln(&format!("experience    ({})", Colour::Blue.bold().paint("xp").to_string()));
@@ -334,6 +335,9 @@ pub async fn main() -> Result<(), JsValue> {
 
                                 match sub_cmd {
                                     "help" => subcommand_help_text("resume", "resume edu", &term),
+                                    "pdf" => {
+                                        utils::open_in_new_tab("/assets/files/resume.pdf");
+                                    },
                                     "languages" => {
                                         let mut iter = RESUME_LANGUAGES.iter();
                                         while let Some(s) = iter.next() {
