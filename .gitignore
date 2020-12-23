@@ -1,11 +1,9 @@
 target
+dist
+
 web/node_modules
-
-static/assets/js
-static/assets/css
-
-cert.pem
-key.pem
+web/pkg
+web/package-lock.json
 
 Cargo.lock
 
@@ -14,4 +12,5 @@ pterm/node_modules
 pterm/Cargo.lock
 pterm/package-lock.json
 
-web/pkg
+cert.pem
+key.pem

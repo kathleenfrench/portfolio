@@ -55,19 +55,19 @@ html, body {
   color: #ffffff;
   width: 95vw;
   position: relative;
+}
 
-  p {
-    margin: 1em;
-    font-size: 12px;
-  }
+#about p {
+  margin: 1em;
+  font-size: 12px;
+}
 
-  h1 {
-    margin: 1em;
-  }
+#about h1 {
+  margin: 1em;
+}
 
-  h6 {
-    margin: 1em;
-  }
+#about h6 {
+  margin: 1em;
 }
 
 #content {
@@ -91,4 +91,9 @@ html, body {
   width: 100vw;
   height: 15vh;
   margin: auto;
+}
+
+img {
+  max-width: 300px;
+  height: auto;
 }

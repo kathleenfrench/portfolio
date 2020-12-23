@@ -38,39 +38,20 @@ check: ## verify the rust server bin is able to be compiled
 watch: ## run the hot-reload server for the rust backend
 	@systemfd --no-pid -s http::3000 -- cargo watch -x run
 
-.PHONY: pterm
-pterm: ## 
-	cd pterm && cargo build
-
-.PHONY: term
-term: ## build just the wasm rust faux terminal
-	@wasm-pack build pterm --out-dir ../web/pkg && cd pterm && npm install
-
 ########################################## frontend ops
 
-.PHONY: css
-css: ## bundle css
-	@cd web && npm run css
+web/package.json:
+	@npm install -C web
 
-.PHONY: hot-css
-hot-css: ## hot reload css scripts
-	@cd web && npm run css-watch
-
-.PHONY: js
-js: ## compile js
-	@cd web && npm run build
-
-.PHONY: assets
-assets: js css ## compile all frontend assets to /static/assets
-	@echo successfully compiled assets!
+.PHONY: dist
+dist: web/package.json ## build and bundle all assets (js, css, html)
+	@npm --prefix web run build
 
 ########################################## utils
 
 .PHONY: clean
 clean: ## remove generated assets
-	@echo "nuking generated directories..."
-	@rm -rf static/assets/js
-	@rm -rf static/assets/css
+	@rm -rf dist
 
 .PHONY: cert
 cert: | cert.pem key.pem ## create a local self-signed cert for dev and install it
