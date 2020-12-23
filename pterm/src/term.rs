@@ -1,8 +1,10 @@
 use xterm_js_rs::Terminal;
 use ansi_term::{Colour, Style};
-use crate::content;
 use rand::thread_rng;
 use rand::prelude::*;
+
+use crate::content;
+use crate::utils;
 
 pub const KEY_ENTER: u32 = 13;
 pub const KEY_BACKSPACE: u32 = 8;
@@ -67,6 +69,26 @@ pub fn contact_info(term: &Terminal) {
   new_line(&term);
 }
 
+pub fn contact_goto_links(term: &Terminal, line: &str) {
+  let line_split = line.split_ascii_whitespace().collect::<Vec<_>>();
+  let target = <&str>::clone(&line_split[1]);
+
+  match target {
+      "github" => {
+          term.writeln(&format!("redirecting to {}...", target));
+          utils::open_in_new_tab("https://github.com/kathleenfrench");
+      },
+      "linkedin" => {
+          term.writeln(&format!("redirecting to {}...", target));
+          utils::open_in_new_tab("https://www.linkedin.com/in/frenchkathleen/");
+      },
+      "email" => {
+          utils::open_in_new_tab("https://mail.google.com/mail/?view=cm&fs=1&to=kfrench09@gmail.com");
+      },
+      _ => term.writeln(&format!("{} is not a valid input", target)),
+  }
+}
+
 pub fn random_george_pic(term: &Terminal) {
   reset_window(&term);
 
@@ -90,6 +112,82 @@ pub fn about(term: &Terminal) {
 pub fn projects(term: &Terminal) {
   reset_window(&term);
   term.writeln("my projects...");
+}
+
+pub fn resume(term: &Terminal, line: &str) {
+  let line_split = line.split_ascii_whitespace().collect::<Vec<_>>();
+  let sub_cmd = <&str>::clone(&line_split[1]);
+  new_line(&term);
+
+  match sub_cmd {
+      "help" => subcommand_help_text("resume", "resume edu", &term),
+      "pdf" => {
+          utils::open_in_new_tab("/assets/files/resume.pdf");
+      },
+      "languages" => {
+          let mut iter = crate::content::RESUME_LANGUAGES.iter();
+          while let Some(s) = iter.next() {
+              term.writeln(s);
+          }
+      },
+      "lang" => {
+          let mut iter = crate::content::RESUME_LANGUAGES.iter();
+          while let Some(s) = iter.next() {
+              term.writeln(s);
+          }
+      },
+      "technologies" => {
+          let mut iter = crate::content::RESUME_TECH.iter();
+          while let Some(s) = iter.next() {
+              term.writeln(s);
+          }
+      },
+      "tech" => {
+          let mut iter = crate::content::RESUME_TECH.iter();
+          while let Some(s) = iter.next() {
+              term.writeln(s);
+          }
+      },
+      "experience" => {
+          let mut iter = crate::content::RESUME_EXPERIENCE.iter();
+          while let Some(s) = iter.next() {
+              term.writeln(s);
+          }
+      },
+      "xp" => {
+          let mut iter = crate::content::RESUME_EXPERIENCE.iter();
+          while let Some(s) = iter.next() {
+              term.writeln(s);
+          }
+      },
+      "education" => {
+          let mut iter = crate::content::RESUME_EDUCATION.iter();
+          while let Some(s) = iter.next() {
+              term.writeln(s);
+          }
+      },
+      "edu" => {
+          let mut iter = crate::content::RESUME_EDUCATION.iter();
+          while let Some(s) = iter.next() {
+              term.writeln(s);
+          }
+      },
+      "awards" => {
+          let mut iter = crate::content::RESUME_AWARDS.iter();
+          while let Some(s) = iter.next() {
+              term.writeln(s);
+          }
+      },
+      "awd"  => {
+          let mut iter = crate::content::RESUME_AWARDS.iter();
+          while let Some(s) = iter.next() {
+              term.writeln(s);
+          }
+      },
+      "publications" => term.writeln("TK"),
+      "pub" => term.writeln("TK"),
+      _ => term.writeln(&format!("{} is not a valid subcommand for 'resume'", sub_cmd)),
+  }
 }
 
 ///// subcommands
@@ -167,4 +265,23 @@ pub fn new_line(term: &Terminal) {
 
 pub fn whoami(term: &Terminal) {
   term.writeln("stranger (danger)");
+}
+
+pub fn ls(term: &Terminal, show_dotfiles: bool) {
+  if show_dotfiles {
+    term.writeln("Documents");
+    term.writeln("Downloads");
+    term.writeln("Pictures");
+    term.writeln(".ssh");
+    term.writeln(".bashrc");
+    term.writeln(".vimrc");
+  } else {
+    term.writeln("Documents");
+    term.writeln("Downloads");
+    term.writeln("Pictures");
+  }
+}
+
+pub fn command_not_found(term: &Terminal, line: &str) {
+  term.writeln(&format!("command not found: '{}'", line));
 }

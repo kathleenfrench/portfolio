@@ -32,7 +32,6 @@ use rand::thread_rng;
 use ansi_term::{Colour, Style};
 
 use crate::io::{csleep, delayed_print, new_line, print, clear_line};
-use crate::content::{RESUME_AWARDS, RESUME_EDUCATION, RESUME_EXPERIENCE, RESUME_LANGUAGES, RESUME_TECH};
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
@@ -160,11 +159,7 @@ pub async fn main() -> Result<(), JsValue> {
                         "git" => crate::term::throw_git_error(&term),
                         "sudo" => crate::term::throw_hackerman(&term),
                         "pwd" => term.writeln("/home/stranger"),
-                        "ls" => {
-                            term.writeln("Documents");
-                            term.writeln("Downloads");
-                            term.writeln("Pictures");
-                        },
+                        "ls" => crate::term::ls(&term, false),
                         "cat" => crate::term::permission_denied(&term),
                         _ => {
                             if crate::term::deny_common_bins(line_match) {
@@ -174,108 +169,15 @@ pub async fn main() -> Result<(), JsValue> {
                             } else if line_match.contains("ls ") && line_match.contains("/") {
                                 crate::term::permission_denied(&term);
                             } else if line_match.contains("ls -") {
-                                term.writeln("Documents");
-                                term.writeln("Downloads");
-                                term.writeln("Pictures");
-                                term.writeln(".ssh");
-                                term.writeln(".bashrc");
-                                term.writeln(".vimrc");
+                                crate::term::ls(&term, true);
                             } else if line_match.contains("git ") {
-                                term.writeln(&format!("{}", Colour::Red.bold().paint("fatal: This operation must be run in a work tree").to_string()));
+                                crate::term::throw_git_error(&term);
                             } else if line_match.contains("resume ") {
-                                let line_split = line_match.split_ascii_whitespace().collect::<Vec<_>>();
-                                let sub_cmd = <&str>::clone(&line_split[1]);
-                                crate::term::new_line(&term);
-
-                                match sub_cmd {
-                                    "help" => crate::term::subcommand_help_text("resume", "resume edu", &term),
-                                    "pdf" => {
-                                        utils::open_in_new_tab("/assets/files/resume.pdf");
-                                    },
-                                    "languages" => {
-                                        let mut iter = RESUME_LANGUAGES.iter();
-                                        while let Some(s) = iter.next() {
-                                            term.writeln(s);
-                                        }
-                                    },
-                                    "lang" => {
-                                        let mut iter = RESUME_LANGUAGES.iter();
-                                        while let Some(s) = iter.next() {
-                                            term.writeln(s);
-                                        }
-                                    },
-                                    "technologies" => {
-                                        let mut iter = RESUME_TECH.iter();
-                                        while let Some(s) = iter.next() {
-                                            term.writeln(s);
-                                        }
-                                    },
-                                    "tech" => {
-                                        let mut iter = RESUME_TECH.iter();
-                                        while let Some(s) = iter.next() {
-                                            term.writeln(s);
-                                        }
-                                    },
-                                    "experience" => {
-                                        let mut iter = RESUME_EXPERIENCE.iter();
-                                        while let Some(s) = iter.next() {
-                                            term.writeln(s);
-                                        }
-                                    },
-                                    "xp" => {
-                                        let mut iter = RESUME_EXPERIENCE.iter();
-                                        while let Some(s) = iter.next() {
-                                            term.writeln(s);
-                                        }
-                                    },
-                                    "education" => {
-                                        let mut iter = RESUME_EDUCATION.iter();
-                                        while let Some(s) = iter.next() {
-                                            term.writeln(s);
-                                        }
-                                    },
-                                    "edu" => {
-                                        let mut iter = RESUME_EDUCATION.iter();
-                                        while let Some(s) = iter.next() {
-                                            term.writeln(s);
-                                        }
-                                    },
-                                    "awards" => {
-                                        let mut iter = RESUME_AWARDS.iter();
-                                        while let Some(s) = iter.next() {
-                                            term.writeln(s);
-                                        }
-                                    },
-                                    "awd"  => {
-                                        let mut iter = RESUME_AWARDS.iter();
-                                        while let Some(s) = iter.next() {
-                                            term.writeln(s);
-                                        }
-                                    },
-                                    "publications" => term.writeln("TK"),
-                                    "pub" => term.writeln("TK"),
-                                    _ => term.writeln(&format!("{} is not a valid subcommand for 'resume'", sub_cmd)),
-                                }
+                                crate::term::resume(&term, line_match);
                             } else if line_match.contains("goto ") {
-                                let line_split = line_match.split_ascii_whitespace().collect::<Vec<_>>();
-                                let target = <&str>::clone(&line_split[1]);
-
-                                match target {
-                                    "github" => {
-                                        term.writeln(&format!("redirecting to {}...", target));
-                                        utils::open_in_new_tab("https://github.com/kathleenfrench");
-                                    },
-                                    "linkedin" => {
-                                        term.writeln(&format!("redirecting to {}...", target));
-                                        utils::open_in_new_tab("https://www.linkedin.com/in/frenchkathleen/");
-                                    },
-                                    "email" => {
-                                        utils::open_in_new_tab("https://mail.google.com/mail/?view=cm&fs=1&to=kfrench09@gmail.com");
-                                    },
-                                    _ => term.writeln(&format!("{} is not a valid input", target)),
-                                }
+                                crate::term::contact_goto_links(&term, line_match);
                             } else {
-                                term.writeln(&format!("command not found: '{}'", line));
+                                crate::term::command_not_found(&term, line_match);
                             }
                         },
                     }
