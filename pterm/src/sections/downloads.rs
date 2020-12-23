@@ -4,7 +4,7 @@ use yansi::Paint;
 use rand::prelude::*;
 use std::cmp::max;
 
-use crate::content::{RESUME, TMP_EXTENSIONS_LIST, TMP_SOURCE_LIST};
+use crate::content::{TMP_EXTENSIONS_LIST, TMP_SOURCE_LIST};
 use crate::utils::gen_file_name_with_extension;
 
 use file_size_opts::FileSizeOpts;
