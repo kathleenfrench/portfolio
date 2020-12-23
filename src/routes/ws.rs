@@ -1,4 +1,4 @@
-use actix_web::{web, HttpResponse, HttpRequest, Error, Result};
+use actix_web::{web, Error, HttpRequest, HttpResponse, Result};
 use actix_web_actors::ws;
 
 use crate::socket::ws::TermWebSocket;

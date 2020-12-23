@@ -1,14 +1,14 @@
 
-## local
+########################################## local dev
 
 .PHONY: local
 local: run assets | cert ## configures ssl, compiles/bundles all code, starts the rust server
 	@echo "success! visit the site in the browser at https://127.0.0.1:3000!"
 
-## rust ops
+########################################## rust server
 
 .PHONY: build
-build: ## compile the rust binary
+build: ## compile the rust server binary
 	@cargo build
 
 .PHONY: run
@@ -28,22 +28,25 @@ release: ## compile a release build
 	@cargo build --release
 
 .PHONY: check
-check: ## verify the rust bin is able to be compiled
+check: ## verify the rust server bin is able to be compiled
+	@echo "checking server binary..."
 	@cargo check
+	@echo "checking pterm lib..."
+	@cd pterm && cargo check
 
 .PHONY: watch
-watch: ## run the hot-reload server for rust
+watch: ## run the hot-reload server for the rust backend
 	@systemfd --no-pid -s http::3000 -- cargo watch -x run
 
 .PHONY: pterm
-pterm:
+pterm: ## 
 	cd pterm && cargo build
 
 .PHONY: term
-term: ## build the wasm rust faux terminal
+term: ## build just the wasm rust faux terminal
 	@wasm-pack build pterm --out-dir ../web/pkg && cd pterm && npm install
 
-## frontend ops
+########################################## frontend ops
 
 .PHONY: css
 css: ## bundle css
@@ -61,7 +64,7 @@ js: ## compile js
 assets: js css ## compile all frontend assets to /static/assets
 	@echo successfully compiled assets!
 
-## utils
+########################################## utils
 
 .PHONY: clean
 clean: ## remove generated assets

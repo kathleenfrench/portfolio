@@ -1,6 +1,6 @@
-use actix_web::{web, HttpResponse, Result};
 use actix_session::Session;
 use actix_web::http::StatusCode;
+use actix_web::{web, HttpResponse, Result};
 
 use handlebars::Handlebars;
 

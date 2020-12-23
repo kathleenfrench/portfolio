@@ -1,5 +1,5 @@
-use uuid::Uuid;
 use anyhow::Result;
+use uuid::Uuid;
 
 use crate::ctx::RequestContext;
 use crate::messages::request::RequestMsg;
@@ -34,7 +34,9 @@ impl MessageHandler {
     }
 
     fn send_to_self(&self, msg: ResponseMsg) -> Result<()> {
-        self.ctx().connections().send_connection(self.conn_id(), msg);
+        self.ctx()
+            .connections()
+            .send_connection(self.conn_id(), msg);
         Ok(())
     }
 
@@ -44,28 +46,34 @@ impl MessageHandler {
     }
 
     fn throw_to_self_channel_exception(&self, msg: &ResponseMsg) -> Result<()> {
-        self.ctx().connections().throw_channel_exception(self.chan_id(), &[self.conn_id()], msg);
+        self.ctx()
+            .connections()
+            .throw_channel_exception(self.chan_id(), &[self.conn_id()], msg);
         Ok(())
     }
 
     pub fn on_open(&self) -> Result<()> {
-      self.send_to_self(ResponseMsg::Connected {
-        id: *self.conn_id(),
-      })
+        self.send_to_self(ResponseMsg::Connected {
+            id: *self.conn_id(),
+        })
     }
 
     pub fn on_close(&self) -> Result<()> {
-      println!("closing connection for [{}:{}]", self.conn_id(), self.chan_id());
-      Ok(())
+        println!(
+            "closing connection for [{}:{}]",
+            self.conn_id(),
+            self.chan_id()
+        );
+        Ok(())
     }
 
     pub fn on_message(&self, msg: RequestMsg) -> Result<()> {
-      match msg {
-        RequestMsg::Ping { v } => self.send_to_self(ResponseMsg::Pong { v }),
-        msg => {
-          println!("unhandled request message [{:?}]", msg);
-          Ok(())
+        match msg {
+            RequestMsg::Ping { v } => self.send_to_self(ResponseMsg::Pong { v }),
+            msg => {
+                println!("unhandled request message [{:?}]", msg);
+                Ok(())
+            }
         }
-      }
     }
 }

@@ -14,12 +14,12 @@ use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use handlebars::Handlebars;
 use std::io;
 
-mod handlers;
-mod settings;
-mod ctx;
 mod conn;
+mod ctx;
+mod handlers;
 mod messages;
 mod routes;
+mod settings;
 mod socket;
 
 lazy_static! {
