@@ -16,35 +16,35 @@ type BytesMut = <BytesCodec as Decoder>::Item;
 pub struct IO(pub BytesMut);
 
 impl Message for IO {
-  type Result = ();
+    type Result = ();
 }
 
 impl AsRef<[u8]> for IO {
-  fn as_ref(&self) -> &[u8] {
-    self.0.as_ref()
-  }
+    fn as_ref(&self) -> &[u8] {
+        self.0.as_ref()
+    }
 }
 
 impl From<String> for IO {
-  fn from(s: String) -> Self {
-    Self(s.into())
-  }
+    fn from(s: String) -> Self {
+        Self(s.into())
+    }
 }
 
 impl From<&str> for IO {
-  fn from(s: &str) -> Self {
-    Self(s.into())
-  }
+    fn from(s: &str) -> Self {
+        Self(s.into())
+    }
 }
 
 impl From<actix_web::web::Bytes> for IO {
-  fn from(b: actix_web::web::Bytes) -> Self {
-    Self(b.as_ref().into())
-  }
+    fn from(b: actix_web::web::Bytes) -> Self {
+        Self(b.as_ref().into())
+    }
 }
 
 impl From<actix_web::web::BytesMut> for IO {
-  fn from(b: actix_web::web::BytesMut) -> Self {
-    Self(b.as_ref().into())
-  }
+    fn from(b: actix_web::web::BytesMut) -> Self {
+        Self(b.as_ref().into())
+    }
 }

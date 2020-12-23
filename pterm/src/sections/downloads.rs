@@ -12,15 +12,11 @@ use humansize::{file_size_opts, FileSize};
 use humantime::format_duration;
 use std::time::Duration;
 
-use crate::{log, console_log};
-
 pub async fn run(cfg: &AppConfig) {
   let mut rng = thread_rng();
   let ext = TMP_EXTENSIONS_LIST.choose(&mut rng).unwrap_or(&".mp3");
   let download_speed = rng.gen_range(10_000_000, 100_000_000);
   let loop_limit = TMP_SOURCE_LIST.len();
-
-  console_log!("LOOP LIMIT: {:?}", loop_limit);
 
   for loop_num in 0..loop_limit {
     let fbytes = rng.gen_range(30_000_000, 300_000_000);

@@ -32,8 +32,10 @@ use ansi_term::{Colour, Style};
 use crate::io::{csleep, delayed_print, new_line, print, clear_line};
 use crate::content::{GEORGE_PICS, RESUME_AWARDS, RESUME_EDUCATION, RESUME_EXPERIENCE, RESUME_LANGUAGES, RESUME_TECH};
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
-pub extern "C" {
+extern "C" {
+    #[cfg(target_arch = "wasm32")]
     #[wasm_bindgen(js_namespace = console)]
     pub fn log(a: &str);
 }
@@ -155,6 +157,33 @@ pub async fn run_intro(cfg: &AppConfig) {
     sections::intro::run(cfg).await;
 }
 
+#[cfg(not(target_arch = "wasm32"))]
+pub async fn run(cfg: AppConfig) {
+    let mut thread_range = thread_rng();
+
+    loop {
+        let choice: &str = cfg.sections.choose(&mut thread_range).unwrap();
+        match choice {
+            "faux_downloads" => sections::downloads::run(&cfg).await,
+            "botnet" => sections::botnet::run(&cfg).await,
+            _ => print!("fix me later"),
+            // _ => panic!("unknown section '{}'!", choice),
+        }
+
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            use std::sync::atomic::Ordering;
+            SECTIONS_SHOWN.fetch_add(1, Ordering::SeqCst);
+
+            if cfg.should_quit() {
+                quit();
+            }
+        }
+    }
+}
+
+
+#[cfg(target_arch = "wasm32")]
 pub async fn run(cfg: AppConfig, intro_animation: Element) {
     // let mut thread_range = thread_rng();
 
