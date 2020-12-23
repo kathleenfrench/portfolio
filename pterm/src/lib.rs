@@ -74,6 +74,7 @@ fn help_text(term: &Terminal) {
     term.writeln("contact:        contact me");
     term.writeln("clear:          clear the terminal window");
     term.writeln("");
+    term.writeln(&format!("{}", Colour::Green.bold().paint("run `help` at any point to show this screen").to_string()));
     term.writeln("");
 }
 
@@ -426,7 +427,7 @@ pub async fn main() -> Result<(), JsValue> {
                                     _ => term.writeln(&format!("{} is not a valid input", target)),
                                 }
                             } else {
-                                term.writeln(&format!("'{}' is not a valid command! run 'help' to list all valid commands", line));
+                                term.writeln(&format!("command not found: '{}'", line));
                             }
                         },
                     }
