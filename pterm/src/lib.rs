@@ -30,7 +30,7 @@ use rand::thread_rng;
 use ansi_term::{Colour, Style};
 
 use crate::io::{csleep, delayed_print, new_line, print, clear_line};
-use crate::content::GEORGE_PICS;
+use crate::content::{GEORGE_PICS, RESUME_AWARDS, RESUME_EDUCATION, RESUME_EXPERIENCE, RESUME_LANGUAGES, RESUME_TECH};
 
 #[wasm_bindgen]
 pub extern "C" {
@@ -98,7 +98,7 @@ fn subcommand_help_text(cmd: &str, example: &str, term: &Terminal) {
 
     match cmd {
         "resume" => {
-            term.writeln(&format!("skills        ({})", Colour::Blue.bold().paint("sk").to_string()));
+            term.writeln(&format!("languages     ({})", Colour::Blue.bold().paint("lang").to_string()));
             term.writeln(&format!("technologies  ({})", Colour::Blue.bold().paint("tech").to_string()));
             term.writeln(&format!("experience    ({})", Colour::Blue.bold().paint("xp").to_string()));
             term.writeln(&format!("education     ({})", Colour::Blue.bold().paint("edu").to_string()));
@@ -330,18 +330,60 @@ pub async fn main() -> Result<(), JsValue> {
                             } else if line_match.contains("resume ") {
                                 let line_split = line_match.split_ascii_whitespace().collect::<Vec<_>>();
                                 let sub_cmd = <&str>::clone(&line_split[1]);
+                                term.writeln("");
 
                                 match sub_cmd {
-                                    "skills" => term.writeln("test"),
-                                    "sk" => term.writeln("test"),
-                                    "technologies" => term.writeln("test"),
-                                    "tech" => term.writeln("test"),
+                                    "help" => subcommand_help_text("resume", "resume edu", &term),
+                                    "languages" => {
+                                        let mut iter = RESUME_LANGUAGES.iter();
+                                        while let Some(s) = iter.next() {
+                                            term.writeln(s);
+                                        }
+                                    },
+                                    "lang" => {
+                                        let mut iter = RESUME_LANGUAGES.iter();
+                                        while let Some(s) = iter.next() {
+                                            term.writeln(s);
+                                        }
+                                    },
+                                    "technologies" => {
+                                        let mut iter = RESUME_TECH.iter();
+                                        while let Some(s) = iter.next() {
+                                            term.writeln(s);
+                                        }
+                                    },
+                                    "tech" => {
+                                        let mut iter = RESUME_TECH.iter();
+                                        while let Some(s) = iter.next() {
+                                            term.writeln(s);
+                                        }
+                                    },
                                     "experience" => term.writeln("test"),
                                     "xp" => term.writeln("test"),
-                                    "education" => term.writeln("test"),
-                                    "edu" => term.writeln("test"),
-                                    "awards" => term.writeln("test"),
-                                    "awd" => term.writeln("test"),
+                                    "education" => {
+                                        let mut iter = RESUME_EDUCATION.iter();
+                                        while let Some(s) = iter.next() {
+                                            term.writeln(s);
+                                        }
+                                    },
+                                    "edu" => {
+                                        let mut iter = RESUME_EDUCATION.iter();
+                                        while let Some(s) = iter.next() {
+                                            term.writeln(s);
+                                        }
+                                    },
+                                    "awards" => {
+                                        let mut iter = RESUME_AWARDS.iter();
+                                        while let Some(s) = iter.next() {
+                                            term.writeln(s);
+                                        }
+                                    },
+                                    "awd"  => {
+                                        let mut iter = RESUME_AWARDS.iter();
+                                        while let Some(s) = iter.next() {
+                                            term.writeln(s);
+                                        }
+                                    },
                                     "publications" => term.writeln("test"),
                                     "pub" => term.writeln("test"),
                                     _ => term.writeln(&format!("{} is not a valid subcommand for 'resume'", sub_cmd)),

@@ -1,0 +1,16 @@
+golang
+groovy
+hcl
+html/css
+javascript
+makefile
+nginx
+php
+python
+ruby
+rust
+shell
+sql
+toml
+typescript
+yaml
