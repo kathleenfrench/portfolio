@@ -1,3 +1,8 @@
+* {
+  font-family: 'IBM Plex Mono', monospace;
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
 }
@@ -47,10 +52,43 @@ html, body {
   flex-direction: row;
   flex-flow: row;
   justify-content: space-between;
-  color: yellow;
-  width: 80vw;
+  color: #ffffff;
+  width: 95vw;
+  position: relative;
 
   p {
     margin: 1em;
+    font-size: 12px;
   }
+
+  h1 {
+    margin: 1em;
+  }
+
+  h6 {
+    margin: 1em;
+  }
+}
+
+#content {
+  position: relative;
+  width: 95vw;
+  justify-self: center;
+}
+
+.flex-container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+}
+
+.parent {
+  display: flex;
+  height: 30vh;
+}
+
+.child {
+  width: 100vw;
+  height: 15vh;
+  margin: auto;
 }

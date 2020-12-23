@@ -3,6 +3,10 @@
 
 <head>
   <title>{{name}}</title>
+  <!-- fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+
   <!-- stylesheets -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@4.9.0/css/xterm.css" integrity="sha256-QIY4PCy8QFMjISW7DEmeaROMHswpbJfnbLPUH3/GHxw=" crossorigin="anonymous">
   <link rel="stylesheet" href="/assets/css/main.css"/>
@@ -24,27 +28,34 @@
 
 <body>
 
-<!-- CONTENT -->
-<div class="main">
+  <!-- CONTENT -->
+  <div class="main">
+    <!-- ANIMATIONS -->
+    <div id="intro-terminal"></div>
 
-  <!-- ABOUT SECTION -->
-  <div class="hidden" id="about">
-    <img src="/assets/images/me.png" alt="moi" />
-    <p> 
-      this is my personal website hi 
+    <div class="hidden" id="content"></div>
 
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-    </p>
-    <h1>about me</h1>
-  </div>
+    <!-- ABOUT SECTION -->
+    <div class="hidden" id="about">
+      <div class="flex-container">
+        <img src="/assets/images/me.png" alt="moi" />
+      </div>
+      <div class="flex-container">
+        <p> 
+          this is my personal website hi 
+  
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>
+      </div>
+      <div class="flex-container">
+        <h1>kathleen french</h1>
+        <h2 class="logo"></h2>
+        <h6>software engineer | writer</h6> 
+      </div>
+    </div>
 
-
-  <!-- ANIMATIONS -->
-  <div id="intro-terminal"></div>
-
-  <!-- MAIN TERMINAL -->
-  <div id="terminal"></div>
-
+    <!-- MAIN TERMINAL -->
+    <div id="terminal"></div>
 
   </div>
 

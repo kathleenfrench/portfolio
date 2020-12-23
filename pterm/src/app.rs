@@ -57,7 +57,6 @@ pub struct AppConfig {
 #[cfg(target_arch = "wasm32")]
 pub struct AppConfig {
   pub sections: Vec<String>,
-
   pub speed_factor: f32,
 }
 

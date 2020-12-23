@@ -12,8 +12,7 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 pub static PORTFOLIO_SECTIONS: &[&str] = &[
     "faux_downloads",
     "resume",
-    // "botnet",
-    // "about",
+    "botnet",
 ];
 
 use futures::lock::Mutex;
@@ -31,6 +30,7 @@ use rand::thread_rng;
 use ansi_term::{Colour, Style};
 
 use crate::io::{csleep, delayed_print, new_line, print, clear_line};
+use crate::content::GEORGE_PICS;
 
 #[wasm_bindgen]
 pub extern "C" {
@@ -47,9 +47,18 @@ lazy_static::lazy_static! {
     pub static ref PROMPT: String = Colour::Yellow.bold().paint("kathleenfrench@portfolio $ ").to_string();
 }
 
+lazy_static::lazy_static! {
+    pub static ref PERMISSION_DENIED_ERR: String = Colour::Red.bold().paint("Permission denied").to_string();
+}
+
 fn prompt(term: &Terminal) {
     term.writeln("");
     term.write(&PROMPT);
+}
+
+fn permission_denied(term: &Terminal) {
+    term.write(&PERMISSION_DENIED_ERR);
+    term.writeln("");
 }
 
 fn help_text(term: &Terminal) {
@@ -57,10 +66,36 @@ fn help_text(term: &Terminal) {
     term.writeln("[COMMANDS]:");
     term.writeln("");
     term.writeln("about:          learn more about me");
-    term.writeln("resume:         view my resume");
+    term.writeln("resume:         view available subcommands");
     term.writeln("projects:       see various projects i've worked on");
+    term.writeln("george:         show a random picture of my dog");
     term.writeln("contact:        contact me");
     term.writeln("clear:          clear the terminal window");
+    term.writeln("");
+    term.writeln("");
+}
+
+fn subcommand_help_text(cmd: &str, short: &str, example: &str, term: &Terminal) {
+    term.writeln("");
+    term.writeln("[SUBCOMMANDS]:");
+    term.writeln("");
+    term.writeln(&format!("{}: {} <subcommand>", Colour::Green.bold().paint("[usage]").to_string(), cmd));
+    term.writeln(&format!("{}: {}", Colour::Green.bold().paint("[alias]").to_string(), short));
+    term.writeln(&format!("{}: {}", Colour::Green.bold().paint("[example]").to_string(), example));
+    term.writeln("");
+
+    match cmd {
+        "resume" => {
+            term.writeln(&format!("skills        ({})", Colour::Blue.bold().paint("sk").to_string()));
+            term.writeln(&format!("technologies  ({})", Colour::Blue.bold().paint("tech").to_string()));
+            term.writeln(&format!("experience    ({})", Colour::Blue.bold().paint("xp").to_string()));
+            term.writeln(&format!("education     ({})", Colour::Blue.bold().paint("edu").to_string()));
+            term.writeln(&format!("awards        ({})", Colour::Blue.bold().paint("awd").to_string()));
+            term.writeln(&format!("publications  ({})", Colour::Blue.bold().paint("pub").to_string()));
+        }
+        _ => term.writeln(&format!("{} is not a valid subcommand", cmd)),
+    }
+
     term.writeln("");
     term.writeln("");
 }
@@ -86,13 +121,14 @@ lazy_static::lazy_static! {
     pub static ref CTRLC_PRESSED: AtomicBool = AtomicBool::new(false);
 }
 
-// https://notes.burke.libbey.me/ansi-escape-codes/
+// https://theasciicode.com.ar/
 const KEY_ENTER: u32 = 13;
 const KEY_BACKSPACE: u32 = 8;
 const KEY_LEFT_ARROW: u32 = 37;
 const KEY_RIGHT_ARROW: u32 = 39;
 const KEY_C: u32 = 67;
 const KEY_L: u32 = 76;
+const KEY_U: u32 = 85;
 
 const CURSOR_LEFT: &str = "\x1b[D";
 const CURSOR_RIGHT: &str = "\x1b[C";
@@ -105,19 +141,16 @@ pub async fn run_intro(cfg: &AppConfig) {
     sections::intro::run(cfg).await;
 }
 
-pub async fn run(cfg: AppConfig, el: Element) {
-    let mut thread_range = thread_rng();
+pub async fn run(cfg: AppConfig, intro_animation: Element) {
+    // let mut thread_range = thread_rng();
 
-    console_log!("RUN EL: {:?}", el);
-    el.set_class_name(&SHRINK_CLASS);
-
-    sections::downloads::run(&cfg).await;
+    intro_animation.set_class_name(&HIDDEN);
 
     // loop {
     //     let choice: &str = cfg.sections.choose(&mut thread_range).unwrap();
     //     match choice {
     //         "faux_downloads" => sections::downloads::run(&cfg).await,
-    //         // "botnet" => sections::botnet::run(&cfg).await,
+    //         "botnet" => sections::botnet::run(&cfg).await,
     //         _ => print!("fix me later"),
     //         // _ => panic!("unknown section '{}'!", choice),
     //     }
@@ -142,31 +175,17 @@ pub fn quit() {
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
-// fn setup_intro_term(window: &Window, document: &Document) -> Result<(), JsValue> {
-//     let intro_term = document.get_element_by_id("intro-term").expect("should have #intro-term on the page");
-
-//     let a = Closure::wrap(Box::new(move || ))
-
-//     fn update_term(current_term: &Element) {
-//         current_term.set_inner_html(&String::from(
-
-//         ));
-//     }
-// }
-
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(start)]
 pub async fn main() -> Result<(), JsValue> {
     use std::panic;
     panic::set_hook(Box::new(console_error_panic_hook::hook));
 
-    // let window = web_sys::window().expect("should have a window in this context");
-    // let document = window.document().expect("window should have a document");
-
     let cfg = app::parse_inputs();
+
     *SPEED_FACTOR.lock().await = cfg.speed_factor;
 
-    run_intro(&cfg).await;
+    // run_intro(&cfg).await;
 
     let terminal: Terminal = Terminal::new(
         TerminalOptions::new()
@@ -198,7 +217,6 @@ pub async fn main() -> Result<(), JsValue> {
             KEY_ENTER => {
                 if !line.is_empty() {
                     term.writeln("");
-                    console_log!("LINE: {}", line);
 
                     let mut line_match: &str = &line;
 
@@ -209,36 +227,103 @@ pub async fn main() -> Result<(), JsValue> {
                         "about" => {
                             // show the about section
                             web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&VISIBLE_CLASS);
+                            web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&HIDDEN);
 
                             term.writeln("more about me");
                         },
                         "resume" => {
                             // hide any visible sections
                             web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
+                            web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&HIDDEN);
 
-                            term.writeln("my resume");
+                            subcommand_help_text("resume", "res", "res awards", &term);
                         },
                         "projects" => {
                             // hide any visible sections
                             web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
+                            web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&HIDDEN);
 
                             term.writeln("my projects...");
                         },
                         "contact" => {
                             // hide any visible sections
                             web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
+                            web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&HIDDEN);
 
                             term.writeln("contact me @...");
                         },
                         "clear" => {
                             // hide any visible sections
                             web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
+                            web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&HIDDEN);
 
                             // clear all term input text
                             term.write("\x1b[H\x1b[2J");
                         },
+                        "whoami" => {
+                            term.writeln("idk");
+                            term.writeln("...or do i?");
+                        },
+                        "george" => {
+                            // hide any visible sections
+                            web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
+
+                            let mut rng = thread_rng();
+                            let mut filename = &GEORGE_PICS.choose(&mut rng).unwrap_or(&"");
+                            let filepath = format!("/assets/images/{}", filename);
+                            let html = format!("<img src={}></img>", filepath);
+
+                            web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
+                            web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
+
+                            term.write("\x1b[H\x1b[2J");
+                        },
+                        "sudo" => {
+                            let filepath = "/assets/images/hackerman.png";
+                            let html = format!("<img src={}></img>", filepath);
+                            web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
+                            web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
+
+                            term.write("\x1b[H\x1b[2J");
+                        },
+                        "pwd" => {
+                            term.writeln("/home/nobody");
+                        },
+                        "ls" => {
+                            term.writeln("Documents");
+                            term.writeln("Downloads");
+                            term.writeln("Pictures");
+                        },
+                        "ls -a" => {
+                            term.writeln("Documents");
+                            term.writeln("Downloads");
+                            term.writeln("Pictures");
+                            term.writeln(".ssh");
+                            term.writeln(".bashrc");
+                            term.writeln(".vimrc");
+                        }
+                        "cat" => {
+                            permission_denied(&term);
+                        }
                         _ => {
-                            term.writeln(&format!("'{}' is not a valid command! run 'help' to list all valid commands", line));
+                            if line_match.contains("cat ") {
+                                permission_denied(&term);
+                            } else if line_match.contains("ls -") {
+                                term.writeln("Documents");
+                                term.writeln("Downloads");
+                                term.writeln("Pictures");
+                                term.writeln(".ssh");
+                                term.writeln(".bashrc");
+                                term.writeln(".vimrc");
+                            } else if line_match.contains("sudo ") {
+                                let filepath = "/assets/images/hackerman.png";
+                                let html = format!("<img src={}></img>", filepath);
+                                web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
+                                web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
+                                term.write("\x1b[H\x1b[2J");
+                            } else {
+                                term.writeln(&format!("'{}' is not a valid command! run 'help' to list all valid commands", line));
+                            }
                         },
                     }
 
@@ -268,6 +353,11 @@ pub async fn main() -> Result<(), JsValue> {
             }
             KEY_L if event.ctrl_key() => term.writeln(""),
             KEY_C if event.ctrl_key() => {
+                prompt(&term);
+                line.clear();
+                cursor_col = 0;
+            }
+            KEY_U if event.ctrl_key() => {
                 prompt(&term);
                 line.clear();
                 cursor_col = 0;
