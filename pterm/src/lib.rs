@@ -318,6 +318,12 @@ pub async fn main() -> Result<(), JsValue> {
                         _ => {
                             if line_match.contains("cat ") || line_match.contains("cd ") {
                                 permission_denied(&term);
+                            } else if line_match.contains("root") || line_match.contains("sudo ") || line_match.contains("chown ") || line_match.contains("chmod ") || line_match.contains("which ") {
+                                let filepath = "/assets/images/hackerman.png";
+                                let html = format!("<img src={}></img>", filepath);
+                                web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
+                                web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
+                                term.write("\x1b[H\x1b[2J");
                             } else if line_match.contains("ls -") {
                                 term.writeln("Documents");
                                 term.writeln("Downloads");
@@ -325,12 +331,6 @@ pub async fn main() -> Result<(), JsValue> {
                                 term.writeln(".ssh");
                                 term.writeln(".bashrc");
                                 term.writeln(".vimrc");
-                            } else if line_match.contains("sudo ") || line_match.contains("chown ") || line_match.contains("chmod ") || line_match.contains("which ") {
-                                let filepath = "/assets/images/hackerman.png";
-                                let html = format!("<img src={}></img>", filepath);
-                                web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
-                                web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
-                                term.write("\x1b[H\x1b[2J");
                             } else if line_match.contains("git ") {
                                 term.writeln(&format!("{}", Colour::Red.bold().paint("fatal: This operation must be run in a work tree").to_string()));
                             } else if line_match.contains("resume ") {
