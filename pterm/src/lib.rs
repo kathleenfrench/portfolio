@@ -199,7 +199,7 @@ pub async fn main() -> Result<(), JsValue> {
 
     *SPEED_FACTOR.lock().await = cfg.speed_factor;
 
-    // run_intro(&cfg).await;
+    run_intro(&cfg).await;
 
     let terminal: Terminal = Terminal::new(
         TerminalOptions::new()
@@ -266,6 +266,7 @@ pub async fn main() -> Result<(), JsValue> {
                             web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
                             web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&HIDDEN);
 
+                            term.write("\x1b[H\x1b[2J");
                             contact_info(&term);
                         },
                         "clear" => {
