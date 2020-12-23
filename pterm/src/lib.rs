@@ -115,7 +115,7 @@ pub async fn main() -> Result<(), JsValue> {
 
     *SPEED_FACTOR.lock().await = cfg.speed_factor;
 
-    // run_intro(&cfg).await;
+    run_intro(&cfg).await;
 
     let terminal: Terminal = Terminal::new(
         TerminalOptions::new()
@@ -138,6 +138,7 @@ pub async fn main() -> Result<(), JsValue> {
     let mut line = String::new();
     let mut cursor_col = 0;
     let term: Terminal = terminal.clone().dyn_into()?;
+    let addon = FitAddon::new();
 
     let callback = Closure::wrap(Box::new(move |e: OnKeyEvent| {
         let event = e.dom_event();
@@ -229,10 +230,7 @@ pub async fn main() -> Result<(), JsValue> {
     }) as Box<dyn FnMut(_)>);
 
     terminal.on_key(callback.as_ref().unchecked_ref());
-
     callback.forget();
-
-    let addon = FitAddon::new();
     terminal.load_addon(addon.clone().dyn_into::<FitAddon>()?.into());
     addon.fit();
     terminal.focus();
