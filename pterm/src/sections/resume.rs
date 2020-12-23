@@ -4,7 +4,7 @@ use yansi::Paint;
 use rand::prelude::*;
 use std::cmp::max;
 
-use crate::content::{RESUME, EXTENSIONS_LIST, FILES_LIST};
+use crate::content::{RESUME, TMP_EXTENSIONS_LIST, TMP_SOURCE_LIST};
 use crate::utils::gen_file_name_with_extension;
 
 use file_size_opts::FileSizeOpts;
@@ -14,16 +14,14 @@ use std::time::Duration;
 
 pub async fn run(cfg: &AppConfig) {
   let mut rng = thread_rng();
-
-  let ext = EXTENSIONS_LIST.choose(&mut rng).unwrap_or(&".mp3");
-  let resume_file: &str = "resume_";
+  let ext = TMP_EXTENSIONS_LIST.choose(&mut rng).unwrap_or(&".mp3");
   let download_speed = rng.gen_range(10_000_000, 100_000_000);
   let num_files: u64 = rng.gen_range(3, 10);
 
   for _ in 0..num_files {
     let fbytes = rng.gen_range(30_000_000, 300_000_000);
-    let sleep_wait_ms = 50;
-    let file_name = &format!("{}_{}", resume_file, &gen_file_name_with_extension(&mut rng, &FILES_LIST, ext));
+    let sleep_wait_ms = 10;
+    let file_name = &format!("/var/tmp/{}", &gen_file_name_with_extension(&mut rng, &TMP_SOURCE_LIST, ext));
     let stats_width = 32;
     let rest_padding = 15;
 

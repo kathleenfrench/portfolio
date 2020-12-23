@@ -23,5 +23,34 @@ html, body {
 }
 
 .shrink {
-  height: 20vh !important;
+  height: 10vh !important;
+}
+
+.expand {
+  padding-bottom: 20px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.visible {
+  display: "" !important;
+}
+
+.main {
+  padding: 10px;
+}
+
+#about {
+  display: inline-flex;
+  flex-direction: row;
+  flex-flow: row;
+  justify-content: space-between;
+  color: yellow;
+  width: 80vw;
+
+  p {
+    margin: 1em;
+  }
 }

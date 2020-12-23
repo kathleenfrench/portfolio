@@ -54,6 +54,7 @@ fn help_text(term: &Terminal) {
     term.writeln("resume:         view my resume");
     term.writeln("projects:       see various projects i've worked on");
     term.writeln("contact:        contact me");
+    term.writeln("clear:          clear the terminal window");
     term.writeln("");
     term.writeln("");
 }
@@ -90,6 +91,10 @@ const KEY_L: u32 = 76;
 const CURSOR_LEFT: &str = "\x1b[D";
 const CURSOR_RIGHT: &str = "\x1b[C";
 
+const SHRINK_CLASS: &str = "shrink";
+const VISIBLE_CLASS: &str = "visible";
+const HIDDEN: &str = "hidden";
+
 pub async fn run_intro(cfg: &AppConfig) {
     sections::intro::run(cfg).await;
 }
@@ -98,9 +103,7 @@ pub async fn run(cfg: AppConfig, el: Element) {
     let mut thread_range = thread_rng();
 
     console_log!("RUN EL: {:?}", el);
-
-    let shrinkClass = "shrink";
-    el.set_class_name(&shrinkClass);
+    el.set_class_name(&SHRINK_CLASS);
 
     loop {
         let choice: &str = cfg.sections.choose(&mut thread_range).unwrap();
@@ -187,7 +190,50 @@ pub async fn main() -> Result<(), JsValue> {
             KEY_ENTER => {
                 if !line.is_empty() {
                     term.writeln("");
-                    term.writeln(&format!("You entered {} characters '{}'", line.len(), line));
+                    console_log!("LINE: {}", line);
+
+                    let mut line_match: &str = &line;
+
+                    match line_match {
+                        "help" => {
+                            help_text(&term);
+                        },
+                        "about" => {
+                            // show the about section
+                            web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&VISIBLE_CLASS);
+
+                            term.writeln("more about me");
+                        },
+                        "resume" => {
+                            // hide any visible sections
+                            web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
+
+                            term.writeln("my resume");
+                        },
+                        "projects" => {
+                            // hide any visible sections
+                            web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
+
+                            term.writeln("my projects...");
+                        },
+                        "contact" => {
+                            // hide any visible sections
+                            web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
+
+                            term.writeln("contact me @...");
+                        },
+                        "clear" => {
+                            // hide any visible sections
+                            web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
+
+                            // clear all term input text
+                            term.write("\x1b[H\x1b[2J");
+                        },
+                        _ => {
+                            term.writeln(&format!("'{}' is not a valid command! run 'help' to list all valid commands", line));
+                        },
+                    }
+
                     line.clear();
                     cursor_col = 0;
                 }
