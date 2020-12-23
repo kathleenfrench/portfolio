@@ -21,7 +21,7 @@ use rand::prelude::*;
 use std::sync::atomic::{AtomicBool, AtomicU32};
 use xterm_js_rs::{OnKeyEvent, Terminal, TerminalOptions, Theme};
 use wasm_bindgen::JsCast;
-use web_sys::{Document, Element, HtmlElement, Window};
+use web_sys::{window, Document, Element, HtmlElement, Window, Location};
 use colored::*;
 
 use app::AppConfig;
@@ -65,6 +65,8 @@ fn help_text(term: &Terminal) {
     term.writeln("");
     term.writeln("[COMMANDS]:");
     term.writeln("");
+    term.writeln(&format!("{}", Colour::Green.bold().paint("type a command and hit the 'Enter' key to execute").to_string()));
+    term.writeln("");
     term.writeln("about:          learn more about me");
     term.writeln("resume:         view available subcommands");
     term.writeln("projects:       see various projects i've worked on");
@@ -75,12 +77,22 @@ fn help_text(term: &Terminal) {
     term.writeln("");
 }
 
-fn subcommand_help_text(cmd: &str, short: &str, example: &str, term: &Terminal) {
+fn contact_info(term: &Terminal) {
+    term.writeln("");
+    term.writeln(&format!("run '{}' from the list below to launch a separate service", Colour::Green.bold().paint("goto <link>").to_string()));
+    term.writeln(&format!("[example]: {}", Colour::Blue.bold().paint("goto github").to_string()));
+    term.writeln("");
+    term.writeln("- github");
+    term.writeln("- linkedin");
+    term.writeln("- email");
+    term.writeln("");
+}
+
+fn subcommand_help_text(cmd: &str, example: &str, term: &Terminal) {
     term.writeln("");
     term.writeln("[SUBCOMMANDS]:");
     term.writeln("");
     term.writeln(&format!("{}: {} <subcommand>", Colour::Green.bold().paint("[usage]").to_string(), cmd));
-    term.writeln(&format!("{}: {}", Colour::Green.bold().paint("[alias]").to_string(), short));
     term.writeln(&format!("{}: {}", Colour::Green.bold().paint("[example]").to_string(), example));
     term.writeln("");
 
@@ -229,14 +241,16 @@ pub async fn main() -> Result<(), JsValue> {
                             web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&VISIBLE_CLASS);
                             web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&HIDDEN);
 
-                            term.writeln("more about me");
+                            term.write("\x1b[H\x1b[2J");
+                            term.writeln("~ moi ~");
                         },
                         "resume" => {
                             // hide any visible sections
                             web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
                             web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&HIDDEN);
 
-                            subcommand_help_text("resume", "res", "res awards", &term);
+                            term.write("\x1b[H\x1b[2J");
+                            subcommand_help_text("resume", "resume xp", &term);
                         },
                         "projects" => {
                             // hide any visible sections
@@ -250,7 +264,7 @@ pub async fn main() -> Result<(), JsValue> {
                             web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
                             web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&HIDDEN);
 
-                            term.writeln("contact me @...");
+                            contact_info(&term);
                         },
                         "clear" => {
                             // hide any visible sections
@@ -287,26 +301,18 @@ pub async fn main() -> Result<(), JsValue> {
                             term.write("\x1b[H\x1b[2J");
                         },
                         "pwd" => {
-                            term.writeln("/home/nobody");
+                            term.writeln("/home/stranger");
                         },
                         "ls" => {
                             term.writeln("Documents");
                             term.writeln("Downloads");
                             term.writeln("Pictures");
                         },
-                        "ls -a" => {
-                            term.writeln("Documents");
-                            term.writeln("Downloads");
-                            term.writeln("Pictures");
-                            term.writeln(".ssh");
-                            term.writeln(".bashrc");
-                            term.writeln(".vimrc");
-                        }
                         "cat" => {
                             permission_denied(&term);
                         }
                         _ => {
-                            if line_match.contains("cat ") {
+                            if line_match.contains("cat ") || line_match.contains("cd ") {
                                 permission_denied(&term);
                             } else if line_match.contains("ls -") {
                                 term.writeln("Documents");
@@ -315,12 +321,49 @@ pub async fn main() -> Result<(), JsValue> {
                                 term.writeln(".ssh");
                                 term.writeln(".bashrc");
                                 term.writeln(".vimrc");
-                            } else if line_match.contains("sudo ") {
+                            } else if line_match.contains("sudo ") || line_match.contains("chown ") || line_match.contains("chmod ") {
                                 let filepath = "/assets/images/hackerman.png";
                                 let html = format!("<img src={}></img>", filepath);
                                 web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
                                 web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
                                 term.write("\x1b[H\x1b[2J");
+                            } else if line_match.contains("resume ") {
+                                let line_split = line_match.split_ascii_whitespace().collect::<Vec<_>>();
+                                let sub_cmd = <&str>::clone(&line_split[1]);
+
+                                match sub_cmd {
+                                    "skills" => term.writeln("test"),
+                                    "sk" => term.writeln("test"),
+                                    "technologies" => term.writeln("test"),
+                                    "tech" => term.writeln("test"),
+                                    "experience" => term.writeln("test"),
+                                    "xp" => term.writeln("test"),
+                                    "education" => term.writeln("test"),
+                                    "edu" => term.writeln("test"),
+                                    "awards" => term.writeln("test"),
+                                    "awd" => term.writeln("test"),
+                                    "publications" => term.writeln("test"),
+                                    "pub" => term.writeln("test"),
+                                    _ => term.writeln(&format!("{} is not a valid subcommand for 'resume'", sub_cmd)),
+                                }
+                            } else if line_match.contains("goto ") {
+                                let line_split = line_match.split_ascii_whitespace().collect::<Vec<_>>();
+                                let target = <&str>::clone(&line_split[1]);
+
+                                match target {
+                                    "github" => {
+                                        term.writeln(&format!("redirecting to {}...", target));
+                                        utils::open_in_new_tab("https://github.com/kathleenfrench");
+                                    },
+                                    "linkedin" => {
+                                        term.writeln(&format!("redirecting to {}...", target));
+                                        utils::open_in_new_tab("https://www.linkedin.com/in/frenchkathleen/");
+                                    },
+                                    "email" => {
+                                        utils::open_in_new_tab("https://mail.google.com/mail/?view=cm&fs=1&to=kfrench09@gmail.com");
+                                    },
+                                    _ => term.writeln(&format!("{} is not a valid input", target)),
+                                }
                             } else {
                                 term.writeln(&format!("'{}' is not a valid command! run 'help' to list all valid commands", line));
                             }
