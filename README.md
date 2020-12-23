@@ -4,40 +4,28 @@ _this is the repo for my personal portfolio_
 
 ----
 
-## local dev
+### local dev
 
-### make commands
+#### make commands
 
 running `make` in your terminal will output some useful commands for running the site locally
 
 ```
-assets                         compile all frontend assets to /static/assets
-build                          compile the rust binary
+build                          compile the rust server binary
 cert                           create a local self-signed cert for dev and install it
-check                          verify the rust bin is able to be compiled
+check                          verify the rust server bin is able to be compiled
 clean                          remove generated assets
-css                            bundle css
+dist                           build and bundle all assets (js, css, html)
 help                           lists some available makefile commands
-hot-css                        hot reload css scripts
-js                             compile js
+lint                           lint the rust code
 local                          configures ssl, compiles/bundles all code, starts the rust server
 release                        compile a release build
-run                            run the rust app locally
+run                            run the rust app server locally
 test                           run rust tests
-watch                          run the hot-reload server for rust
+watch                          run the hot-reload server for the rust backend
 ```
 
-#### run it locally
-
-to build and run the local environment, simply run: `make local`
-
-#### hot reloading
-
-if you want to hot reload changes:
-- for `rust` code: `make watch`
-- for `css` code: `make hot-css`
-
-### ssl
+#### ssl
 
 _note: the `make cert` target is a dependency of `make local`_
 
