@@ -358,8 +358,18 @@ pub async fn main() -> Result<(), JsValue> {
                                             term.writeln(s);
                                         }
                                     },
-                                    "experience" => term.writeln("test"),
-                                    "xp" => term.writeln("test"),
+                                    "experience" => {
+                                        let mut iter = RESUME_EXPERIENCE.iter();
+                                        while let Some(s) = iter.next() {
+                                            term.writeln(s);
+                                        }
+                                    },
+                                    "xp" => {
+                                        let mut iter = RESUME_EXPERIENCE.iter();
+                                        while let Some(s) = iter.next() {
+                                            term.writeln(s);
+                                        }
+                                    },
                                     "education" => {
                                         let mut iter = RESUME_EDUCATION.iter();
                                         while let Some(s) = iter.next() {

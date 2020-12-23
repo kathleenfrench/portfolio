@@ -1,26 +1,9 @@
-<vimeo> | ny | software engineer > devex (2019 - present)
+[2019-*]: VIMEO                           - NY, NY > software engineer > devex
 
-- dex: built a command line tool in `go` for standardizing & orchestrating local development environments at vimeo. run and access commands for a local repository from any subdirectory on your local machine. integrates workflows and heavily used platforms via their respective APIs (github, pagerduty, jira, jenkins, slack, gcp)
-- warden: built a full-service application for managing permissions across internal platforms at vimeo - automates the request > approval > implementation workflow via a custom templating engine. where possible API integrations exist, requests are handled purely on the backend upon approval.
-- jenkins: brought the CI build of the vimeo repository down from 45+ minutes to ~10 minutes when distributed cache system is fully utilized.
+[2017-2019]: BOUNCE EXCHANGE              - NY, NY > software engineer > core services & devops
 
-<bounce exchange> | ny | software engineer > core services & devops liason (2017 - 2019)
-- built in-house, IAB compliant VAST/VPAID video player for the ads product - increasing impressions, performance, and eliminating monthly license costs to a third-party player provider
-- built a go service API for onsite retargeting of users by identifying previously visited products then returning a range of items based on criteria set in a campaign.
-- migrated all client-side JS for the onsite tag from a legacy API codebase to its own codebase, significantly increasing rate and ease of deployments via CircleCI. integrated with local dev environments requiring local-specific Dockerfiles and custom configuration of the webpack-dev-server to function with our containerized services on an nginx reverse proxy
-- identified & remedied expensive db queries, for ex: added caching in our php api to css properties used in onsite campaigns, cutting calls-per-minute from 60,000 to 25,0000
+[2017]: EPHELANTS                         - NY, NY > software engineer
 
-<ephelants> | ny | software engineer (2017)
-- designed/built framework of an early-stage, scalable media distribution, networking,a nd investment platform
-- coded end-to-end user, investor, and networking functionality with authentication, peer-to-peer following, subscription access capabilities, and proposal submission system
+[2015-2016]: NARRATIVE CAPITAL PARTNERS   - NY, NY > creative executive
 
-<narrative capital partners> | ny | creative executive (2015-2016)
-- prepared white papers & business proposals for multi-million dollar debt deals used to finance production of feature films and provide significant ROI to investors
-- identified valuable IP for the acquisition of story rights
-- monetized/managed domains
-- developed company website
-
-<nyu> | ny | adjunct professor (2015)
-- taught 'introduction to creative writing: fiction & poetry' to 14 undergraduate students
-- designed course syllabus, lecture plans, and grading structure
-- led weekly workshops to evaluate student pieces 
+[2015]: NEW YORK UNIVERSITY               - NY, NY > adjunct professor
