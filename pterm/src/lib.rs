@@ -203,7 +203,7 @@ pub async fn main() -> Result<(), JsValue> {
     let terminal: Terminal = Terminal::new(
         TerminalOptions::new()
         .with_rows(50)
-        .with_cols(100)
+        .with_cols(150)
         .with_cursor_blink(true)
         .with_cursor_width(10)
         .with_font_size(12)
@@ -293,6 +293,9 @@ pub async fn main() -> Result<(), JsValue> {
 
                             term.write("\x1b[H\x1b[2J");
                         },
+                        "git" => {
+                            term.writeln(&format!("{}", Colour::Red.bold().paint("fatal: This operation must be run in a work tree").to_string()));
+                        },
                         "sudo" => {
                             let filepath = "/assets/images/hackerman.png";
                             let html = format!("<img src={}></img>", filepath);
@@ -322,12 +325,14 @@ pub async fn main() -> Result<(), JsValue> {
                                 term.writeln(".ssh");
                                 term.writeln(".bashrc");
                                 term.writeln(".vimrc");
-                            } else if line_match.contains("sudo ") || line_match.contains("chown ") || line_match.contains("chmod ") {
+                            } else if line_match.contains("sudo ") || line_match.contains("chown ") || line_match.contains("chmod ") || line_match.contains("which ") {
                                 let filepath = "/assets/images/hackerman.png";
                                 let html = format!("<img src={}></img>", filepath);
                                 web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
                                 web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
                                 term.write("\x1b[H\x1b[2J");
+                            } else if line_match.contains("git ") {
+                                term.writeln(&format!("{}", Colour::Red.bold().paint("fatal: This operation must be run in a work tree").to_string()));
                             } else if line_match.contains("resume ") {
                                 let line_split = line_match.split_ascii_whitespace().collect::<Vec<_>>();
                                 let sub_cmd = <&str>::clone(&line_split[1]);
