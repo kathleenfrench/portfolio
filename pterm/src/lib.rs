@@ -405,8 +405,8 @@ pub async fn main() -> Result<(), JsValue> {
                                             term.writeln(s);
                                         }
                                     },
-                                    "publications" => term.writeln("test"),
-                                    "pub" => term.writeln("test"),
+                                    "publications" => term.writeln("TK"),
+                                    "pub" => term.writeln("TK"),
                                     _ => term.writeln(&format!("{} is not a valid subcommand for 'resume'", sub_cmd)),
                                 }
                             } else if line_match.contains("goto ") {
