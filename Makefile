@@ -2,7 +2,7 @@
 ########################################## local dev
 
 .PHONY: local
-local: run assets | cert ## configures ssl, compiles/bundles all code, starts the rust server
+local: run dist | cert ## configures ssl, compiles/bundles all code, starts the rust server
 	@echo "success! visit the site in the browser at https://127.0.0.1:3000!"
 
 ########################################## rust server
