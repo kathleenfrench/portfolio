@@ -4,6 +4,7 @@ mod io;
 mod content;
 mod sections;
 mod utils;
+mod term;
 
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
@@ -20,6 +21,7 @@ use instant::Instant;
 use rand::prelude::*;
 use std::sync::atomic::{AtomicBool, AtomicU32};
 use xterm_js_rs::{OnKeyEvent, Terminal, TerminalOptions, Theme};
+use xterm_js_rs::addons::fit::FitAddon;
 use wasm_bindgen::JsCast;
 use web_sys::{window, Document, Element, HtmlElement, Window, Location};
 use colored::*;
@@ -30,7 +32,7 @@ use rand::thread_rng;
 use ansi_term::{Colour, Style};
 
 use crate::io::{csleep, delayed_print, new_line, print, clear_line};
-use crate::content::{GEORGE_PICS, RESUME_AWARDS, RESUME_EDUCATION, RESUME_EXPERIENCE, RESUME_LANGUAGES, RESUME_TECH};
+use crate::content::{RESUME_AWARDS, RESUME_EDUCATION, RESUME_EXPERIENCE, RESUME_LANGUAGES, RESUME_TECH};
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
@@ -43,82 +45,6 @@ extern "C" {
 #[macro_export]
 macro_rules! console_log {
     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
-}
-
-lazy_static::lazy_static! {
-    pub static ref PROMPT: String = Colour::Yellow.bold().paint("kathleenfrench@portfolio $ ").to_string();
-}
-
-lazy_static::lazy_static! {
-    pub static ref PERMISSION_DENIED_ERR: String = Colour::Red.bold().paint("Permission denied").to_string();
-}
-
-fn prompt(term: &Terminal) {
-    term.writeln("");
-    term.write(&PROMPT);
-}
-
-fn permission_denied(term: &Terminal) {
-    term.write(&PERMISSION_DENIED_ERR);
-    term.writeln("");
-}
-
-fn help_text(term: &Terminal) {
-    term.writeln("");
-    term.writeln("[COMMANDS]:");
-    term.writeln("");
-    term.writeln(&format!("{}", Colour::Green.bold().paint("type a command and hit the 'Enter' key to execute").to_string()));
-    term.writeln("");
-    term.writeln("about          learn more about me");
-    term.writeln("resume         view available subcommands");
-    term.writeln("projects       see various projects i've worked on");
-    term.writeln("george         show a random picture of my dog");
-    term.writeln("contact        contact me");
-    term.writeln("clear          clear the terminal window");
-    term.writeln("");
-    term.writeln(&format!("{}", Colour::Green.bold().paint("run `help` at any point to show this screen").to_string()));
-    term.writeln("");
-}
-
-fn contact_info(term: &Terminal) {
-    term.writeln("");
-    term.writeln(&format!("run '{}' from the list below to launch a separate service", Colour::Green.bold().paint("goto <link>").to_string()));
-    term.writeln(&format!("[example]: {}", Colour::Blue.bold().paint("goto github").to_string()));
-    term.writeln("");
-    term.writeln("- github");
-    term.writeln("- linkedin");
-    term.writeln("- email");
-    term.writeln("");
-}
-
-fn subcommand_help_text(cmd: &str, example: &str, term: &Terminal) {
-    term.writeln("");
-    term.writeln("[SUBCOMMANDS]:");
-    term.writeln("");
-    term.writeln(&format!("{}: {} <subcommand>", Colour::Green.bold().paint("[usage]").to_string(), cmd));
-    term.writeln(&format!("{}: {}", Colour::Green.bold().paint("[example]").to_string(), example));
-    term.writeln("");
-
-    match cmd {
-        "resume" => {
-            term.writeln(&format!("pdf           - download the full resume in pdf form"));
-            term.writeln(&format!("languages     ({})", Colour::Blue.bold().paint("lang").to_string()));
-            term.writeln(&format!("technologies  ({})", Colour::Blue.bold().paint("tech").to_string()));
-            term.writeln(&format!("experience    ({})", Colour::Blue.bold().paint("xp").to_string()));
-            term.writeln(&format!("education     ({})", Colour::Blue.bold().paint("edu").to_string()));
-            term.writeln(&format!("awards        ({})", Colour::Blue.bold().paint("awd").to_string()));
-            term.writeln(&format!("publications  ({})", Colour::Blue.bold().paint("pub").to_string()));
-        }
-        _ => term.writeln(&format!("{} is not a valid subcommand", cmd)),
-    }
-
-    term.writeln("");
-    term.writeln("");
-}
-
-fn testing(term: &Terminal) {
-    term.write("\x1b[H\x1b[2J");
-    term.writeln("HELLO THIS IS A TEST");
 }
 
 lazy_static::lazy_static! {
@@ -136,22 +62,6 @@ lazy_static::lazy_static! {
 lazy_static::lazy_static! {
     pub static ref CTRLC_PRESSED: AtomicBool = AtomicBool::new(false);
 }
-
-// https://theasciicode.com.ar/
-const KEY_ENTER: u32 = 13;
-const KEY_BACKSPACE: u32 = 8;
-const KEY_LEFT_ARROW: u32 = 37;
-const KEY_RIGHT_ARROW: u32 = 39;
-const KEY_C: u32 = 67;
-const KEY_L: u32 = 76;
-const KEY_U: u32 = 85;
-
-const CURSOR_LEFT: &str = "\x1b[D";
-const CURSOR_RIGHT: &str = "\x1b[C";
-
-const SHRINK_CLASS: &str = "shrink";
-const VISIBLE_CLASS: &str = "visible";
-const HIDDEN: &str = "hidden";
 
 pub async fn run_intro(cfg: &AppConfig) {
     sections::intro::run(cfg).await;
@@ -185,7 +95,7 @@ pub async fn run(cfg: AppConfig) {
 
 #[cfg(target_arch = "wasm32")]
 pub async fn run(cfg: AppConfig, intro_animation: Element) {
-    intro_animation.set_class_name(&HIDDEN);
+    intro_animation.set_class_name(&crate::term::HIDDEN);
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -206,7 +116,7 @@ pub async fn main() -> Result<(), JsValue> {
 
     *SPEED_FACTOR.lock().await = cfg.speed_factor;
 
-    run_intro(&cfg).await;
+    // run_intro(&cfg).await;
 
     let terminal: Terminal = Terminal::new(
         TerminalOptions::new()
@@ -222,118 +132,47 @@ pub async fn main() -> Result<(), JsValue> {
     let elem = web_sys::window().unwrap().document().unwrap().get_element_by_id("terminal").unwrap();
     let intro_elem = web_sys::window().unwrap().document().unwrap().get_element_by_id("intro-terminal").unwrap();
 
-    help_text(&terminal);
+    crate::term::help_text(&terminal);
     terminal.open(elem.dyn_into()?);
-    prompt(&terminal);
+    crate::term::prompt(&terminal);
 
     let mut line = String::new();
     let mut cursor_col = 0;
-    let mut last_george_pic = "";
-
     let term: Terminal = terminal.clone().dyn_into()?;
 
     let callback = Closure::wrap(Box::new(move |e: OnKeyEvent| {
         let event = e.dom_event();
 
         match event.key_code() {
-            KEY_ENTER => {
+            crate::term::KEY_ENTER => {
                 if !line.is_empty() {
-                    term.writeln("");
-
+                    crate::term::new_line(&term);
                     let mut line_match: &str = &line.trim();
-
                     match line_match {
-                        "help" => {
-                            help_text(&term);
-                        },
-                        "about" => {
-                            // show the about section
-                            web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&VISIBLE_CLASS);
-                            web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&HIDDEN);
-
-                            term.write("\x1b[H\x1b[2J");
-                            term.writeln("~ moi ~");
-                        },
-                        "resume" => {
-                            // hide any visible sections
-                            web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
-                            web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&HIDDEN);
-
-                            term.write("\x1b[H\x1b[2J");
-                            subcommand_help_text("resume", "resume xp", &term);
-                        },
-                        "projects" => {
-                            // hide any visible sections
-                            web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
-                            web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&HIDDEN);
-
-                            term.writeln("my projects...");
-                        },
-                        "contact" => {
-                            // hide any visible sections
-                            web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
-                            web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&HIDDEN);
-
-                            term.write("\x1b[H\x1b[2J");
-                            contact_info(&term);
-                        },
-                        "clear" => {
-                            // hide any visible sections
-                            web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
-                            web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&HIDDEN);
-
-                            // clear all term input text
-                            term.write("\x1b[H\x1b[2J");
-                        },
-                        "whoami" => {
-                            term.writeln("idk");
-                            term.writeln("...or do i?");
-                        },
-                        "george" => {
-                            // hide any visible sections
-                            web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
-
-                            let mut rng = thread_rng();
-                            let mut filename = &GEORGE_PICS.choose(&mut rng).unwrap_or(&"");
-                            let filepath = format!("/assets/images/{}", filename);
-                            let html = format!("<img src={}></img>", filepath);
-
-                            web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
-                            web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
-
-                            term.write("\x1b[H\x1b[2J");
-                        },
-                        "git" => {
-                            term.writeln(&format!("{}", Colour::Red.bold().paint("fatal: This operation must be run in a work tree").to_string()));
-                        },
-                        "sudo" => {
-                            let filepath = "/assets/images/hackerman.png";
-                            let html = format!("<img src={}></img>", filepath);
-                            web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
-                            web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
-
-                            term.write("\x1b[H\x1b[2J");
-                        },
-                        "pwd" => {
-                            term.writeln("/home/stranger");
-                        },
+                        "help" => crate::term::help_text(&term),
+                        "about" => crate::term::about(&term),
+                        "resume" => crate::term::subcommand_help_text("resume", "resume xp", &term),
+                        "projects" => crate::term::projects(&term),
+                        "contact" => crate::term::contact_info(&term),
+                        "clear" => crate::term::reset_window(&term),
+                        "whoami" => crate::term::whoami(&term),
+                        "george" => crate::term::random_george_pic(&term),
+                        "git" => crate::term::throw_git_error(&term),
+                        "sudo" => crate::term::throw_hackerman(&term),
+                        "pwd" => term.writeln("/home/stranger"),
                         "ls" => {
                             term.writeln("Documents");
                             term.writeln("Downloads");
                             term.writeln("Pictures");
                         },
-                        "cat" => {
-                            permission_denied(&term);
-                        }
+                        "cat" => crate::term::permission_denied(&term),
                         _ => {
-                            if line_match.contains("cat ") || line_match.contains("cd ") {
-                                permission_denied(&term);
-                            } else if line_match.contains("root") || line_match.contains("sudo ") || line_match.contains("chown ") || line_match.contains("chmod ") || line_match.contains("which ") {
-                                let filepath = "/assets/images/hackerman.png";
-                                let html = format!("<img src={}></img>", filepath);
-                                web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
-                                web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
-                                term.write("\x1b[H\x1b[2J");
+                            if crate::term::deny_common_bins(line_match) {
+                                crate::term::permission_denied(&term);
+                            } else if crate::term::should_throw_hackerman(line_match) {
+                                crate::term::throw_hackerman(&term);
+                            } else if line_match.contains("ls ") && line_match.contains("/") {
+                                crate::term::permission_denied(&term);
                             } else if line_match.contains("ls -") {
                                 term.writeln("Documents");
                                 term.writeln("Downloads");
@@ -346,10 +185,10 @@ pub async fn main() -> Result<(), JsValue> {
                             } else if line_match.contains("resume ") {
                                 let line_split = line_match.split_ascii_whitespace().collect::<Vec<_>>();
                                 let sub_cmd = <&str>::clone(&line_split[1]);
-                                term.writeln("");
+                                crate::term::new_line(&term);
 
                                 match sub_cmd {
-                                    "help" => subcommand_help_text("resume", "resume edu", &term),
+                                    "help" => crate::term::subcommand_help_text("resume", "resume edu", &term),
                                     "pdf" => {
                                         utils::open_in_new_tab("/assets/files/resume.pdf");
                                     },
@@ -444,35 +283,36 @@ pub async fn main() -> Result<(), JsValue> {
                     line.clear();
                     cursor_col = 0;
                 }
-                prompt(&term);
+
+                crate::term::prompt(&term);
             }
-            KEY_BACKSPACE => {
+            crate::term::KEY_BACKSPACE => {
                 if cursor_col > 0 {
                     term.write("\u{0008} \u{0008}");
                     line.pop();
                     cursor_col -= 1;
                 }
             }
-            KEY_LEFT_ARROW => {
+            crate::term::KEY_LEFT_ARROW => {
                 if cursor_col > 0 {
-                    term.write(CURSOR_LEFT);
+                    term.write(crate::term::CURSOR_LEFT);
                     cursor_col -= 1;
                 }
             }
-            KEY_RIGHT_ARROW => {
+            crate::term::KEY_RIGHT_ARROW => {
                 if cursor_col < line.len() {
-                    term.write(CURSOR_RIGHT);
+                    term.write(crate::term::CURSOR_RIGHT);
                     cursor_col += 1;
                 }
             }
-            KEY_L if event.ctrl_key() => term.writeln(""),
-            KEY_C if event.ctrl_key() => {
-                prompt(&term);
+            crate::term::KEY_L if event.ctrl_key() => term.writeln(""),
+            crate::term::KEY_C if event.ctrl_key() => {
+                crate::term::prompt(&term);
                 line.clear();
                 cursor_col = 0;
             }
-            KEY_U if event.ctrl_key() => {
-                prompt(&term);
+            crate::term::KEY_U if event.ctrl_key() => {
+                crate::term::prompt(&term);
                 line.clear();
                 cursor_col = 0;
             }
@@ -489,6 +329,10 @@ pub async fn main() -> Result<(), JsValue> {
     terminal.on_key(callback.as_ref().unchecked_ref());
 
     callback.forget();
+
+    let addon = FitAddon::new();
+    terminal.load_addon(addon.clone().dyn_into::<FitAddon>()?.into());
+    addon.fit();
     terminal.focus();
 
     run(cfg, intro_elem).await;
