@@ -5,6 +5,7 @@ mod content;
 mod sections;
 mod utils;
 mod term;
+mod local;
 
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
@@ -23,7 +24,7 @@ use std::sync::atomic::{AtomicBool, AtomicU32};
 use xterm_js_rs::{OnKeyEvent, Terminal, TerminalOptions, Theme};
 use xterm_js_rs::addons::fit::FitAddon;
 use wasm_bindgen::JsCast;
-use web_sys::{window, Document, Element, HtmlElement, Window, Location};
+use web_sys::{window, Document, Element, HtmlElement, Window, Location, Storage};
 use colored::*;
 
 use app::AppConfig;
@@ -111,11 +112,17 @@ pub async fn main() -> Result<(), JsValue> {
     use std::panic;
     panic::set_hook(Box::new(console_error_panic_hook::hook));
 
+    let mut local = crate::local::Store::new();
     let cfg = app::parse_inputs();
 
     *SPEED_FACTOR.lock().await = cfg.speed_factor;
 
-    run_intro(&cfg).await;
+    if !local.get_intro_played() {
+        run_intro(&cfg).await;
+    }
+
+    local.set_intro_played(true);
+    local.save_to_local_storage();
 
     let terminal: Terminal = Terminal::new(
         TerminalOptions::new()
@@ -162,6 +169,13 @@ pub async fn main() -> Result<(), JsValue> {
                         "pwd" => term.writeln("/home/stranger"),
                         "ls" => crate::term::ls(&term, false),
                         "cat" => crate::term::permission_denied(&term),
+                        "replay" => {
+                            local.set_intro_played(false);
+                            local.save_to_local_storage();
+
+                            let window = web_sys::window().unwrap();
+                            window.location().reload();
+                        },
                         _ => {
                             if crate::term::deny_common_bins(line_match) {
                                 crate::term::permission_denied(&term);

@@ -52,6 +52,7 @@ pub fn help_text(term: &Terminal) {
   term.writeln("george         show a random picture of my dog");
   term.writeln("contact        contact me");
   term.writeln("clear          clear the terminal window");
+  term.writeln("replay         replay the intro animation");
   new_line(&term);
   term.writeln(&format!("{}", Colour::Green.bold().paint("run `help` at any point to show this screen").to_string()));
   new_line(&term);
