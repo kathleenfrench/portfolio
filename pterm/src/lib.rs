@@ -169,19 +169,20 @@ pub async fn main() -> Result<(), JsValue> {
                         "pwd" => term.writeln("/home/stranger"),
                         "ls" => crate::term::ls(&term, false),
                         "cat" => crate::term::permission_denied(&term),
+                        "env" => crate::term::env_text(&term),
                         "replay" => {
+                            let window = web_sys::window().unwrap();
                             local.set_intro_played(false);
                             local.save_to_local_storage();
-
-                            let window = web_sys::window().unwrap();
                             window.location().reload();
                         },
+                        "cat .top_secret" => crate::term::top_secret(&term),
                         _ => {
                             if crate::term::deny_common_bins(line_match) {
                                 crate::term::permission_denied(&term);
                             } else if crate::term::should_throw_hackerman(line_match) {
                                 crate::term::throw_hackerman(&term);
-                            } else if line_match.contains("ls ") && line_match.contains("/") {
+                            } else if crate::term::should_deny_ls(line_match) {
                                 crate::term::permission_denied(&term);
                             } else if line_match.contains("ls -") {
                                 crate::term::ls(&term, true);
@@ -190,7 +191,9 @@ pub async fn main() -> Result<(), JsValue> {
                             } else if line_match.contains("resume ") {
                                 crate::term::resume(&term, line_match);
                             } else if line_match.contains("goto ") {
-                                crate::term::contact_goto_links(&term, line_match);
+                                crate::term::goto_links(&term, line_match);
+                            } else if line_match.contains("echo ") {
+                                crate::term::echo(&term, line_match);
                             } else {
                                 crate::term::command_not_found(&term, line_match);
                             }
