@@ -1,0 +1,15 @@
+
+ 9921  ls
+ 9922  ls -lah
+ 9923  clear
+ 9924  sudo su -
+ 9925  clear
+ 9926  env
+ 9927  cat .bashrc
+ 9928  chmod +x .bashrc
+ 9929  clear
+ 9930  ls /root
+ 9931  ls /tmp
+ 9932  clear
+ 9933  pwd
+ 9934  whoami

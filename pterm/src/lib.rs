@@ -168,7 +168,7 @@ pub async fn main() -> Result<(), JsValue> {
                         "sudo" => crate::term::throw_hackerman(&term),
                         "pwd" => term.writeln("/home/stranger"),
                         "ls" => crate::term::ls(&term, false),
-                        "cat" => crate::term::permission_denied(&term),
+                        "cat" => crate::term::term_err(&term),
                         "env" => crate::term::env_text(&term),
                         "replay" => {
                             let window = web_sys::window().unwrap();
@@ -176,6 +176,8 @@ pub async fn main() -> Result<(), JsValue> {
                             local.save_to_local_storage();
                             window.location().reload();
                         },
+                        "history" => crate::term::get_history(&term),
+                        "cat .read_me" => crate::term::read_me(&term),
                         "cat /tmp/.top_secret" => crate::term::top_secret(&term),
                         _ => {
                             if crate::term::deny_common_bins(line_match) {
