@@ -115,10 +115,10 @@ img {
 }
 
 .fadeImage {
-  -webkit-animation: fadein 4s; /* Safari, Chrome and Opera > 12.1 */
-     -moz-animation: fadein 4s; /* Firefox < 16 */
-      -ms-animation: fadein 4s; /* Internet Explorer */
-       -o-animation: fadein 4s; /* Opera < 12.1 */
+  -webkit-animation: fadein 4s;
+     -moz-animation: fadein 4s;
+      -ms-animation: fadein 4s;
+       -o-animation: fadein 4s;
           animation: fadein 4s;
   display: block;
 }
@@ -128,25 +128,21 @@ img {
   to   { opacity: 1; }
 }
 
-/* Firefox < 16 */
 @-moz-keyframes fadein {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
 
-/* Safari, Chrome and Opera > 12.1 */
 @-webkit-keyframes fadein {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
 
-/* Internet Explorer */
 @-ms-keyframes fadein {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
 
-/* Opera < 12.1 */
 @-o-keyframes fadein {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -171,4 +167,18 @@ img#did-it-1 {
 img#did-it-2 {
   bottom: 0;
   left: 3em;
+}
+
+#treasure-content-container {
+  float: right;
+  height: 45vh;
+  width: 55vw;
+  background-color: #ff00a0;
+  opacity: 0.75;
+  margin-right: 5em;
+}
+
+#treasure-content {
+  font-size: 14px;
+  margin: 5em;
 }
