@@ -182,3 +182,7 @@ img#did-it-2 {
   font-size: 14px;
   margin: 5em;
 }
+
+small a {
+  color: aqua;
+}
