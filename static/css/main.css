@@ -97,3 +97,88 @@ img {
   max-width: 300px;
   height: auto;
 }
+
+#treasure {
+  background-image: url("/assets/images/treasure.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100%;
+  overflow: hidden;
+  background-position-y: bottom;
+}
+
+.treasure-chest h2 {
+  float: left;
+  margin: 3em;
+  color: yellow;
+  font-family: 'Press Start 2P', cursive;
+}
+
+.fadeImage {
+  -webkit-animation: fadein 4s;
+     -moz-animation: fadein 4s;
+      -ms-animation: fadein 4s;
+       -o-animation: fadein 4s;
+          animation: fadein 4s;
+  display: block;
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@-moz-keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@-webkit-keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@-ms-keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@-o-keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.you-did-it{
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  height: 45vh;
+}
+
+.you-did-it img {
+  position: absolute;
+}
+
+img#did-it-1 {
+  top: 3em;
+  right: 3em;
+}
+
+img#did-it-2 {
+  bottom: 0;
+  left: 3em;
+}
+
+#treasure-content-container {
+  float: right;
+  height: 45vh;
+  width: 55vw;
+  background-color: #ff00a0;
+  opacity: 0.75;
+  margin-right: 5em;
+}
+
+#treasure-content {
+  font-size: 14px;
+  margin: 5em;
+}

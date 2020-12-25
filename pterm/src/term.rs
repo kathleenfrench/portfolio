@@ -28,6 +28,10 @@ lazy_static::lazy_static! {
   pub static ref PERMISSION_DENIED_ERR: String = Colour::Red.bold().paint("Permission denied").to_string();
 }
 
+lazy_static::lazy_static! {
+  pub static ref TERMINAL_ERR: String = Colour::Red.paint("Error 2").to_string();
+}
+
 pub fn prompt(term: &Terminal) {
   term.writeln("");
   term.write(&PROMPT);
@@ -70,7 +74,7 @@ pub fn contact_info(term: &Terminal) {
   new_line(&term);
 }
 
-pub fn contact_goto_links(term: &Terminal, line: &str) {
+pub fn goto_links(term: &Terminal, line: &str) {
   let line_split = line.split_ascii_whitespace().collect::<Vec<_>>();
   let target = <&str>::clone(&line_split[1]);
 
@@ -85,6 +89,9 @@ pub fn contact_goto_links(term: &Terminal, line: &str) {
       },
       "email" => {
           utils::open_in_new_tab("https://mail.google.com/mail/?view=cm&fs=1&to=kfrench09@gmail.com");
+      },
+      "l00t" => {
+        utils::open_in_new_tab("/dr9lrf26db8ori9");
       },
       _ => term.writeln(&format!("{} is not a valid input", target)),
   }
@@ -239,7 +246,7 @@ pub fn throw_hackerman(term: &Terminal) {
 }
 
 pub fn deny_common_bins(input: &str) -> bool {
-  if input.contains("cat ") || input.contains("cd ") || input.contains("ps ") {
+  if input.contains("cat ") && input != "cat .topsecret" || input.contains("cd ") || input.contains("ps ") || input.contains("/bin") {
     return true;
   }
 
@@ -268,6 +275,24 @@ pub fn whoami(term: &Terminal) {
   term.writeln("stranger (danger)");
 }
 
+pub fn should_deny_ls(input: &str) -> bool {
+  if input.contains("ls ") {
+    if input.contains("/") && !input.contains("/tmp") || input.contains("Documents") || input.contains("Downloads") || input.contains("Pictures") {
+      return true
+    }
+  }
+
+  false
+}
+
+pub fn should_ls_top_secret(input: &str) -> bool {
+  if input.contains("ls ") && input.contains("/tmp") {
+    return true
+  }
+
+  false
+}
+
 pub fn ls(term: &Terminal, show_dotfiles: bool) {
   if show_dotfiles {
     term.writeln("Documents");
@@ -276,6 +301,7 @@ pub fn ls(term: &Terminal, show_dotfiles: bool) {
     term.writeln(".ssh");
     term.writeln(".bashrc");
     term.writeln(".vimrc");
+    term.writeln(".read_me")
   } else {
     term.writeln("Documents");
     term.writeln("Downloads");
@@ -283,6 +309,47 @@ pub fn ls(term: &Terminal, show_dotfiles: bool) {
   }
 }
 
+pub fn get_history(term: &Terminal) {
+  let mut iter = crate::content::HISTORY_HINT.iter();
+  while let Some(s) = iter.next() {
+      term.writeln(s);
+  }
+}
+
+pub fn top_secret(term: &Terminal) {
+  term.writeln("nice work :)");
+  term.writeln("run 'goto l00t' for a surprise...");
+  new_line(&term);
+}
+
+pub fn read_me(term: &Terminal) {
+  new_line(&term);
+  term.writeln("“History is the angle at which realities meet.”");
+  term.writeln("― Don DeLillo, End Zone");
+  new_line(&term);
+}
+
 pub fn command_not_found(term: &Terminal, line: &str) {
   term.writeln(&format!("command not found: '{}'", line));
+}
+
+pub fn echo(term: &Terminal, line: &str) {
+  let mut stripped = line.replace("echo", "");
+  term.writeln(&stripped.replace("'", "").replace('"', "").trim());
+}
+
+pub fn env_text(term: &Terminal) {
+  term.writeln("EDITOR=vim");
+  term.writeln("HOME=/Users/stranger");
+  term.writeln("LANG=en_US.UTF-8");
+  term.writeln("LOGNAME=stranger");
+  term.writeln("PATH=/usr/local/bin");
+  term.writeln("PWD=/Users/stranger");
+  term.writeln("USER=stranger");
+  term.writeln("SHELL=/bin/sh");
+  term.writeln("TMPDIR=/var/folders/1_/hzsf_8wsg8sjdfjghasg/T/");
+}
+
+pub fn term_err(term: &Terminal) {
+  term.writeln(&TERMINAL_ERR);
 }

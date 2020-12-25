@@ -44,7 +44,7 @@ web/package.json:
 	@npm install -C web
 
 .PHONY: dist
-dist: web/package.json ## build and bundle all assets (js, css, html)
+dist: clean | web/package.json ## build and bundle all assets (js, css, html)
 	@npm --prefix web run build
 
 ########################################## utils

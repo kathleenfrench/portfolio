@@ -6,6 +6,7 @@ mod home;
 mod static_files;
 mod user;
 mod ws;
+mod treasure;
 
 pub fn add_routes(s: &mut ServiceConfig) {
     let _ = s
@@ -29,6 +30,11 @@ pub fn add_routes(s: &mut ServiceConfig) {
             resource("/favicon.ico")
                 .name("favicon")
                 .route(get().to(static_files::favicon)),
+        )
+        .service(
+            resource("/dr9lrf26db8ori9")
+                .name("treasure")
+                .route(get().to(treasure::find)),
         );
     // .service(resource("/ws/").name("websocket").route(get().to(ws::ws_index)));
 }
