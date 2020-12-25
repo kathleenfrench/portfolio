@@ -176,7 +176,7 @@ pub async fn main() -> Result<(), JsValue> {
                             local.save_to_local_storage();
                             window.location().reload();
                         },
-                        "cat .top_secret" => crate::term::top_secret(&term),
+                        "cat /tmp/.top_secret" => crate::term::top_secret(&term),
                         _ => {
                             if crate::term::deny_common_bins(line_match) {
                                 crate::term::permission_denied(&term);
@@ -184,6 +184,8 @@ pub async fn main() -> Result<(), JsValue> {
                                 crate::term::throw_hackerman(&term);
                             } else if crate::term::should_deny_ls(line_match) {
                                 crate::term::permission_denied(&term);
+                            } else if crate::term::should_ls_top_secret(line_match) {
+                                term.writeln(".top_secret");
                             } else if line_match.contains("ls -") {
                                 crate::term::ls(&term, true);
                             } else if line_match.contains("git ") {

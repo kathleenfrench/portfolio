@@ -273,9 +273,17 @@ pub fn whoami(term: &Terminal) {
 
 pub fn should_deny_ls(input: &str) -> bool {
   if input.contains("ls ") {
-    if input.contains("/") || input.contains("Documents") || input.contains("Downloads") || input.contains("Pictures") {
+    if input.contains("/") && !input.contains("/tmp") || input.contains("Documents") || input.contains("Downloads") || input.contains("Pictures") {
       return true
     }
+  }
+
+  false
+}
+
+pub fn should_ls_top_secret(input: &str) -> bool {
+  if input.contains("ls ") && input.contains("/tmp") {
+    return true
   }
 
   false
@@ -289,7 +297,6 @@ pub fn ls(term: &Terminal, show_dotfiles: bool) {
     term.writeln(".ssh");
     term.writeln(".bashrc");
     term.writeln(".vimrc");
-    term.writeln(".top_secret");
   } else {
     term.writeln("Documents");
     term.writeln("Downloads");
