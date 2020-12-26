@@ -14,6 +14,16 @@ buildpacks are defined in the `.buildpacks` file in the root directory, where th
 
 the `subdir` buildpack allows for specifying the `web` directory as the specific frontend application, and use the official `heroku/nodejs` buildpack for it. the `emk/rust` custom buildpack is then used for building the `rust` server and running the application.
 
+as recommended in the docs, the app is also deployed with `SUBDIR_ENABLE_PROFILE_SOURCING=1` via:
+
+```
+heroku config:set SUBDIR_ENABLE_PROFILE_SOURCING=1
+```
+
+the reasons for this are outlined in greater detail [here](https://devcenter.heroku.com/articles/buildpack-api#profile-d-scripts), but the gist, per the buildpack docs above:
+
+> .profile.d scripts are left behind by buildpacks and are invoked by Heroku when the dyno is starting. This allows buildpacks to update the PATH environment for example. Since buildpacks can be ran in subdirectories, the .profile.d scripts left behind by these buildpacks are not invoked by Heroku.
+
 ### local dev
 
 #### make commands
