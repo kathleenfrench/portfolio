@@ -51,7 +51,7 @@ impl Settings {
         // and env var prefixed with 'KF_' will override any previously set value
         s.merge(Environment::with_prefix("kf").separator("_"))?;
 
-        let port = std::env::var("PORT").unwrap_or_else(|_| "3000".into());
+        let port = std::env::var("PORT").unwrap_or_else(|_| "80".into());
         s.set("server.port", port)?;
 
         s.try_into()
