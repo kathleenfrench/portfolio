@@ -1,4 +1,2 @@
-pterm=https://github.com/solana-labs/heroku-buildpack-rust-wasm-pack.git
-pterm=https://github.com/solana-labs/heroku-buildpack-rust-wasm-pack.git
 web=https://github.com/heroku/heroku-buildpack-nodejs
 https://github.com/emk/heroku-buildpack-rust
