@@ -8,7 +8,6 @@
     "npm": "6.14.7"
   },
   "scripts": {
-    "heroku-prebuild": "./wasm_env.sh",
     "build": "webpack --config webpack.config.js"
   },
   "author": "",
