@@ -26,6 +26,8 @@ async fn main() -> io::Result<()> {
     std::env::set_var("RUST_LOG", format!("actix_web={}", &CONFIG.log.level));
     env_logger::init();
 
+    println!("CONFIG SERVER: {:?}", &CONFIG.server);
+
     // handlebars uses a repository for the compiled templates
     // this object must be shared between the application thread
     // and is passed to the application builder as an

@@ -22,17 +22,10 @@ pub struct StaticPaths {
 }
 
 #[derive(Debug, Deserialize, Clone)]
-pub struct Ssl {
-    pub key_file: String,
-    pub cert_file: String,
-}
-
-#[derive(Debug, Deserialize, Clone)]
 pub struct Settings {
     pub server: Server,
     pub log: Log,
     pub static_paths: StaticPaths,
-    pub ssl: Ssl,
     pub env: ENV,
 }
 
@@ -56,6 +49,8 @@ impl Settings {
 
         let port = std::env::var("PORT").unwrap_or_else(|_| "3000".into());
         s.set("server.port", port)?;
+
+        println!("SERVER: {:?}", s.get::<String>("server.port"));
 
         s.try_into()
     }
