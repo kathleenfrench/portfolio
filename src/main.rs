@@ -29,6 +29,8 @@ async fn main() -> io::Result<()> {
     let host = std::env::var("HOST").unwrap_or_else(|_| "127.0.0.1".into());
     let port = std::env::var("PORT").unwrap_or_else(|_| "3000".into());
 
+    println!("host: {}, port: {}", host, port);
+
     // handlebars uses a repository for the compiled templates
     // this object must be shared between the application thread
     // and is passed to the application builder as an
