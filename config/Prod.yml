@@ -1,2 +1,2 @@
-server:
-  full_url: "http://afternoon-garden-26727.herokuapp.com"
+log:
+  level: "info"

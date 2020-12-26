@@ -1,9 +1,6 @@
 server:
   session_key: "kf_session"
 
-log:
-  level: "info"
-
 static_paths:
   assets: "dist/assets"
   templates: "dist/templates"

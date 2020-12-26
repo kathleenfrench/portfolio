@@ -69,5 +69,8 @@ async fn main() -> io::Result<()> {
             .configure(|s| routes::add_routes(s))
     });
 
-    server.bind(format!("{}:{}", &CONFIG.server.hostname, &CONFIG.server.port))?.run().await
+    let host = std::env::var("HOST").unwrap_or_else(|_| "127.0.0.1".into());
+    let port = std::env::var("PORT").unwrap_or_else(|_| "3000".into());
+
+    server.bind(format!("{}:{}", &host, &port))?.run().await
 }
