@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/main.js",
+  "engines": {
+    "node": "14.9.0",
+    "npm": "6.14.7"
+  },
   "scripts": {
     "build": "webpack --config webpack.config.js"
   },
