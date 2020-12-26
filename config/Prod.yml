@@ -1,4 +1,4 @@
 server:
-  full_url: "https://www.kathleenfrench.co"
-  hostname: "www.kathleenfrench.co"
+  full_url: "http://afternoon-garden-26727.herokuapp.com"
+  hostname: "afternoon-garden-26727.herokuapp.com"
   port: 80
