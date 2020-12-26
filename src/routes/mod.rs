@@ -5,7 +5,6 @@ mod health;
 mod home;
 mod static_files;
 mod user;
-mod ws;
 mod treasure;
 
 pub fn add_routes(s: &mut ServiceConfig) {
@@ -36,5 +35,4 @@ pub fn add_routes(s: &mut ServiceConfig) {
                 .name("treasure")
                 .route(get().to(treasure::find)),
         );
-    // .service(resource("/ws/").name("websocket").route(get().to(ws::ws_index)));
 }

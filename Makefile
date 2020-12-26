@@ -2,7 +2,7 @@
 ########################################## local dev
 
 .PHONY: local
-local: run dist | cert ## configures ssl, compiles/bundles all code, starts the rust server
+local: run dist ## compiles/bundles all code, starts the rust server
 	@echo "success! visit the site in the browser at https://127.0.0.1:3000!"
 
 ########################################## rust server
@@ -52,11 +52,6 @@ dist: clean | web/package.json ## build and bundle all assets (js, css, html)
 .PHONY: clean
 clean: ## remove generated assets
 	@rm -rf dist
-
-.PHONY: cert
-cert: | cert.pem key.pem ## create a local self-signed cert for dev and install it
-	@mkcert --cert-file cert.pem --key-file key.pem localhost dev.local 127.0.0.1 ::1
-	@mkcert -install
 
 .PHONY: help
 help: ## lists some available makefile commands
