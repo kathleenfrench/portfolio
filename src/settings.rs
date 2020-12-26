@@ -54,7 +54,7 @@ impl Settings {
         let host = std::env::var("HOST").unwrap_or_else(|_| "127.0.0.1".into());
         s.set("server.hostname", host)?;
 
-        let port = std::env::var("PORT").unwrap_or_else(|_| "80".into());
+        let port = std::env::var("PORT").unwrap_or_else(|_| "3000".into());
         s.set("server.port", port)?;
 
         s.try_into()
