@@ -4,6 +4,16 @@ _this is the repo for my personal portfolio_
 
 ----
 
+### deployment
+
+**heroku**:
+
+using the [heroku buildpack subdir](https://elements.heroku.com/buildpacks/sectorlabs/heroku-buildpack-subdir)
+
+buildpacks are defined in the `.buildpacks` file in the root directory, where the order of the buildpacks implies the order of the build itself. 
+
+the `subdir` buildpack allows for specifying the `web` directory as the specific frontend application, and use the official `heroku/nodejs` buildpack for it. the `emk/rust` custom buildpack is then used for building the `rust` server and running the application.
+
 ### local dev
 
 #### make commands
