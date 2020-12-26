@@ -51,6 +51,9 @@ impl Settings {
         // and env var prefixed with 'KF_' will override any previously set value
         s.merge(Environment::with_prefix("kf").separator("_"))?;
 
+        let host = std::env::var("HOST").unwrap_or_else(|_| "127.0.0.1".into());
+        s.set("server.hostname", host)?;
+
         let port = std::env::var("PORT").unwrap_or_else(|_| "80".into());
         s.set("server.port", port)?;
 
