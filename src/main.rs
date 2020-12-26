@@ -26,7 +26,8 @@ async fn main() -> io::Result<()> {
     std::env::set_var("RUST_LOG", format!("actix_web={}", &CONFIG.log.level));
     env_logger::init();
 
-    println!("CONFIG SERVER: {:?}", &CONFIG.server);
+    let host = std::env::var("HOST").unwrap_or_else(|_| "127.0.0.1".into());
+    let port = std::env::var("PORT").unwrap_or_else(|_| "3000".into());
 
     // handlebars uses a repository for the compiled templates
     // this object must be shared between the application thread
@@ -37,13 +38,14 @@ async fn main() -> io::Result<()> {
         .register_templates_directory(".html", format!("./{}", &CONFIG.static_paths.templates))
         .unwrap();
 
+    let host_ref = host.clone();
     let handlerbars_ref = web::Data::new(handlebars);
 
     let server = HttpServer::new(move || {
         App::new()
             .wrap(
                 CookieSession::signed(&[0; 32])
-                    .domain(&CONFIG.server.hostname)
+                    .domain(&host_ref)
                     .name(&CONFIG.server.session_key)
                     .secure(false),
             )
@@ -68,9 +70,6 @@ async fn main() -> io::Result<()> {
             )
             .configure(|s| routes::add_routes(s))
     });
-
-    let host = std::env::var("HOST").unwrap_or_else(|_| "127.0.0.1".into());
-    let port = std::env::var("PORT").unwrap_or_else(|_| "3000".into());
 
     server.bind(format!("{}:{}", &host, &port))?.run().await
 }
