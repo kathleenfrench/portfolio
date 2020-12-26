@@ -8,9 +8,4 @@ web/package-lock.json
 Cargo.lock
 
 pterm/target
-pterm/node_modules
 pterm/Cargo.lock
-pterm/package-lock.json
-
-cert.pem
-key.pem
