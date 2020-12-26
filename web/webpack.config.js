@@ -1,6 +1,6 @@
 const path = require('path');
 const _staticDir = path.resolve(__dirname, '../static');
-const _crateDir = path.resolve(__dirname, '../pterm');
+const _crateDir = path.resolve(__dirname, 'pterm');
 const _crateOut = path.resolve(__dirname, 'pkg')
 const _rootDir = path.resolve(__dirname, 'src');
 const _dist = path.resolve(__dirname, "../dist");

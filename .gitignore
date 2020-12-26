@@ -4,8 +4,7 @@ dist
 web/node_modules
 web/pkg
 web/package-lock.json
+web/pterm/target
+web/pterm/Cargo.lock
 
 Cargo.lock
-
-pterm/target
-pterm/Cargo.lock

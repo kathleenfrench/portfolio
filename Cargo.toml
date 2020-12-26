@@ -5,7 +5,7 @@ authors = ["kathleenfrench <kfrench09@gmail.com>"]
 edition = "2018"
 
 [workspace]
-exclude = ["pterm"]
+exclude = ["web/pterm"]
 
 [dependencies]
 actix = "0.10"

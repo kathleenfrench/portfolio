@@ -32,7 +32,7 @@ check: ## verify the rust server bin is able to be compiled
 	@echo "checking server binary..."
 	@cargo check
 	@echo "checking pterm lib..."
-	@cd pterm && cargo check
+	@cd web/pterm && cargo check
 
 .PHONY: watch
 watch: ## run the hot-reload server for the rust backend
