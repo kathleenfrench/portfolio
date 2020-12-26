@@ -25,7 +25,6 @@ use xterm_js_rs::{OnKeyEvent, Terminal, TerminalOptions, Theme};
 use xterm_js_rs::addons::fit::FitAddon;
 use wasm_bindgen::JsCast;
 use web_sys::{window, Document, Element, HtmlElement, Window, Location, Storage};
-use colored::*;
 
 use app::AppConfig;
 use rand::thread_rng;
