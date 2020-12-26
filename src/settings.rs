@@ -4,7 +4,6 @@ use std::fmt;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct Server {
-    pub full_url: String,
     pub session_key: String,
 }
 
