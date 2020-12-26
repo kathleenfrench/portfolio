@@ -23,11 +23,17 @@ lazy_static! {
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
-    std::env::set_var("RUST_LOG", format!("actix_web={}", &CONFIG.log.level));
+    std::env::set_var("RUST_LOG", format!("actix_web={},actix_server={}", &CONFIG.log.level, &CONFIG.log.level));
     env_logger::init();
 
-    let host = std::env::var("HOST").unwrap_or_else(|_| "127.0.0.1".into());
-    let port = std::env::var("PORT").unwrap_or_else(|_| "3000".into());
+    let mut host: String = String::from("0.0.0.0");
+    let mut port: String = std::env::var("PORT").unwrap_or_else(|_| "3000".into());
+
+    let env = std::env::var("ENVIRONMENT").unwrap_or(String::from("Dev"));
+    if &env == "Dev" {
+        host = String::from("127.0.0.1");
+        port = String::from("3000");
+    }
 
     println!("host: {}, port: {}", host, port);
 
