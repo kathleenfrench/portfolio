@@ -12,8 +12,8 @@ echo "-----> Downloading rustup"
 curl https://sh.rustup.rs -sSf > rustup.sh
 chmod u+x rustup.sh
 
-echo "-----> Using rustup to install Rust channel $VERSION"
-./rustup.sh -y --default-toolchain "$VERSION"
+echo "-----> Using rustup to install Rust channel stable on host "
+./rustup.sh -y --default-toolchain "stable" --default-host "x86_64-unknown-linux-gnu"
 
 echo "-----> Installing wasm target"
 rustup target add wasm32-unknown-unknown
