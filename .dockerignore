@@ -1,0 +1,7 @@
+target
+web/pterm/target
+web/node_modules
+dist
+todo.md
+README.md
+Makefile

@@ -10,7 +10,7 @@ _this is the repo for my personal portfolio_
 
 using the [heroku buildpack subdir](https://elements.heroku.com/buildpacks/sectorlabs/heroku-buildpack-subdir)
 
-buildpacks are defined in the `.buildpacks` file in the root directory, where the order of the buildpacks implies the order of the build itself. 
+buildpacks are defined in the `.buildpacks` file in the root directory, where the order of the buildpacks implies the order of the build itself.
 
 the `subdir` buildpack allows for specifying the `web` directory as the specific frontend application, and use the official `heroku/nodejs` buildpack for it. the `emk/rust` custom buildpack is then used for building the `rust` server and running the application.
 
@@ -25,6 +25,10 @@ the reasons for this are outlined in greater detail [here](https://devcenter.her
 > .profile.d scripts are left behind by buildpacks and are invoked by Heroku when the dyno is starting. This allows buildpacks to update the PATH environment for example. Since buildpacks can be ran in subdirectories, the .profile.d scripts left behind by these buildpacks are not invoked by Heroku.
 
 ### local dev
+
+#### compiling for linux
+
+using [rust-musl-builder](https://github.com/emk/rust-musl-builder)
 
 #### make commands
 
