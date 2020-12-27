@@ -5,6 +5,12 @@
 local: run dist ## compiles/bundles all code, starts the rust server
 	@echo "success! visit the site in the browser at https://127.0.0.1:3000!"
 
+########################################## docker
+
+.PHONY: docker
+docker: ## build the docker image for the rust server
+	@docker build -t portfolio .
+
 ########################################## rust server
 
 .PHONY: build
@@ -32,7 +38,7 @@ check: ## verify the rust server bin is able to be compiled
 	@echo "checking server binary..."
 	@cargo check
 	@echo "checking pterm lib..."
-	@cd pterm && cargo check
+	@cd web/pterm && cargo check
 
 .PHONY: watch
 watch: ## run the hot-reload server for the rust backend

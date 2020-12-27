@@ -4,9 +4,7 @@ use std::fmt;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct Server {
-    pub full_url: String,
-    pub hostname: String,
-    pub port: u32,
+    pub host: String,
     pub session_key: String,
 }
 
@@ -22,17 +20,10 @@ pub struct StaticPaths {
 }
 
 #[derive(Debug, Deserialize, Clone)]
-pub struct Ssl {
-    pub key_file: String,
-    pub cert_file: String,
-}
-
-#[derive(Debug, Deserialize, Clone)]
 pub struct Settings {
     pub server: Server,
     pub log: Log,
     pub static_paths: StaticPaths,
-    pub ssl: Ssl,
     pub env: ENV,
 }
 

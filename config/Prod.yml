@@ -1,4 +1,5 @@
+log:
+  level: "debug"
+
 server:
-  full_url: "https://www.kathleenfrench.co"
-  hostname: "www.kathleenfrench.co"
-  port: 80
+  host: "0.0.0.0"

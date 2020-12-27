@@ -1,13 +1,6 @@
 server:
   session_key: "kf_session"
 
-log:
-  level: "info"
-
 static_paths:
   assets: "dist/assets"
   templates: "dist/templates"
-
-ssl:
-  key_file: "key.pem"
-  cert_file: "cert.pem"

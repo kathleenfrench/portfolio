@@ -23,7 +23,7 @@ lazy_static! {
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
-    std::env::set_var("RUST_LOG", format!("actix_web={}", &CONFIG.log.level));
+    std::env::set_var("RUST_LOG", format!("actix_web={},actix_server={}", &CONFIG.log.level, &CONFIG.log.level));
     env_logger::init();
 
     // handlebars uses a repository for the compiled templates
@@ -41,7 +41,7 @@ async fn main() -> io::Result<()> {
         App::new()
             .wrap(
                 CookieSession::signed(&[0; 32])
-                    .domain(&CONFIG.server.hostname)
+                    .domain(&CONFIG.server.host)
                     .name(&CONFIG.server.session_key)
                     .secure(false),
             )
@@ -67,5 +67,7 @@ async fn main() -> io::Result<()> {
             .configure(|s| routes::add_routes(s))
     });
 
-    server.bind(format!("{}:{}", &CONFIG.server.hostname, &CONFIG.server.port))?.run().await
+    let port: String = std::env::var("PORT").unwrap_or_else(|_| "3000".into());
+
+    server.bind(format!("{}:{}", &CONFIG.server.host, &port))?.run().await
 }

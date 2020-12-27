@@ -1,16 +1,16 @@
-static INTRO_LOGS: &str = include_str!("../../static/assets/files/logs.txt");
-static INTRO_MSG: &str = include_str!("../../static/assets/files/intro.txt");
-static RANDOM_STRINGS: &str = include_str!("../../static/assets/files/files.txt");
-static TMP_SOURCES: &str = include_str!("../../static/assets/files/sources.txt");
-static GEORGE_PICS_FILENAMES: &str = include_str!("../../static/assets/files/george.txt");
-static HISTORY_HINT_FILE: &str = include_str!("../../static/assets/files/hints/hint_1.txt");
+static INTRO_LOGS: &str = include_str!("../../../static/assets/files/logs.txt");
+static INTRO_MSG: &str = include_str!("../../../static/assets/files/intro.txt");
+static RANDOM_STRINGS: &str = include_str!("../../../static/assets/files/files.txt");
+static TMP_SOURCES: &str = include_str!("../../../static/assets/files/sources.txt");
+static GEORGE_PICS_FILENAMES: &str = include_str!("../../../static/assets/files/george.txt");
+static HISTORY_HINT_FILE: &str = include_str!("../../../static/assets/files/hints/hint_1.txt");
 
 /// resume content
-static RESUME_AWARDS_FILE: &str = include_str!("../../static/assets/files/resume/awards.txt");
-static RESUME_EDUCATION_FILE: &str = include_str!("../../static/assets/files/resume/education.txt");
-static RESUME_EXPERIENCE_FILE: &str = include_str!("../../static/assets/files/resume/experience.txt");
-static RESUME_LANGUAGES_FILE: &str = include_str!("../../static/assets/files/resume/languages.txt");
-static RESUME_TECH_FILE: &str = include_str!("../../static/assets/files/resume/technologies.txt");
+static RESUME_AWARDS_FILE: &str = include_str!("../../../static/assets/files/resume/awards.txt");
+static RESUME_EDUCATION_FILE: &str = include_str!("../../../static/assets/files/resume/education.txt");
+static RESUME_EXPERIENCE_FILE: &str = include_str!("../../../static/assets/files/resume/experience.txt");
+static RESUME_LANGUAGES_FILE: &str = include_str!("../../../static/assets/files/resume/languages.txt");
+static RESUME_TECH_FILE: &str = include_str!("../../../static/assets/files/resume/technologies.txt");
 
 lazy_static::lazy_static! {
   pub static ref INTRO_MSG_FULL: Vec<&'static str> = INTRO_MSG.lines().collect();
