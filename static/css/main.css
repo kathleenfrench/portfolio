@@ -186,3 +186,16 @@ img#did-it-2 {
 small a {
   color: aqua;
 }
+
+span#help-text-bar {
+  position: absolute;
+  float: right;
+  z-index: 1000;
+  top: 0;
+  right: 0;
+}
+
+p#help-text {
+  color: white;
+  font-size: 8px;
+}

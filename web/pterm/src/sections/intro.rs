@@ -5,7 +5,7 @@ use rand::prelude::*;
 
 use crate::content::{INTRO_LOGS_FULL, INTRO_MSG_FULL};
 
-pub async fn run(cfg: &AppConfig) {
+pub async fn run(_cfg: &AppConfig) {
   const LINE_SLEEP: u64 = 1;
   const TEXT_SLEEP: u64 = 15;
   const FAST_TEXT_SLEEP: u64 = 0.75 as u64;

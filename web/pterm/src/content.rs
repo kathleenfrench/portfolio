@@ -39,8 +39,3 @@ lazy_static::lazy_static! {
 pub static TMP_EXTENSIONS_LIST: &[&str] = &[
   "txt~", "sh~", "py~", "pdf~", "md~", "yaml~",
 ];
-
-pub static EXTENSIONS_LIST: &[&str] = &[
-  "gif", "webm", "mp4", "html", "php", "md", "png", "jpg", "ogg", "mp3", "flac", "iso", "zip",
-  "rar", "tar.gz", "tar.bz2", "tar.xz", "deb", "rpm", "exe",
-];

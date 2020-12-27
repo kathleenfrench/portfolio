@@ -64,10 +64,6 @@ pub async fn clear_line() {
   print("\x1b[H\x1b[2J").await;
 }
 
-pub async fn arrow_up(v: u64) {
-  print(format!("\x1b[{}A", v)).await;
-}
-
 #[cfg(not(target_arch = "wasm32"))]
 pub fn get_terminal_width() -> usize {
   term_size::dimensions().expect("not attached to the terminal").0
