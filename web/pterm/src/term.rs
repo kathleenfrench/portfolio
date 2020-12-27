@@ -102,7 +102,7 @@ pub fn random_george_pic(term: &Terminal) {
   let mut rng = thread_rng();
   let filename = &content::GEORGE_PICS.choose(&mut rng).unwrap_or(&"");
   let filepath = format!("/assets/images/{}", filename);
-  let html = format!("<img src={}></img>", filepath);
+  let html = format!("<img class='fadeImage' src={}></img>", filepath);
 
   web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
   web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
