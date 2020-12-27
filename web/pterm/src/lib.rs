@@ -191,6 +191,8 @@ pub async fn main() -> Result<(), JsValue> {
                                 crate::term::ls(&term, true);
                             } else if line_match.contains("git ") {
                                 crate::term::throw_git_error(&term);
+                            } else if line_match.contains("books") || line_match.contains("features") {
+                                crate::term::publications(&term, line_match);
                             } else if line_match.contains("resume ") {
                                 crate::term::resume(&term, line_match);
                             } else if line_match.contains("goto ") {
