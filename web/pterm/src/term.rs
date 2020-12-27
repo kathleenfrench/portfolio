@@ -147,54 +147,90 @@ pub fn resume(term: &Terminal, line: &str) {
       "technologies" => {
           let mut iter = crate::content::RESUME_TECH.iter();
           while let Some(s) = iter.next() {
-              term.writeln(s);
+            colorize_lede(s, &term);
           }
       },
       "tech" => {
           let mut iter = crate::content::RESUME_TECH.iter();
           while let Some(s) = iter.next() {
-              term.writeln(s);
+            colorize_lede(s, &term);
           }
       },
       "experience" => {
           let mut iter = crate::content::RESUME_EXPERIENCE.iter();
           while let Some(s) = iter.next() {
-              term.writeln(s);
+            colorize_lede(s, &term);
           }
       },
       "xp" => {
           let mut iter = crate::content::RESUME_EXPERIENCE.iter();
           while let Some(s) = iter.next() {
-              term.writeln(s);
+              colorize_lede(s, &term);
           }
       },
       "education" => {
           let mut iter = crate::content::RESUME_EDUCATION.iter();
           while let Some(s) = iter.next() {
-              term.writeln(s);
+            colorize_lede(s, &term);
           }
       },
       "edu" => {
           let mut iter = crate::content::RESUME_EDUCATION.iter();
           while let Some(s) = iter.next() {
-              term.writeln(s);
+            colorize_lede(s, &term);
           }
       },
       "awards" => {
           let mut iter = crate::content::RESUME_AWARDS.iter();
           while let Some(s) = iter.next() {
-              term.writeln(s);
+            colorize_lede(s, &term);
           }
       },
       "awd"  => {
           let mut iter = crate::content::RESUME_AWARDS.iter();
           while let Some(s) = iter.next() {
-              term.writeln(s);
+            colorize_lede(s, &term);
           }
       },
-      "publications" => term.writeln("TK"),
-      "pub" => term.writeln("TK"),
+      "publications" => subcommand_help_text("publications", "resume publications books", &term),
+      "pub" => subcommand_help_text("publications", "resume pub features", &term),
       _ => term.writeln(&format!("{} is not a valid subcommand for 'resume'", sub_cmd)),
+  }
+}
+
+pub fn colorize_lede(input: &'static str, term: &Terminal) {
+  let mut split_line = input.split("|");
+  let title = split_line.nth(0).unwrap();
+  let mut rest: String = "".to_owned();
+
+  for v in split_line {
+    rest.push_str(&v);
+  }
+
+  term.writeln(&format!("{} {}", Colour::Cyan.bold().paint(title.to_string()).to_string(), &rest));
+}
+
+pub fn publications(term: &Terminal, line: &str) {
+  let delimeter: &str = "|";
+  let line_split = line.split_ascii_whitespace().collect::<Vec<_>>();
+  let sub_cmd = <&str>::clone(&line_split[2]);
+  new_line(&term);
+
+  match sub_cmd {
+    "books" => {
+      let mut title_found = false;
+      let mut iter = crate::content::PUB_BOOKS.iter();
+      while let Some(s) = iter.next() {
+          colorize_lede(s, &term);
+      }
+    },
+    "features" => {
+      let mut iter = crate::content::PUB_FEATURES.iter();
+      while let Some(s) = iter.next() {
+          colorize_lede(s, &term);
+      }
+    },
+    _ => term.writeln(&format!("{} is not a valid subcommand for 'publications'", sub_cmd)),
   }
 }
 
@@ -210,20 +246,29 @@ pub fn subcommand_help_text(cmd: &str, example: &str, term: &Terminal) {
   new_line(&term);
 
   match cmd {
-      "resume" => {
-          term.writeln(&format!("pdf           - download the full resume in pdf form"));
-          term.writeln(&format!("languages     ({})", Colour::Blue.bold().paint("lang").to_string()));
-          term.writeln(&format!("technologies  ({})", Colour::Blue.bold().paint("tech").to_string()));
-          term.writeln(&format!("experience    ({})", Colour::Blue.bold().paint("xp").to_string()));
-          term.writeln(&format!("education     ({})", Colour::Blue.bold().paint("edu").to_string()));
-          term.writeln(&format!("awards        ({})", Colour::Blue.bold().paint("awd").to_string()));
-          term.writeln(&format!("publications  ({})", Colour::Blue.bold().paint("pub").to_string()));
-      }
+      "resume" => resume_help_text(&term),
+      "publications" => publication_help_text(&term),
+      "pub" => publication_help_text(&term),
       _ => term.writeln(&format!("{} is not a valid subcommand", cmd)),
   }
 
   new_line(&term);
   new_line(&term);
+}
+
+pub fn resume_help_text(term: &Terminal) {
+  term.writeln(&format!("pdf           - download the full resume in pdf form"));
+  term.writeln(&format!("languages     ({})", Colour::Blue.bold().paint("lang").to_string()));
+  term.writeln(&format!("technologies  ({})", Colour::Blue.bold().paint("tech").to_string()));
+  term.writeln(&format!("experience    ({})", Colour::Blue.bold().paint("xp").to_string()));
+  term.writeln(&format!("education     ({})", Colour::Blue.bold().paint("edu").to_string()));
+  term.writeln(&format!("awards        ({})", Colour::Blue.bold().paint("awd").to_string()));
+  term.writeln(&format!("publications  ({})", Colour::Blue.bold().paint("pub").to_string()));
+}
+
+pub fn publication_help_text(term: &Terminal) {
+  term.writeln(&format!("books     ({})", Colour::Blue.bold().paint("published books").to_string()));
+  term.writeln(&format!("features  ({})", Colour::Blue.bold().paint("published interviews, essays, & reviews").to_string()));
 }
 
 //// random
