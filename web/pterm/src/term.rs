@@ -113,7 +113,9 @@ pub fn random_george_pic(term: &Terminal) {
 pub fn about(term: &Terminal) {
   reset_window(&term);
   web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&VISIBLE_CLASS);
-  term.writeln("~ moi ~");
+  if !utils::is_mobile() {
+    term.writeln("~ moi ~");
+  }
 }
 
 pub fn resume(term: &Terminal, line: &str) {

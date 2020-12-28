@@ -115,13 +115,18 @@ pub async fn main() -> Result<(), JsValue> {
     local.set_intro_played(true);
     local.save_to_local_storage();
 
+    let mut font_size: u32 = 12;
+    if utils::is_mobile() {
+        font_size = 18;
+    }
+
     let terminal: Terminal = Terminal::new(
         TerminalOptions::new()
         .with_rows(50)
         .with_cols(150)
         .with_cursor_blink(true)
         .with_cursor_width(10)
-        .with_font_size(12)
+        .with_font_size(font_size)
         .with_draw_bold_text_in_bright_colors(true)
         .with_right_click_selects_word(true),
     );
