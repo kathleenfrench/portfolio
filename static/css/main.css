@@ -80,6 +80,7 @@ html, body {
   display: flex;
   flex-flow: row wrap;
   justify-content: space-around;
+  max-height: 230px;
 }
 
 .parent {
