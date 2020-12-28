@@ -81,7 +81,6 @@ html, body {
 @media (max-width: 500px) {
   * {
     overflow-x: hidden !important;
-    overflow-y: hidden !important;
   }
 
   #about p {
@@ -94,10 +93,6 @@ html, body {
 
   .visible {
     display: block !important;
-  }
-
-  img {
-    object-fit: contain !important;
   }
 }
 
