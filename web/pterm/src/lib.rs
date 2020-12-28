@@ -101,13 +101,14 @@ use wasm_bindgen::prelude::*;
 pub async fn main() -> Result<(), JsValue> {
     use std::panic;
     panic::set_hook(Box::new(console_error_panic_hook::hook));
+    utils::desktop_or_mobile();
 
     let mut local = crate::local::Store::new();
     let cfg = app::parse_inputs();
 
     *SPEED_FACTOR.lock().await = cfg.speed_factor;
 
-    if !local.get_intro_played() {
+    if !local.get_intro_played() && !utils::is_mobile() {
         run_intro(&cfg).await;
     }
 
