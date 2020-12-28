@@ -1,5 +1,5 @@
 use xterm_js_rs::Terminal;
-use ansi_term::{Colour, Style};
+use ansi_term::Colour;
 use rand::thread_rng;
 use rand::prelude::*;
 
@@ -52,7 +52,6 @@ pub fn help_text(term: &Terminal) {
   new_line(&term);
   term.writeln("about          learn more about me");
   term.writeln("resume         view available subcommands");
-  term.writeln("projects       see various projects i've worked on");
   term.writeln("george         show a random picture of my dog");
   term.writeln("contact        contact me");
   term.writeln("clear          clear the terminal window");
@@ -103,7 +102,7 @@ pub fn random_george_pic(term: &Terminal) {
   let mut rng = thread_rng();
   let filename = &content::GEORGE_PICS.choose(&mut rng).unwrap_or(&"");
   let filepath = format!("/assets/images/{}", filename);
-  let html = format!("<img src={}></img>", filepath);
+  let html = format!("<img class='fadeImage' src={}></img>", filepath);
 
   web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
   web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
@@ -115,11 +114,6 @@ pub fn about(term: &Terminal) {
   reset_window(&term);
   web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&VISIBLE_CLASS);
   term.writeln("~ moi ~");
-}
-
-pub fn projects(term: &Terminal) {
-  reset_window(&term);
-  term.writeln("my projects...");
 }
 
 pub fn resume(term: &Terminal, line: &str) {
@@ -211,14 +205,12 @@ pub fn colorize_lede(input: &'static str, term: &Terminal) {
 }
 
 pub fn publications(term: &Terminal, line: &str) {
-  let delimeter: &str = "|";
   let line_split = line.split_ascii_whitespace().collect::<Vec<_>>();
   let sub_cmd = <&str>::clone(&line_split[2]);
   new_line(&term);
 
   match sub_cmd {
     "books" => {
-      let mut title_found = false;
       let mut iter = crate::content::PUB_BOOKS.iter();
       while let Some(s) = iter.next() {
           colorize_lede(s, &term);
@@ -379,7 +371,7 @@ pub fn command_not_found(term: &Terminal, line: &str) {
 }
 
 pub fn echo(term: &Terminal, line: &str) {
-  let mut stripped = line.replace("echo", "");
+  let stripped = line.replace("echo", "");
   term.writeln(&stripped.replace("'", "").replace('"', "").trim());
 }
 

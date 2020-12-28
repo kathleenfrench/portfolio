@@ -1,5 +1,5 @@
 log:
-  level: "debug"
+  level: "info"
 
 server:
   host: "0.0.0.0"

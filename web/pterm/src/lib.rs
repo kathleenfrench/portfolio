@@ -11,27 +11,20 @@ mod local;
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
+// TODO
 pub static PORTFOLIO_SECTIONS: &[&str] = &[
     "faux_downloads",
-    "resume",
-    "botnet",
 ];
 
 use futures::lock::Mutex;
 use instant::Instant;
 use rand::prelude::*;
 use std::sync::atomic::{AtomicBool, AtomicU32};
-use xterm_js_rs::{OnKeyEvent, Terminal, TerminalOptions, Theme};
+use xterm_js_rs::{OnKeyEvent, Terminal, TerminalOptions};
 use xterm_js_rs::addons::fit::FitAddon;
 use wasm_bindgen::JsCast;
-use web_sys::{window, Document, Element, HtmlElement, Window, Location, Storage};
-
+use web_sys::Element;
 use app::AppConfig;
-use rand::thread_rng;
-
-use ansi_term::{Colour, Style};
-
-use crate::io::{csleep, delayed_print, new_line, print, clear_line};
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
@@ -74,9 +67,7 @@ pub async fn run(cfg: AppConfig) {
         let choice: &str = cfg.sections.choose(&mut thread_range).unwrap();
         match choice {
             "faux_downloads" => sections::downloads::run(&cfg).await,
-            "botnet" => sections::botnet::run(&cfg).await,
-            _ => print!("fix me later"),
-            // _ => panic!("unknown section '{}'!", choice),
+            _ => print!("nope"),
         }
 
         #[cfg(not(target_arch = "wasm32"))]
@@ -93,7 +84,7 @@ pub async fn run(cfg: AppConfig) {
 
 
 #[cfg(target_arch = "wasm32")]
-pub async fn run(cfg: AppConfig, intro_animation: Element) {
+pub async fn run(_cfg: AppConfig, intro_animation: Element) {
     intro_animation.set_class_name(&crate::term::HIDDEN);
 }
 
@@ -153,12 +144,11 @@ pub async fn main() -> Result<(), JsValue> {
             crate::term::KEY_ENTER => {
                 if !line.is_empty() {
                     crate::term::new_line(&term);
-                    let mut line_match: &str = &line.trim();
+                    let line_match: &str = &line.trim();
                     match line_match {
                         "help" => crate::term::help_text(&term),
                         "about" => crate::term::about(&term),
                         "resume" => crate::term::subcommand_help_text("resume", "resume xp", &term),
-                        "projects" => crate::term::projects(&term),
                         "contact" => crate::term::contact_info(&term),
                         "clear" => crate::term::reset_window(&term),
                         "whoami" => crate::term::whoami(&term),
@@ -173,7 +163,7 @@ pub async fn main() -> Result<(), JsValue> {
                             let window = web_sys::window().unwrap();
                             local.set_intro_played(false);
                             local.save_to_local_storage();
-                            window.location().reload();
+                            window.location().reload().expect("could not reload");
                         },
                         "history" => crate::term::get_history(&term),
                         "cat .read_me" => crate::term::read_me(&term),
