@@ -101,18 +101,24 @@ use wasm_bindgen::prelude::*;
 pub async fn main() -> Result<(), JsValue> {
     use std::panic;
     panic::set_hook(Box::new(console_error_panic_hook::hook));
+    utils::desktop_or_mobile();
 
     let mut local = crate::local::Store::new();
     let cfg = app::parse_inputs();
 
     *SPEED_FACTOR.lock().await = cfg.speed_factor;
 
-    if !local.get_intro_played() {
+    if !local.get_intro_played() && !utils::is_mobile() {
         run_intro(&cfg).await;
     }
 
     local.set_intro_played(true);
     local.save_to_local_storage();
+
+    let mut font_size: u32 = 12;
+    if utils::is_mobile() {
+        font_size = 18;
+    }
 
     let terminal: Terminal = Terminal::new(
         TerminalOptions::new()
@@ -120,7 +126,7 @@ pub async fn main() -> Result<(), JsValue> {
         .with_cols(150)
         .with_cursor_blink(true)
         .with_cursor_width(10)
-        .with_font_size(12)
+        .with_font_size(font_size)
         .with_draw_bold_text_in_bright_colors(true)
         .with_right_click_selects_word(true),
     );

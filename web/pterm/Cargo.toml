@@ -55,6 +55,7 @@ features = [
   "HtmlElement",
   "Location", 
   "MessageEvent",
+  "Navigator",
   "Node",
   "Storage",
   "Window", 
