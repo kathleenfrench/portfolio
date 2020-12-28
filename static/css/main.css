@@ -16,6 +16,22 @@ html, body {
   height: 100vh;
 }
 
+.error-page {
+  background-color: transparent !important;
+}
+
+#error-page {
+  background-image: url("/assets/images/error_harold.jpeg");
+  background-position: top;
+  background-repeat: no-repeat;
+  object-fit: cover;
+}
+
+#error-page h1 {
+  text-align: center;
+  color: darkred;
+}
+
 #intro-terminal {
   width: 100vw;
   height: 100vh;
