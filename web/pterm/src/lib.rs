@@ -116,14 +116,17 @@ pub async fn main() -> Result<(), JsValue> {
     local.save_to_local_storage();
 
     let mut font_size: u32 = 12;
+    let mut cols: u32 = 150;
+
     if utils::is_mobile() {
-        font_size = 18;
+        font_size = 11;
+        cols = 60;
     }
 
     let terminal: Terminal = Terminal::new(
         TerminalOptions::new()
         .with_rows(50)
-        .with_cols(150)
+        .with_cols(cols)
         .with_cursor_blink(true)
         .with_cursor_width(10)
         .with_font_size(font_size)
