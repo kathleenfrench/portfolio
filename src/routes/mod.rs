@@ -1,10 +1,8 @@
 use actix_web::web::{get, resource, ServiceConfig};
 
-mod about;
 mod health;
 mod home;
 mod static_files;
-mod user;
 mod treasure;
 
 pub fn add_routes(s: &mut ServiceConfig) {
@@ -13,16 +11,6 @@ pub fn add_routes(s: &mut ServiceConfig) {
             resource("/health")
                 .name("health")
                 .route(get().to(health::check)),
-        )
-        .service(
-            resource("/{user}/{data}")
-                .name("user")
-                .route(get().to(user::get_user)),
-        )
-        .service(
-            resource("/about")
-                .name("about")
-                .route(get().to(about::about)),
         )
         .service(resource("/").name("home").route(get().to(home::index)))
         .service(
