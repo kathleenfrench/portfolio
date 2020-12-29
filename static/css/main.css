@@ -92,8 +92,7 @@ html, body {
   }
 
   .flex-container img {
-    width: 200px !important;
-    height: auto !important;
+    display: none !important;
   }
 
   .visible {
