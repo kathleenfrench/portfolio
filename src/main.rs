@@ -37,13 +37,19 @@ async fn main() -> io::Result<()> {
 
     let handlerbars_ref = web::Data::new(handlebars);
 
+    let mut secure_cookie: bool = false;
+    if &CONFIG.env.to_string() == "Prod" {
+        secure_cookie = true;
+    }
+
     let server = HttpServer::new(move || {
         App::new()
             .wrap(
                 CookieSession::signed(&[0; 32])
                     .domain(&CONFIG.server.host)
                     .name(&CONFIG.server.session_key)
-                    .secure(false),
+                    .path("/")
+                    .secure(secure_cookie),
             )
             .wrap(
                 Cors::default()
