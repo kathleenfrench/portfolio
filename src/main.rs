@@ -7,7 +7,6 @@ extern crate lazy_static;
 use actix_cors::Cors;
 use actix_session::CookieSession;
 use actix_web::{http::header, middleware, web, App, HttpServer};
-use actix_web::middleware::DefaultHeaders;
 
 use handlebars::Handlebars;
 use std::io;
@@ -68,9 +67,7 @@ async fn main() -> io::Result<()> {
             .wrap(handlers::error_handlers())
             .wrap(middleware::Logger::default())
             .app_data(handlerbars_ref.clone())
-            .service(
-                utils::file_handler("/assets", &format!("{}/", &CONFIG.static_paths.assets))
-            ).wrap(DefaultHeaders::new().header("Cache-Control", "max-age=31536000"))
+            .service(utils::file_handler("/assets", &format!("{}/", &CONFIG.static_paths.assets)))
             .configure(|s| routes::add_routes(s))
     });
 
