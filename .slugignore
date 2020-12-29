@@ -1,0 +1,8 @@
+.DS_Store
+Makefile
+README.md
+todo.md
+docker-compose.yaml
+Dockerfile
+Dockerfile.local
+.dockerignore

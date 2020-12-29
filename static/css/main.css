@@ -91,6 +91,10 @@ html, body {
     max-height: auto !important;
   }
 
+  .flex-container img {
+    object-fit: contain !important;
+  }
+
   .visible {
     display: block !important;
   }
