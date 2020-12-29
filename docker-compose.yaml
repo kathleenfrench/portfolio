@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    environment: 
+      ENVIRONMENT: Prod
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./config:/app/config:ro
+      - ./dist:/app/dist:ro

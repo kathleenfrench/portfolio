@@ -8,8 +8,16 @@ local: run dist ## compiles/bundles all code, starts the rust server
 ########################################## docker
 
 .PHONY: docker
-docker: ## build the docker image for the rust server
-	@docker build -t portfolio .
+docker: ## build the docker image for the entire application
+	@DOCKER_BUILDKIT=1 docker build -t portfolio .
+
+.PHONY: up
+up: dist ## run the docker environment locally
+	@docker-compose up -d
+
+.PHONY: up
+down:
+	@docker-compose down
 
 ########################################## rust server
 
