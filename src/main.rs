@@ -5,7 +5,6 @@ extern crate serde_json;
 extern crate lazy_static;
 
 use actix_cors::Cors;
-use actix_session::CookieSession;
 use actix_web::{http::header, middleware, web, App, HttpServer};
 
 use handlebars::Handlebars;
@@ -37,20 +36,8 @@ async fn main() -> io::Result<()> {
 
     let handlerbars_ref = web::Data::new(handlebars);
 
-    let mut secure_cookie: bool = false;
-    if &CONFIG.env.to_string() == "Prod" {
-        secure_cookie = true;
-    }
-
     let server = HttpServer::new(move || {
         App::new()
-            .wrap(
-                CookieSession::signed(&[0; 32])
-                    .domain(&CONFIG.server.host)
-                    .name(&CONFIG.server.session_key)
-                    .path("/")
-                    .secure(secure_cookie),
-            )
             .wrap(
                 Cors::default()
                     .allow_any_origin()
