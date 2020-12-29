@@ -92,7 +92,7 @@ html, body {
   }
 
   .flex-container img {
-    object-fit: contain !important;
+    object-fit: cover !important;
   }
 
   .visible {
