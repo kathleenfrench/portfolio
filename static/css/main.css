@@ -84,7 +84,7 @@ html, body {
   }
 
   #about p {
-    font-size: 18px !important;
+    font-size: 16px !important;
   }
 
   .flex-container {
@@ -92,7 +92,8 @@ html, body {
   }
 
   .flex-container img {
-    object-fit: cover !important;
+    width: 200px !important;
+    height: auto !important;
   }
 
   .visible {
