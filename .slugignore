@@ -3,5 +3,5 @@ Makefile
 README.md
 todo.md
 docker-compose.yaml
-build
 .dockerignore
+build

@@ -13,11 +13,11 @@ docker: ## build the docker image for the entire application
 
 .PHONY: up
 up: dist ## run the docker environment locally
-	@docker-compose -f build/docker/docker-compose.yaml up -d
+	@docker-compose up -d
 
 .PHONY: up
 down:
-	@docker-compose -f build/docker/docker-compose.yaml down
+	@docker-compose down
 
 ########################################## rust server
 

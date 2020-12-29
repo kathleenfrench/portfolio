@@ -3,7 +3,7 @@ version: "3"
 services:
   web:
     build:
-      context: .
+      context: build/docker
       dockerfile: Dockerfile.local
     environment: 
       ENVIRONMENT: Prod
