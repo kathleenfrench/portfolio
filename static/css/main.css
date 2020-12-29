@@ -146,9 +146,12 @@ img {
   background-position-y: bottom;
 }
 
-.treasure-chest h2 {
+#treasure-msg {
   float: left;
   margin: 3em;
+}
+
+.treasure-chest h2 {
   color: yellow;
   font-family: 'Press Start 2P', cursive;
 }
@@ -199,22 +202,25 @@ img {
 }
 
 img#did-it-1 {
-  top: 3em;
-  right: 3em;
+  top: 1em;
+  right: 1em;
+  clip-path: circle(30% at center);
 }
 
 img#did-it-2 {
   bottom: 0;
-  left: 3em;
+  left: 5em;
+  clip-path: circle(50% at center);
 }
 
 #treasure-content-container {
-  float: right;
-  height: 45vh;
-  width: 55vw;
+  position: fixed;
+  height: 40vw;
+  width: 40vw;
   background-color: #ff00a0;
   opacity: 0.75;
-  margin-right: 5em;
+  margin-left: 30vw;
+  bottom: 20vh;
   animation:spin 20s linear infinite;
   border-radius: 50%;
   box-shadow:
@@ -228,6 +234,12 @@ img#did-it-2 {
         10px 0 60px blue;
 }
 
+@media (max-width: 375px) {
+  #treasure-content-container {
+    bottom: 50vh !important;
+  }
+}
+
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
 
 #treasure-content {
@@ -236,8 +248,19 @@ img#did-it-2 {
   text-align: center;
 }
 
+@media (min-width: 500px) {
+  #treasure-content {
+    margin: 10em !important;
+  }
+}
+
 small a {
   color: aqua;
+}
+
+#treasure-github-link {
+  float: right;
+  margin-right: 5vw;
 }
 
 span#help-text-bar {
@@ -254,11 +277,9 @@ p#help-text {
 }
 
 ul.applause-animation {
-  position:absolute;
-  top:50%;
-  left:50%;
+  position: relative;
   transform:translate(-50%,-50%);
-  margin:0;
+  margin: 1em 0 0 12em;
   padding:0;
   display:flex;
 }
@@ -281,12 +302,6 @@ ul.applause-animation li {
   20%{
      transform:scale(1);
   }
-}
-
-div.applause-animation {
-  position: absolute;
-  left: 15em;
-  top: 20vh;
 }
 
 ul.applause-animation li:nth-child(1){
