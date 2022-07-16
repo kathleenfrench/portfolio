@@ -53,7 +53,7 @@ pub fn help_text(term: &Terminal) {
   term.writeln("about          learn more about me");
   term.writeln("resume         view available subcommands");
   term.writeln("george         show a random picture of my dog george");
-  temr.writeln("henry          show a random picture of my dog henry")
+  temr.writeln("henry          show a random picture of my dog henry");
   term.writeln("contact        contact me");
   term.writeln("clear          clear the terminal window");
   term.writeln("replay         replay the intro animation");
