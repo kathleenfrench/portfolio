@@ -5,4 +5,3 @@ web/node_modules
 web/pkg
 web/package-lock.json
 web/pterm/target
-web/bin
