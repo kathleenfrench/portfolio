@@ -22,7 +22,13 @@ lazy_static! {
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
-    std::env::set_var("RUST_LOG", format!("actix_web={},actix_server={}", &CONFIG.log.level, &CONFIG.log.level));
+    std::env::set_var(
+        "RUST_LOG",
+        format!(
+            "actix_web={},actix_server={}",
+            &CONFIG.log.level, &CONFIG.log.level
+        ),
+    );
     env_logger::init();
 
     // handlebars uses a repository for the compiled templates
@@ -54,11 +60,17 @@ async fn main() -> io::Result<()> {
             .wrap(handlers::error_handlers())
             .wrap(middleware::Logger::default())
             .app_data(handlerbars_ref.clone())
-            .service(utils::file_handler("/assets", &format!("{}/", &CONFIG.static_paths.assets)))
+            .service(utils::file_handler(
+                "/assets",
+                &format!("{}/", &CONFIG.static_paths.assets),
+            ))
             .configure(|s| routes::add_routes(s))
     });
 
     let port: String = std::env::var("PORT").unwrap_or_else(|_| "3000".into());
 
-    server.bind(format!("{}:{}", &CONFIG.server.host, &port))?.run().await
+    server
+        .bind(format!("{}:{}", &CONFIG.server.host, &port))?
+        .run()
+        .await
 }
