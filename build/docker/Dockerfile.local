@@ -1,16 +1,4 @@
-################################ rust-musl-builder
-# FROM ekidd/rust-musl-builder:1.51.0 AS builder
-
-# WORKDIR /home/rust/src/target/x86_64-unknown-linux-musl
-
-# COPY dummy.rs .
-# COPY Cargo.toml .
-# RUN sed -i 's#src/main.rs#dummy.rs#' Cargo.toml
-# RUN cargo build --release
-# RUN sed -i 's#dummy.rs#src/main.rs#' Cargo.toml
-# COPY . .
-# RUN cargo build --release
-
+################################
 FROM rust:alpine3.14 as builder
 
 RUN apk add musl-dev sed
@@ -32,7 +20,6 @@ RUN apk --no-cache add ca-certificates
 
 WORKDIR /app
 
-# COPY --from=builder /home/rust/src/target/x86_64-unknown-linux-musl/release/portfolio .
 COPY --from=builder /opt/target/release/portfolio .
 
 
