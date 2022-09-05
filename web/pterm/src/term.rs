@@ -52,7 +52,8 @@ pub fn help_text(term: &Terminal) {
   new_line(&term);
   term.writeln("about          learn more about me");
   term.writeln("resume         view available subcommands");
-  term.writeln("george         show a random picture of my dog");
+  term.writeln("george         show a random picture of my dog george");
+  term.writeln("henry          show a random picture of my dog henry");
   term.writeln("contact        contact me");
   term.writeln("clear          clear the terminal window");
   term.writeln("replay         replay the intro animation");
@@ -101,6 +102,20 @@ pub fn random_george_pic(term: &Terminal) {
 
   let mut rng = thread_rng();
   let filename = &content::GEORGE_PICS.choose(&mut rng).unwrap_or(&"");
+  let filepath = format!("/assets/images/{}", filename);
+  let html = format!("<img class='fadeImage' src={}></img>", filepath);
+
+  web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
+  web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
+
+  clear(&term);
+}
+
+pub fn random_henry_pic(term: &Terminal) {
+  reset_window(&term);
+
+  let mut rng = thread_rng();
+  let filename = &content::HENRY_PICS.choose(&mut rng).unwrap_or(&"");
   let filepath = format!("/assets/images/{}", filename);
   let html = format!("<img class='fadeImage' src={}></img>", filepath);
 

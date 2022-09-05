@@ -26,9 +26,9 @@ the reasons for this are outlined in greater detail [here](https://devcenter.her
 
 ### local dev
 
-#### compiling for linux
+#### docker caching
 
-using [rust-musl-builder](https://github.com/emk/rust-musl-builder)
+rust builds in docker `==` slow - so I'm using a hack-y solution for that to run the application locally in `docker compose` via a `dummy.rs` approach which allows you to leverage docker layer caching of dependencies. you can read more on the strategy [in this blog post](https://blog.mgattozzi.dev/caching-rust-docker-builds/).
 
 #### make commands
 

@@ -7,10 +7,6 @@ local: run dist ## compiles/bundles all code, starts the rust server
 
 ########################################## docker
 
-.PHONY: docker
-docker: ## build the docker image for the entire application
-	@DOCKER_BUILDKIT=1 docker build -t portfolio -f build/docker/Dockerfile .
-
 .PHONY: up
 up: dist ## run the docker environment locally
 	@docker-compose up -d
@@ -58,14 +54,11 @@ web/package.json:
 	@npm install -C web
 
 .PHONY: dist
-dist: clean | web/package.json ## build and bundle all assets (js, css, html)
+dist: web/package.json ## build and bundle all assets (js, css, html)
+	@rm -rf dist
 	@npm --prefix web run build
 
 ########################################## utils
-
-.PHONY: clean
-clean: ## remove generated assets
-	@rm -rf dist
 
 .PHONY: help
 help: ## lists some available makefile commands

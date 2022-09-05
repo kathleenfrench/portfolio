@@ -3,6 +3,7 @@ static INTRO_MSG: &str = include_str!("../../../static/assets/files/intro.txt");
 static RANDOM_STRINGS: &str = include_str!("../../../static/assets/files/files.txt");
 static TMP_SOURCES: &str = include_str!("../../../static/assets/files/sources.txt");
 static GEORGE_PICS_FILENAMES: &str = include_str!("../../../static/assets/files/george.txt");
+static HENRY_PICS_FILENAMES: &str = include_str!("../../../static/assets/files/henry.txt");
 static HISTORY_HINT_FILE: &str = include_str!("../../../static/assets/files/hints/hint_1.txt");
 
 /// resume content
@@ -22,6 +23,7 @@ lazy_static::lazy_static! {
   pub static ref RANDOM_STRINGS_LIST: Vec<&'static str> = RANDOM_STRINGS.lines().collect();
   pub static ref TMP_SOURCE_LIST: Vec<&'static str> = TMP_SOURCES.lines().collect();
   pub static ref GEORGE_PICS: Vec<&'static str> = GEORGE_PICS_FILENAMES.lines().collect();
+  pub static ref HENRY_PICS: Vec<&'static str> = HENRY_PICS_FILENAMES.lines().collect();
   pub static ref HISTORY_HINT: Vec<&'static str> = HISTORY_HINT_FILE.lines().collect();
 
   // resume
