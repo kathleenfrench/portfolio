@@ -2,13 +2,17 @@
 name = "portfolio"
 version = "0.1.0"
 authors = ["kathleenfrench <kfrench09@gmail.com>"]
-edition = "2018"
+edition = "2021"
+
+[[bin]]
+name = "portfolio"
+path = "src/main.rs"
 
 [workspace]
 exclude = ["web/pterm"]
 
 [dependencies]
-actix = "0.10"
+actix = "0.13"
 actix-codec = "0.3"
 actix-cors = "0.5"
 actix-files = "0.3"
