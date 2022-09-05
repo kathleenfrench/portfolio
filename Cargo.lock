@@ -1727,12 +1727,15 @@ dependencies = [
  "actix-web-actors",
  "colored",
  "config",
+ "crossbeam-utils 0.8.11",
  "env_logger",
  "handlebars",
  "lazy_static",
+ "linked-hash-map 0.5.6",
  "serde 1.0.144",
  "serde_json",
  "structopt",
+ "tokio 1.21.0",
 ]
 
 [[package]]
