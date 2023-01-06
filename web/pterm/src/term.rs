@@ -88,7 +88,7 @@ pub fn goto_links(term: &Terminal, line: &str) {
           utils::open_in_new_tab("https://www.linkedin.com/in/frenchkathleen/");
       },
       "email" => {
-          utils::open_in_new_tab("https://mail.google.com/mail/?view=cm&fs=1&to=kfrench09@gmail.com");
+          utils::open_in_new_tab("https://mail.google.com/mail/?view=cm&fs=1&to=kfrench.eng@gmail.com");
       },
       "l00t" => {
         utils::open_in_new_tab("/dr9lrf26db8ori9");
