@@ -28,7 +28,7 @@ kathleen french
 
 [experience]:
 
-<vimeo> | ny | senior software engineer > devex (2019 - present)
+<vimeo> | ny | principal software engineer > devex (2019 - present)
 - dex: built a command line tool in `go` for standardizing & orchestrating local development environments at vimeo. run and access commands for a local repository from any subdirectory on your local machine. integrates workflows and heavily used platforms via their respective APIs (github, pagerduty, jira, jenkins, slack, gcp)
 - warden: built a full-service application for managing permissions across internal platforms at vimeo - automates the request > approval > implementation workflow via a custom templating engine. where possible API integrations exist, requests are handled purely on the backend upon approval.
 - jenkins: brought the CI build of the vimeo repository down from 45+ minutes to ~10 minutes when distributed cache system is fully utilized.
