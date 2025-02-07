@@ -4,8 +4,8 @@
   "description": "",
   "main": "src/main.js",
   "engines": {
-    "node": "14.9.0",
-    "npm": "6.14.7"
+    "node": "22.6.0",
+    "npm": "10.8.2"
   },
   "scripts": {
     "build": "webpack --config webpack.config.js",
@@ -28,7 +28,7 @@
     "xterm-addon-fit": "^0.3.0"
   },
   "volta": {
-    "node": "14.9.0",
-    "npm": "6.14.7"
+    "node": "22.6.0",
+    "npm": "10.8.2"
   }
 }
