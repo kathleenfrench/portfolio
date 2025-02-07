@@ -9,11 +9,11 @@ local: run dist ## compiles/bundles all code, starts the rust server
 
 .PHONY: up
 up: dist ## run the docker environment locally
-	@docker-compose up -d
+	@docker compose up -d
 
 .PHONY: up
 down:
-	@docker-compose down
+	@docker compose down
 
 ########################################## rust server
 
