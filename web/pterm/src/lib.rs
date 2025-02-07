@@ -20,10 +20,6 @@ use futures::lock::Mutex;
 use instant::Instant;
 use rand::prelude::*;
 use std::sync::atomic::{AtomicBool, AtomicU32};
-use xterm_js_rs::{OnKeyEvent, Terminal, TerminalOptions};
-use xterm_js_rs::addons::fit::FitAddon;
-use wasm_bindgen::JsCast;
-use web_sys::Element;
 use app::AppConfig;
 
 #[cfg(target_arch = "wasm32")]

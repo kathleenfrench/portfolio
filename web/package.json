@@ -4,8 +4,8 @@
   "description": "",
   "main": "src/main.js",
   "engines": {
-    "node": "14.9.0",
-    "npm": "6.14.7"
+    "node": "22.6.0",
+    "npm": "10.8.2"
   },
   "scripts": {
     "build": "webpack --config webpack.config.js",
@@ -19,7 +19,7 @@
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^5.0.3",
     "html-webpack-plugin": "^5.3.2",
-    "webpack": "5.74.0",
+    "webpack": "^5.97.1",
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
@@ -28,7 +28,7 @@
     "xterm-addon-fit": "^0.3.0"
   },
   "volta": {
-    "node": "14.9.0",
-    "npm": "6.14.7"
+    "node": "22.6.0",
+    "npm": "10.8.2"
   }
 }

@@ -1,5 +1,5 @@
 ################################
-FROM rust:alpine3.14 as builder
+FROM rust:alpine3.21 as builder
 
 RUN apk add musl-dev sed
 
@@ -14,7 +14,7 @@ COPY . .
 RUN cargo build --release
 
 ################################ actual prod image
-FROM alpine:3.14
+FROM alpine:3.21
 
 RUN apk --no-cache add ca-certificates
 
