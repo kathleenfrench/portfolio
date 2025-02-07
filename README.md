@@ -47,3 +47,11 @@ run                            run the rust app server locally
 test                           run rust tests
 watch                          run the hot-reload server for the rust backend
 ```
+
+#### deps
+
+- make sure `wasm-pack` is installed
+
+```
+curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+```
