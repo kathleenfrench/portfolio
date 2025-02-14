@@ -141,7 +141,7 @@ pub fn resume(term: &Terminal, line: &str) {
   match sub_cmd {
       "help" => subcommand_help_text("resume", "resume edu", &term),
       "pdf" => {
-          utils::open_in_new_tab("/assets/files/resume/resume.pdf");
+          utils::open_in_new_tab("/assets/files/resume/resume_2025.pdf");
       },
       "languages" => {
           let mut iter = crate::content::RESUME_LANGUAGES.iter();
