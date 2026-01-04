@@ -163,6 +163,7 @@ pub async fn main() -> Result<(), JsValue> {
                         "whoami" => crate::term::whoami(&term),
                         "george" => crate::term::random_george_pic(&term),
                         "henry" => crate::term::random_henry_pic(&term),
+                        "trout" => crate::term::random_trout_pic(&term),
                         "git" => crate::term::throw_git_error(&term),
                         "sudo" => crate::term::throw_hackerman(&term),
                         "pwd" => term.writeln("/home/stranger"),
