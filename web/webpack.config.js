@@ -39,4 +39,10 @@ module.exports = {
   experiments: {
     asyncWebAssembly: true,
   },
+  resolve: {
+    fallback: {
+      fs: false,
+      path: false,
+    },
+  },
 };
