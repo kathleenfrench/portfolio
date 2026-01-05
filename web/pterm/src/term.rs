@@ -52,8 +52,9 @@ pub fn help_text(term: &Terminal) {
   new_line(&term);
   term.writeln("about          learn more about me");
   term.writeln("resume         view available subcommands");
-  term.writeln("george         show a random picture of my dog george");
-  term.writeln("henry          show a random picture of my dog henry");
+  term.writeln("george         show a random picture of george");
+  term.writeln("henry          show a random picture of henry");
+  term.writeln("trout          show a random picture of trout");
   term.writeln("contact        contact me");
   term.writeln("clear          clear the terminal window");
   term.writeln("replay         replay the intro animation");
@@ -125,6 +126,20 @@ pub fn random_henry_pic(term: &Terminal) {
   clear(&term);
 }
 
+pub fn random_trout_pic(term: &Terminal) {
+  reset_window(&term);
+
+  let mut rng = thread_rng();
+  let filename = &content::TROUT_PICS.choose(&mut rng).unwrap_or(&"");
+  let filepath = format!("/assets/images/{}", filename);
+  let html = format!("<img class='fadeImage' src={}></img>", filepath);
+
+  web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
+  web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
+
+  clear(&term);
+}
+
 pub fn about(term: &Terminal) {
   reset_window(&term);
   web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&VISIBLE_CLASS);
@@ -140,9 +155,6 @@ pub fn resume(term: &Terminal, line: &str) {
 
   match sub_cmd {
       "help" => subcommand_help_text("resume", "resume edu", &term),
-      "pdf" => {
-          utils::open_in_new_tab("/assets/files/resume/resume_2025.pdf");
-      },
       "languages" => {
           let mut iter = crate::content::RESUME_LANGUAGES.iter();
           while let Some(s) = iter.next() {
@@ -266,7 +278,6 @@ pub fn subcommand_help_text(cmd: &str, example: &str, term: &Terminal) {
 }
 
 pub fn resume_help_text(term: &Terminal) {
-  term.writeln(&format!("pdf           - download the full resume in pdf form"));
   term.writeln(&format!("languages     ({})", Colour::Blue.bold().paint("lang").to_string()));
   term.writeln(&format!("technologies  ({})", Colour::Blue.bold().paint("tech").to_string()));
   term.writeln(&format!("experience    ({})", Colour::Blue.bold().paint("xp").to_string()));

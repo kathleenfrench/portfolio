@@ -1,6 +1,5 @@
 infra|             - k8s, terraform, chef
-CI/CD|             - jenkins, circleci, argo, heroku, fabric, netlify, github actions
-metrics|           - prometheus, datadog, new relic, kabana
-cloud infra|       - gcp, aws, azure, ocp, rancher
-build toolchains|  - docker, helm, webpack, bazel, babel, wasm-pack, gulp
-misc|              - git, osint, maltego, burp suite
+CI/CD|             - buildkite, jenkins, circleci, argo, flux, flagger, heroku, github actions
+metrics|           - prometheus, victoria metrics, grafana, datadog, new relic, kabana
+cloud|             - gcp, aws, azure, ocp, rancher
+build|             - docker, kustomize, helm, helmfile, hermit, make, mise
