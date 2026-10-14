@@ -3,6 +3,9 @@ use ansi_term::Colour;
 use rand::thread_rng;
 use rand::prelude::*;
 
+use std::cell::RefCell;
+use std::collections::HashMap;
+
 use crate::content;
 use crate::utils;
 
@@ -99,26 +102,36 @@ pub fn goto_links(term: &Terminal, line: &str) {
 }
 
 pub fn random_george_pic(term: &Terminal) {
-  reset_window(&term);
-
-  let mut rng = thread_rng();
-  let filename = &content::GEORGE_PICS.choose(&mut rng).unwrap_or(&"");
-  let filepath = format!("/assets/images/{}", filename);
-  let html = format!("<img class='fadeImage' src={}></img>", filepath);
-
-  web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
-  web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
-
-  clear(&term);
+  show_random_pic(term, "george", &content::GEORGE_PICS);
 }
 
 pub fn random_henry_pic(term: &Terminal) {
+  show_random_pic(term, "henry", &content::HENRY_PICS);
+}
+
+pub fn random_trout_pic(term: &Terminal) {
+  show_random_pic(term, "trout", &content::TROUT_PICS);
+}
+
+thread_local! {
+  // per command: the pics still to show in the current pass, and the last one
+  // shown. every pic is shown once (in a shuffled order) before any repeats.
+  static PIC_DECKS: RefCell<HashMap<&'static str, PicDeck>> = RefCell::new(HashMap::new());
+}
+
+fn show_random_pic(term: &Terminal, command: &'static str, pics: &[&'static str]) {
   reset_window(&term);
 
-  let mut rng = thread_rng();
-  let filename = &content::HENRY_PICS.choose(&mut rng).unwrap_or(&"");
-  let filepath = format!("/assets/images/{}", filename);
-  let html = format!("<img class='fadeImage' src={}></img>", filepath);
+  let filename = PIC_DECKS.with(|decks| {
+    decks
+      .borrow_mut()
+      .entry(command)
+      .or_default()
+      .next(pics, &mut thread_rng())
+      .unwrap_or("")
+  });
+
+  let html = format!("<img class='fadeImage' src=/assets/images/{}></img>", filename);
 
   web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
   web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
@@ -126,18 +139,30 @@ pub fn random_henry_pic(term: &Terminal) {
   clear(&term);
 }
 
-pub fn random_trout_pic(term: &Terminal) {
-  reset_window(&term);
+#[derive(Default)]
+struct PicDeck {
+  remaining: Vec<&'static str>,
+  last: Option<&'static str>,
+}
 
-  let mut rng = thread_rng();
-  let filename = &content::TROUT_PICS.choose(&mut rng).unwrap_or(&"");
-  let filepath = format!("/assets/images/{}", filename);
-  let html = format!("<img class='fadeImage' src={}></img>", filepath);
+impl PicDeck {
+  fn next<R: Rng>(&mut self, pics: &[&'static str], rng: &mut R) -> Option<&'static str> {
+    if self.remaining.is_empty() {
+      self.remaining = pics.iter().copied().filter(|p| !p.trim().is_empty()).collect();
+      self.remaining.shuffle(rng);
 
-  web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
-  web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
+      // pics are popped off the end, so make sure a new pass doesn't start
+      // with the pic that ended the previous one
+      let n = self.remaining.len();
+      if n > 1 && self.remaining.last().copied() == self.last {
+        self.remaining.swap(0, n - 1);
+      }
+    }
 
-  clear(&term);
+    let pic = self.remaining.pop()?;
+    self.last = Some(pic);
+    Some(pic)
+  }
 }
 
 pub fn about(term: &Terminal) {
@@ -417,4 +442,45 @@ pub fn env_text(term: &Terminal) {
 
 pub fn term_err(term: &Terminal) {
   term.writeln(&TERMINAL_ERR);
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use std::collections::HashSet;
+
+  const PICS: [&str; 4] = ["a.jpg", "b.jpg", "c.jpg", "d.jpg"];
+
+  #[test]
+  fn shows_every_pic_before_repeating() {
+    let mut deck = PicDeck::default();
+    let mut rng = thread_rng();
+
+    for _ in 0..250 {
+      let pass: HashSet<_> = (0..PICS.len()).map(|_| deck.next(&PICS, &mut rng).unwrap()).collect();
+      assert_eq!(pass.len(), PICS.len());
+    }
+  }
+
+  #[test]
+  fn never_repeats_back_to_back_across_passes() {
+    let mut deck = PicDeck::default();
+    let mut rng = thread_rng();
+    let mut previous = None;
+
+    for _ in 0..1000 {
+      let pic = deck.next(&PICS, &mut rng);
+      assert_ne!(pic, previous);
+      previous = pic;
+    }
+  }
+
+  #[test]
+  fn handles_single_and_empty_lists() {
+    let mut rng = thread_rng();
+    let mut deck = PicDeck::default();
+    assert_eq!(deck.next(&["only.jpg"], &mut rng), Some("only.jpg"));
+    assert_eq!(deck.next(&["only.jpg"], &mut rng), Some("only.jpg"));
+    assert_eq!(PicDeck::default().next(&["", "  "], &mut rng), None);
+  }
 }

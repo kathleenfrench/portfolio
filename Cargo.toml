@@ -1,8 +1,9 @@
 [package]
 name = "portfolio"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["kathleenfrench <kfrench.eng@gmail.com>"]
 edition = "2021"
+rust-version = "1.80"
 
 [[bin]]
 name = "portfolio"
@@ -12,20 +13,16 @@ path = "src/main.rs"
 exclude = ["web/pterm"]
 
 [dependencies]
-actix = "0.13"
-actix-codec = "0.3"
-actix-cors = "0.5"
-actix-files = "0.3"
-actix-http = "2"
-actix-rt = "1.1.1"
-actix-session = "0.4"
-actix-web = { version = "3" }
-actix-web-actors = "3"
-colored = "2"
-config = "0.10"
-env_logger = "0.7"
-handlebars = { version = "3.0.0", features = ["dir_source"] }
-lazy_static = "1.4"
+actix-files = "0.6"
+actix-web = "4"
+config = { version = "0.14", default-features = false, features = ["yaml"] }
+env_logger = "0.11"
+handlebars = { version = "6", features = ["dir_source"] }
+log = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-structopt = "0.3.7"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true

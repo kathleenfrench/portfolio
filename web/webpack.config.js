@@ -1,48 +1,53 @@
 const path = require('path');
-const _staticDir = path.resolve(__dirname, '../static');
-const _crateDir = path.resolve(__dirname, 'pterm');
-const _crateOut = path.resolve(__dirname, 'pkg')
-const _rootDir = path.resolve(__dirname, 'src');
-const _dist = path.resolve(__dirname, "../dist");
-
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const WasmPackPlugin = require("@wasm-tool/wasm-pack-plugin");
-const CopyPlugin = require("copy-webpack-plugin");
-const PreloadWebpackPlugin = require("@vue/preload-webpack-plugin");
+const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+const staticDir = path.resolve(__dirname, '../static');
+const dist = path.resolve(__dirname, '../dist');
+
+// outputs (all served by the rust server):
+//   dist/assets/js/      hashed js bundles + wasm (cached forever, see src/cache.rs)
+//   dist/                everything in static/ (it mirrors this layout)
+//   dist/templates/      handlebars templates; index.html gets the bundle <script> injected
 module.exports = {
-  // see: https://github.com/webpack/webpack/issues/6615
-  entry : `${_rootDir}/main.js`,
-  output : {
-    path : `${_dist}/assets/js`,
-    filename : "bundle.js",
+  mode: 'production',
+  entry: './src/main.js',
+  output: {
+    path: path.join(dist, 'assets/js'),
+    publicPath: '/assets/js/',
+    filename: '[name].[contenthash:8].js',
+    chunkFilename: '[name].[contenthash:8].js',
+    webassemblyModuleFilename: '[hash].module.wasm',
+    clean: true,
   },
-  plugins: [
-    new CleanWebpackPlugin(),
-    new HtmlWebpackPlugin(),
-    new PreloadWebpackPlugin({
-      rel: "preconnect",
-      fileWhitelist: [/.wasm$/],
-    }),
-    new CopyPlugin([
-      { from: _staticDir, to: `${_dist}`, ignore: ['*.css', '*.js'] },
-      { from: `${_staticDir}/css`, to: `${_dist}/assets/css` },
-      { from: `${_staticDir}/js`, to: `${_dist}/assets/js` }
-    ]),
-    new WasmPackPlugin({ 
-      crateDirectory: _crateDir,
-      outDir: _crateOut,
-      forceMode: 'production',
-    }),
-  ],
   experiments: {
     asyncWebAssembly: true,
   },
-  resolve: {
-    fallback: {
-      fs: false,
-      path: false,
-    },
+  performance: {
+    // the wasm terminal is ~500KB; that's expected, don't warn about it
+    hints: false,
   },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: path.join(staticDir, 'templates/index.html'),
+      filename: path.join(dist, 'templates/index.html'),
+      inject: 'body',
+      minify: false,
+    }),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: staticDir,
+          to: dist,
+          // index.html is emitted by HtmlWebpackPlugin above instead
+          filter: (file) =>
+            file !== path.join(staticDir, 'templates/index.html') && !file.endsWith('.DS_Store'),
+        },
+        {
+          from: require.resolve('xterm/css/xterm.css'),
+          to: path.join(dist, 'assets/css/xterm.css'),
+        },
+      ],
+    }),
+  ],
 };

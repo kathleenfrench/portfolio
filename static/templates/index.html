@@ -2,29 +2,17 @@
 <html>
 
 <head>
+  <meta charset="utf-8">
   <title>{{name}}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- fonts -->
-  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet">
 
   <!-- stylesheets -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@4.9.0/css/xterm.css" integrity="sha256-QIY4PCy8QFMjISW7DEmeaROMHswpbJfnbLPUH3/GHxw=" crossorigin="anonymous">
+  <link rel="stylesheet" href="/assets/css/xterm.css"/>
   <link rel="stylesheet" href="/assets/css/main.css"/>
-
-  <!-- xterm 4.9.0 imports -->
-  <!-- xterm -->
-  <script src="https://cdn.jsdelivr.net/npm/xterm@4.9.0/lib/xterm.min.js"></script>
-  <!-- xterm-addon-fit -->
-  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.4.0/lib/xterm-addon-fit.min.js"></script>
-  <!-- xterm-addon-attach -->
-  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-attach@0.6.0/lib/xterm-addon-attach.min.js"></script>
-  <!-- xterm-addon-web-links -->
-  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-web-links@0.4.0/lib/xterm-addon-web-links.min.js"></script>
-  <!-- xterm-addon-serialize -->
-  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-serialize@0.4.0/lib/xterm-addon-serialize.min.js"></script>
-  <!-- xterm-addon-search -->
-  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-search@0.7.0/lib/xterm-addon-search.min.js"></script>
+  <!-- the js bundle is injected at the end of <body> by html-webpack-plugin -->
 </head>
 
 <body>
@@ -39,7 +27,7 @@
     <!-- ABOUT SECTION -->
     <div class="hidden" id="about">
       <div class="flex-container">
-        <img src="/assets/images/kf.png" alt="moi" />
+        <img src="/assets/images/kf.jpg" alt="kathleen in a dark room, lit by a glowing monitor" width="600" height="700" loading="lazy" />
       </div>
       <div class="flex-container">
         <p> 
@@ -59,34 +47,5 @@
 
   </div>
 
-  <!-- scripts -->
-  <script>
-    const xtermOptions = {
-      cursorBlink: true,
-      fontSize: 12,
-      cursorWidth: 8,
-      rightClickSelectsWord: true,
-      scrollback: 0,
-    }
-
-    const pterm = new Terminal(xtermOptions);
-
-    const fitAddon = new FitAddon.FitAddon();
-    const webLinksAddon = new WebLinksAddon.WebLinksAddon();
-    const searchAddon = new SearchAddon.SearchAddon();
-    const serializeAddon = new SerializeAddon.SerializeAddon();
-
-    pterm.loadAddon(fitAddon);
-    pterm.loadAddon(webLinksAddon);
-    pterm.loadAddon(searchAddon);
-    pterm.loadAddon(serializeAddon);
-
-    pterm.open(document.getElementById("intro-terminal"));
-    fitAddon.fit();
-
-    window.pterm = pterm;
-  </script>
-  <script src="/assets/js/bundle.js"></script>
-  <!-- /scripts -->
 </body>
 </html>

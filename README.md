@@ -1,57 +1,63 @@
 # kathleenfrench.co
 
-_this is the repo for my personal portfolio_
+_this is the repo for my personal portfolio: a fake terminal in the browser, written in rust + webassembly, served by a rust web server._
 
 ----
 
-### deployment
-
-**heroku**:
-
-using the [heroku buildpack subdir](https://elements.heroku.com/buildpacks/sectorlabs/heroku-buildpack-subdir)
-
-buildpacks are defined in the `.buildpacks` file in the root directory, where the order of the buildpacks implies the order of the build itself.
-
-the `subdir` buildpack allows for specifying the `web` directory as the specific frontend application, and use the official `heroku/nodejs` buildpack for it. the `emk/rust` custom buildpack is then used for building the `rust` server and running the application.
-
-as recommended in the docs, the app is also deployed with `SUBDIR_ENABLE_PROFILE_SOURCING=1` via:
+## how it works
 
 ```
-heroku config:set SUBDIR_ENABLE_PROFILE_SOURCING=1
+web/pterm/          rust crate -> compiled to wasm. this IS the terminal: the intro
+                    animation, every command (help, about, trout, ...), the treasure hunt.
+web/src/main.js     sets up xterm.js and loads the wasm
+static/             everything served as-is (css, images, text content, html templates).
+                    mirrors the layout of dist/
+src/                the rust web server (actix-web): renders the handlebars templates,
+                    serves dist/assets with compression + cache headers, 404 page
+config/             server config (Default.yml + Dev.yml/Prod.yml, picked by $ENVIRONMENT)
+Dockerfile          the production build. heroku builds this (via heroku.yml), CI builds this,
+                    `make up` builds this. if it builds anywhere it builds everywhere.
 ```
 
-the reasons for this are outlined in greater detail [here](https://devcenter.heroku.com/articles/buildpack-api#profile-d-scripts), but the gist, per the buildpack docs above:
+the build, start to finish:
 
-> .profile.d scripts are left behind by buildpacks and are invoked by Heroku when the dyno is starting. This allows buildpacks to update the PATH environment for example. Since buildpacks can be ran in subdirectories, the .profile.d scripts left behind by these buildpacks are not invoked by Heroku.
+1. `web/pterm` is compiled to `wasm32-unknown-unknown`, then `wasm-bindgen` generates js bindings into `web/pkg`
+2. webpack bundles `web/src/main.js` + `web/pkg` into `dist/assets/js/` with content-hashed filenames, injects the `<script>` tag into `dist/templates/index.html`, and copies the rest of `static/` into `dist/`
+3. the rust server runs and serves `dist/`
 
-### local dev
+**the text content** (resume, publications, intro logs, the list of dog photos) lives in `static/assets/files/` and is baked _into the wasm_ at compile time via `include_str!`, so editing those files needs a rebuild (`make local`), not just a refresh.
 
-#### docker caching
+## local dev
 
-rust builds in docker `==` slow - so I'm using a hack-y solution for that to run the application locally in `docker compose` via a `dummy.rs` approach which allows you to leverage docker layer caching of dependencies. you can read more on the strategy [in this blog post](https://blog.mgattozzi.dev/caching-rust-docker-builds/).
+### one-time setup
 
-#### make commands
+you need [rustup](https://rustup.rs), node 22+, and (optionally) docker.
 
-running `make` in your terminal will output some useful commands for running the site locally
-
-```
-build                          compile the rust server binary
-check                          verify the rust server bin is able to be compiled
-clean                          remove generated assets
-dist                           build and bundle all assets (js, css, html)
-help                           lists some available makefile commands
-lint                           lint the rust code
-local                          compiles/bundles all code, starts the rust server
-release                        compile a release build
-run                            run the rust app server locally
-test                           run rust tests
-watch                          run the hot-reload server for the rust backend
+```sh
+make setup
 ```
 
-#### deps
+this installs the pinned rust toolchain (from `rust-toolchain.toml`) + the wasm target, the `wasm-bindgen` CLI at the exact version `web/pterm/Cargo.lock` needs, and the npm deps.
 
-- make sure `wasm-pack` is installed
+### running it
 
+```sh
+make local        # build everything + run at http://127.0.0.1:3000
 ```
-curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+or, to run the exact production image heroku will run:
+
+```sh
+make up           # docker build + run at http://127.0.0.1:3000
+make down
 ```
+
+if you only changed rust server code (`src/`), `make run` skips the frontend rebuild.
+
+> the intro animation only plays once per browser (it's remembered in localStorage). type `replay` in the terminal to see it again.
+
+run `make` with no arguments to list every command.
+
+## config
+
+the server reads `config/Default.yml`, then `config/$ENVIRONMENT.yml` (`Dev` locally, `Prod` in docker). any value can be overridden with an env var prefixed `KF_`, e.g. `KF_LOG_LEVEL=debug`. `$PORT` sets the port (default 3000; heroku sets it automatically).
