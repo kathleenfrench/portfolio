@@ -33,9 +33,8 @@ down: ## stop the docker environment
 ########################################## heroku staging (needs a `staging` git remote)
 
 .PHONY: staging
-staging: ## deploy the current branch (committed changes only) to heroku staging
+staging: ## build the current branch (committed changes only) on heroku staging
 	@git push staging HEAD:main --force
-	@heroku ps:scale web=1 -r staging
 
 .PHONY: staging-down
 staging-down: ## scale heroku staging back to zero dynos
