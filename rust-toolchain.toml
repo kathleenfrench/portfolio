@@ -1,0 +1,7 @@
+# pins the rust version for this repo (rustup picks this up automatically).
+# keep in sync with the `rust:` image tag in the Dockerfile.
+[toolchain]
+channel = "1.99.0"
+targets = ["wasm32-unknown-unknown"]
+components = ["rustfmt", "clippy"]
+profile = "minimal"

@@ -1,0 +1,5 @@
+# tells heroku to build + run the Dockerfile instead of using buildpacks.
+# requires the app's stack to be `container` (one-time: heroku stack:set container -a <app>)
+build:
+  docker:
+    web: Dockerfile

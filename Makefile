@@ -1,18 +1,33 @@
+########################################## config
+
+# the wasm-bindgen CLI version must exactly match the wasm-bindgen crate in
+# web/pterm/Cargo.lock, so read it from there instead of hardcoding it
+WASM_BINDGEN_VERSION := $(shell grep -A1 '^name = "wasm-bindgen"$$' web/pterm/Cargo.lock | sed -n 's/version = "\(.*\)"/\1/p')
+PTERM_WASM := web/pterm/target/wasm32-unknown-unknown/release/pterm.wasm
 
 ########################################## local dev
 
 .PHONY: local
-local: run dist ## compiles/bundles all code, starts the rust server
-	@echo "success! visit the site in the browser at https://127.0.0.1:3000!"
+local: dist ## build everything and run the site at http://127.0.0.1:3000
+	@cargo run
 
-########################################## docker
+.PHONY: setup
+setup: ## install the toolchain bits (wasm target, pinned wasm-bindgen, npm deps)
+	@rustup toolchain install # installs the toolchain + wasm target pinned in rust-toolchain.toml
+	@if [ "$$(wasm-bindgen --version 2>/dev/null)" != "wasm-bindgen $(WASM_BINDGEN_VERSION)" ]; then \
+		cargo install wasm-bindgen-cli --version $(WASM_BINDGEN_VERSION) --locked; \
+	fi
+	@npm ci --prefix web
+
+########################################## docker (the exact same build heroku runs)
 
 .PHONY: up
-up: dist ## run the docker environment locally
-	@docker compose up -d
+up: ## build + run the production docker image at http://127.0.0.1:3000
+	@docker compose up --build -d
+	@echo "running at http://127.0.0.1:3000 (make down to stop)"
 
-.PHONY: up
-down:
+.PHONY: down
+down: ## stop the docker environment
 	@docker compose down
 
 ########################################## rust server
@@ -22,12 +37,13 @@ build: ## compile the rust server binary
 	@cargo build
 
 .PHONY: run
-run: ## run the rust app server locally
+run: ## run the rust server (without rebuilding the frontend)
 	@cargo run
 
 .PHONY: lint
-lint: ## lint the rust code
+lint: ## format + lint the rust code
 	@cargo fmt
+	@cargo clippy -- -D warnings
 
 .PHONY: test
 test: lint ## run rust tests
@@ -38,30 +54,34 @@ release: ## compile a release build
 	@cargo build --release
 
 .PHONY: check
-check: ## verify the rust server bin is able to be compiled
-	@echo "checking server binary..."
+check: ## verify the server and the pterm wasm crate both compile
 	@cargo check
-	@echo "checking pterm lib..."
-	@cd web/pterm && cargo check
+	@cd web/pterm && cargo check --lib --target wasm32-unknown-unknown
 
-.PHONY: watch
-watch: ## run the hot-reload server for the rust backend
-	@systemfd --no-pid -s http::3000 -- cargo watch -x run
+########################################## frontend
 
-########################################## frontend ops
+.PHONY: wasm
+wasm: ## compile the pterm terminal to wasm + generate js bindings into web/pkg
+	@cd web/pterm && cargo build --lib --release --target wasm32-unknown-unknown
+	@wasm-bindgen --target bundler --out-dir web/pkg --out-name index $(PTERM_WASM)
 
-web/package.json:
-	@npm install -C web
+web/node_modules: web/package-lock.json
+	@npm ci --prefix web
+	@touch web/node_modules
 
 .PHONY: dist
-dist: web/package.json ## build and bundle all assets (js, css, html)
+dist: wasm web/node_modules ## build and bundle all frontend assets into dist/
 	@rm -rf dist
 	@npm --prefix web run build
+
+.PHONY: clean
+clean: ## remove generated assets
+	@rm -rf dist web/pkg
 
 ########################################## utils
 
 .PHONY: help
-help: ## lists some available makefile commands
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+help: ## lists available make commands
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-12s\033[0m %s\n", $$1, $$2}'
 
 .DEFAULT_GOAL := help

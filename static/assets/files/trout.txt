@@ -1,4 +1,4 @@
-trout_stairs.png
-trout_coat.png
-trout_hall.png
-trout_halloween.png
+trout_stairs.jpg
+trout_coat.jpg
+trout_hall.jpg
+trout_halloween.jpg

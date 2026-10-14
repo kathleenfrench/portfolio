@@ -1,0 +1,43 @@
+# runs on every PR. if this passes, the heroku deploy will build too:
+# the `docker` job builds the exact image heroku builds from heroku.yml.
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  server:
+    name: rust server (fmt, clippy, test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      # rustup reads rust-toolchain.toml and installs the pinned version
+      - run: rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --check
+      - run: cargo clippy -- -D warnings
+      - run: cargo test
+
+  docker:
+    name: production docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: portfolio:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: smoke test
+        run: |
+          docker run -d --name site -p 3000:3000 portfolio:ci
+          for i in $(seq 1 20); do curl -sf localhost:3000/health && break; sleep 1; done
+          curl -sf localhost:3000/ | grep -qE 'id="?terminal'
+          curl -sf -o /dev/null localhost:3000/assets/css/main.css
+          curl -sf -o /dev/null localhost:3000/assets/images/kf.jpg
+          test "$(curl -s -o /dev/null -w '%{http_code}' localhost:3000/nope)" = 404

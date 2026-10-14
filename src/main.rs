@@ -1,76 +1,66 @@
-#[macro_use]
-extern crate serde_json;
-
-#[macro_use]
-extern crate lazy_static;
-
-use actix_cors::Cors;
-use actix_web::{http::header, middleware, web, App, HttpServer};
-
-use handlebars::Handlebars;
+use actix_files::Files;
+use actix_web::dev::Service;
+use actix_web::http::header::{HeaderValue, CACHE_CONTROL};
+use actix_web::{middleware, web, App, HttpServer};
+use handlebars::{DirectorySourceOptions, Handlebars};
 use std::io;
+use std::sync::LazyLock;
 
+mod cache;
 mod handlers;
 mod routes;
 mod settings;
-mod utils;
 
-lazy_static! {
-    static ref CONFIG: settings::Settings =
-        settings::Settings::new().expect("config can't be loaded");
-}
+static CONFIG: LazyLock<settings::Settings> =
+    LazyLock::new(|| settings::Settings::new().expect("config can't be loaded"));
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
-    std::env::set_var(
-        "RUST_LOG",
-        format!(
-            "actix_web={},actix_server={}",
-            &CONFIG.log.level, &CONFIG.log.level
-        ),
-    );
-    env_logger::init();
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or(format!(
+        "portfolio={0},actix_web={0},actix_server={0}",
+        CONFIG.log.level
+    )))
+    .init();
 
-    // handlebars uses a repository for the compiled templates
-    // this object must be shared between the application thread
-    // and is passed to the application builder as an
-    // atomic reference-counted pointer
+    // templates are compiled once at startup and shared across worker threads
     let mut handlebars = Handlebars::new();
+    let mut template_opts = DirectorySourceOptions::default();
+    template_opts.tpl_extension = ".html".to_owned();
     handlebars
-        .register_templates_directory(".html", format!("./{}", &CONFIG.static_paths.templates))
-        .unwrap();
+        .register_templates_directory(&CONFIG.static_paths.templates, template_opts)
+        .expect("templates can't be loaded");
+    let handlebars = web::Data::new(handlebars);
 
-    let handlerbars_ref = web::Data::new(handlebars);
+    let port: u16 = std::env::var("PORT")
+        .unwrap_or_else(|_| "3000".into())
+        .parse()
+        .expect("PORT must be a number");
 
-    let server = HttpServer::new(move || {
+    log::info!("listening on http://{}:{}", CONFIG.server.host, port);
+
+    HttpServer::new(move || {
+        // the last `.wrap` is the outermost middleware
         App::new()
-            .wrap(
-                Cors::default()
-                    .allow_any_origin()
-                    .allowed_methods(vec!["GET", "POST"])
-                    .allowed_headers(vec![
-                        header::ORIGIN,
-                        header::AUTHORIZATION,
-                        header::ACCEPT,
-                        header::CACHE_CONTROL,
-                        header::CONTENT_TYPE,
-                    ])
-                    .max_age(3600),
-            )
             .wrap(handlers::error_handlers())
+            .wrap_fn(|req, srv| {
+                let policy = cache::policy_for(req.path());
+                let fut = srv.call(req);
+                async move {
+                    let mut res = fut.await?;
+                    if let (Some(policy), true) = (policy, res.status().is_success()) {
+                        res.headers_mut()
+                            .insert(CACHE_CONTROL, HeaderValue::from_static(policy));
+                    }
+                    Ok(res)
+                }
+            })
+            .wrap(middleware::Compress::default())
             .wrap(middleware::Logger::default())
-            .app_data(handlerbars_ref.clone())
-            .service(utils::file_handler(
-                "/assets",
-                &format!("{}/", &CONFIG.static_paths.assets),
-            ))
-            .configure(|s| routes::add_routes(s))
-    });
-
-    let port: String = std::env::var("PORT").unwrap_or_else(|_| "3000".into());
-
-    server
-        .bind(format!("{}:{}", &CONFIG.server.host, &port))?
-        .run()
-        .await
+            .app_data(handlebars.clone())
+            .service(Files::new("/assets", &CONFIG.static_paths.assets).use_last_modified(true))
+            .configure(routes::add_routes)
+    })
+    .bind((CONFIG.server.host.as_str(), port))?
+    .run()
+    .await
 }
