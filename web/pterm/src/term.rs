@@ -114,21 +114,21 @@ pub fn random_trout_pic(term: &Terminal) {
 }
 
 thread_local! {
-  // the last pic shown for each command, so running `trout` twice never
-  // shows the same pic back to back
-  static LAST_PIC: RefCell<HashMap<&'static str, &'static str>> = RefCell::new(HashMap::new());
+  // per command: the pics still to show in the current pass, and the last one
+  // shown. every pic is shown once (in a shuffled order) before any repeats.
+  static PIC_DECKS: RefCell<HashMap<&'static str, PicDeck>> = RefCell::new(HashMap::new());
 }
 
 fn show_random_pic(term: &Terminal, command: &'static str, pics: &[&'static str]) {
   reset_window(&term);
 
-  let filename = LAST_PIC.with(|last| {
-    let mut last = last.borrow_mut();
-    let choice = pick_excluding(pics, last.get(command).copied(), &mut thread_rng());
-    if let Some(choice) = choice {
-      last.insert(command, choice);
-    }
-    choice.unwrap_or("")
+  let filename = PIC_DECKS.with(|decks| {
+    decks
+      .borrow_mut()
+      .entry(command)
+      .or_default()
+      .next(pics, &mut thread_rng())
+      .unwrap_or("")
   });
 
   let html = format!("<img class='fadeImage' src=/assets/images/{}></img>", filename);
@@ -139,16 +139,30 @@ fn show_random_pic(term: &Terminal, command: &'static str, pics: &[&'static str]
   clear(&term);
 }
 
-// picks a random pic other than `previous` (unless it's the only one)
-fn pick_excluding<R: Rng>(pics: &[&'static str], previous: Option<&str>, rng: &mut R) -> Option<&'static str> {
-  let pics: Vec<&'static str> = pics.iter().copied().filter(|p| !p.trim().is_empty()).collect();
+#[derive(Default)]
+struct PicDeck {
+  remaining: Vec<&'static str>,
+  last: Option<&'static str>,
+}
 
-  pics
-    .iter()
-    .copied()
-    .filter(|p| Some(*p) != previous)
-    .choose(rng)
-    .or_else(|| pics.first().copied())
+impl PicDeck {
+  fn next<R: Rng>(&mut self, pics: &[&'static str], rng: &mut R) -> Option<&'static str> {
+    if self.remaining.is_empty() {
+      self.remaining = pics.iter().copied().filter(|p| !p.trim().is_empty()).collect();
+      self.remaining.shuffle(rng);
+
+      // pics are popped off the end, so make sure a new pass doesn't start
+      // with the pic that ended the previous one
+      let n = self.remaining.len();
+      if n > 1 && self.remaining.last().copied() == self.last {
+        self.remaining.swap(0, n - 1);
+      }
+    }
+
+    let pic = self.remaining.pop()?;
+    self.last = Some(pic);
+    Some(pic)
+  }
 }
 
 pub fn about(term: &Terminal) {
@@ -433,24 +447,40 @@ pub fn term_err(term: &Terminal) {
 #[cfg(test)]
 mod tests {
   use super::*;
+  use std::collections::HashSet;
+
+  const PICS: [&str; 4] = ["a.jpg", "b.jpg", "c.jpg", "d.jpg"];
 
   #[test]
-  fn never_repeats_back_to_back() {
-    let pics = ["a.jpg", "b.jpg", "c.jpg"];
+  fn shows_every_pic_before_repeating() {
+    let mut deck = PicDeck::default();
+    let mut rng = thread_rng();
+
+    for _ in 0..250 {
+      let pass: HashSet<_> = (0..PICS.len()).map(|_| deck.next(&PICS, &mut rng).unwrap()).collect();
+      assert_eq!(pass.len(), PICS.len());
+    }
+  }
+
+  #[test]
+  fn never_repeats_back_to_back_across_passes() {
+    let mut deck = PicDeck::default();
     let mut rng = thread_rng();
     let mut previous = None;
 
     for _ in 0..1000 {
-      let pick = pick_excluding(&pics, previous, &mut rng).unwrap();
-      assert_ne!(Some(pick), previous);
-      previous = Some(pick);
+      let pic = deck.next(&PICS, &mut rng);
+      assert_ne!(pic, previous);
+      previous = pic;
     }
   }
 
   #[test]
   fn handles_single_and_empty_lists() {
     let mut rng = thread_rng();
-    assert_eq!(pick_excluding(&["only.jpg"], Some("only.jpg"), &mut rng), Some("only.jpg"));
-    assert_eq!(pick_excluding(&["", "  "], None, &mut rng), None);
+    let mut deck = PicDeck::default();
+    assert_eq!(deck.next(&["only.jpg"], &mut rng), Some("only.jpg"));
+    assert_eq!(deck.next(&["only.jpg"], &mut rng), Some("only.jpg"));
+    assert_eq!(PicDeck::default().next(&["", "  "], &mut rng), None);
   }
 }
