@@ -1,6 +1,4 @@
-server:
-  session_key: "kf_session"
-
 static_paths:
   assets: "dist/assets"
   templates: "dist/templates"
+  favicon: "dist/favicon.ico"

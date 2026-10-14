@@ -1,31 +1,25 @@
 {
   "name": "web",
-  "version": "1.0.0",
-  "description": "",
+  "version": "2.0.0",
+  "private": true,
+  "description": "frontend bundle for kathleenfrench.co (xterm + the pterm wasm app)",
   "main": "src/main.js",
   "engines": {
-    "node": "22.6.0",
-    "npm": "10.8.2"
+    "node": ">=22"
   },
   "scripts": {
-    "build": "webpack --config webpack.config.js",
-    "release": "webpack --config webpack.docker.js"
+    "build": "webpack --config webpack.config.js"
   },
-  "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@vue/preload-webpack-plugin": "^2.0.0",
-    "@wasm-tool/wasm-pack-plugin": "^1.6.0",
-    "clean-webpack-plugin": "^4.0.0",
-    "copy-webpack-plugin": "^5.0.3",
-    "html-webpack-plugin": "^5.3.2",
-    "webpack": "^5.95.0",
-    "webpack-cli": "^5.1.4"
+    "copy-webpack-plugin": "^14.0.0",
+    "html-webpack-plugin": "^5.6.8",
+    "webpack": "^5.111.1",
+    "webpack-cli": "^7.2.3"
   },
   "dependencies": {
-    "path": "^0.12.7",
-    "xterm": "^4.5.0",
-    "xterm-addon-fit": "^0.3.0"
+    "xterm": "^4.19.0",
+    "xterm-addon-fit": "^0.5.0"
   },
   "volta": {
     "node": "22.6.0",

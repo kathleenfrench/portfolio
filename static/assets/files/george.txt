@@ -1,8 +1,8 @@
-george_ellie_park.png
-george_portrait_3.png
-george_puppy.png
-george_ellie_sleep.png
-george_portrait_1.png
-george_ellie.png
-george_pool.png
-george_portrait_2.png
+george_ellie_park.jpg
+george_portrait_3.jpg
+george_puppy.jpg
+george_ellie_sleep.jpg
+george_portrait_1.jpg
+george_ellie.jpg
+george_pool.jpg
+george_portrait_2.jpg

@@ -1,7 +1,9 @@
+.git
+.github
 target
-web/pterm/target
-web/node_modules
 dist
-todo.md
-README.md
-Makefile
+web/node_modules
+web/pkg
+web/pterm/target
+**/.DS_Store
+*.md

@@ -1,8 +1,10 @@
 target
 dist
+.DS_Store
 
 web/node_modules
 web/pkg
-web/lib
-web/bin
 web/pterm/target
+
+notes.txt
+.maintenance.md
