@@ -30,6 +30,17 @@ up: ## build + run the production docker image at http://127.0.0.1:3000
 down: ## stop the docker environment
 	@docker compose down
 
+########################################## heroku staging (needs a `staging` git remote)
+
+.PHONY: staging
+staging: ## deploy the current branch (committed changes only) to heroku staging
+	@git push staging HEAD:main --force
+	@heroku ps:scale web=1 -r staging
+
+.PHONY: staging-down
+staging-down: ## scale heroku staging back to zero dynos
+	@heroku ps:scale web=0 -r staging
+
 ########################################## rust server
 
 .PHONY: build
