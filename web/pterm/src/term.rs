@@ -3,6 +3,9 @@ use ansi_term::Colour;
 use rand::thread_rng;
 use rand::prelude::*;
 
+use std::cell::RefCell;
+use std::collections::HashMap;
+
 use crate::content;
 use crate::utils;
 
@@ -99,26 +102,36 @@ pub fn goto_links(term: &Terminal, line: &str) {
 }
 
 pub fn random_george_pic(term: &Terminal) {
-  reset_window(&term);
-
-  let mut rng = thread_rng();
-  let filename = &content::GEORGE_PICS.choose(&mut rng).unwrap_or(&"");
-  let filepath = format!("/assets/images/{}", filename);
-  let html = format!("<img class='fadeImage' src={}></img>", filepath);
-
-  web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
-  web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
-
-  clear(&term);
+  show_random_pic(term, "george", &content::GEORGE_PICS);
 }
 
 pub fn random_henry_pic(term: &Terminal) {
+  show_random_pic(term, "henry", &content::HENRY_PICS);
+}
+
+pub fn random_trout_pic(term: &Terminal) {
+  show_random_pic(term, "trout", &content::TROUT_PICS);
+}
+
+thread_local! {
+  // the last pic shown for each command, so running `trout` twice never
+  // shows the same pic back to back
+  static LAST_PIC: RefCell<HashMap<&'static str, &'static str>> = RefCell::new(HashMap::new());
+}
+
+fn show_random_pic(term: &Terminal, command: &'static str, pics: &[&'static str]) {
   reset_window(&term);
 
-  let mut rng = thread_rng();
-  let filename = &content::HENRY_PICS.choose(&mut rng).unwrap_or(&"");
-  let filepath = format!("/assets/images/{}", filename);
-  let html = format!("<img class='fadeImage' src={}></img>", filepath);
+  let filename = LAST_PIC.with(|last| {
+    let mut last = last.borrow_mut();
+    let choice = pick_excluding(pics, last.get(command).copied(), &mut thread_rng());
+    if let Some(choice) = choice {
+      last.insert(command, choice);
+    }
+    choice.unwrap_or("")
+  });
+
+  let html = format!("<img class='fadeImage' src=/assets/images/{}></img>", filename);
 
   web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
   web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
@@ -126,18 +139,16 @@ pub fn random_henry_pic(term: &Terminal) {
   clear(&term);
 }
 
-pub fn random_trout_pic(term: &Terminal) {
-  reset_window(&term);
+// picks a random pic other than `previous` (unless it's the only one)
+fn pick_excluding<R: Rng>(pics: &[&'static str], previous: Option<&str>, rng: &mut R) -> Option<&'static str> {
+  let pics: Vec<&'static str> = pics.iter().copied().filter(|p| !p.trim().is_empty()).collect();
 
-  let mut rng = thread_rng();
-  let filename = &content::TROUT_PICS.choose(&mut rng).unwrap_or(&"");
-  let filepath = format!("/assets/images/{}", filename);
-  let html = format!("<img class='fadeImage' src={}></img>", filepath);
-
-  web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
-  web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
-
-  clear(&term);
+  pics
+    .iter()
+    .copied()
+    .filter(|p| Some(*p) != previous)
+    .choose(rng)
+    .or_else(|| pics.first().copied())
 }
 
 pub fn about(term: &Terminal) {
@@ -417,4 +428,29 @@ pub fn env_text(term: &Terminal) {
 
 pub fn term_err(term: &Terminal) {
   term.writeln(&TERMINAL_ERR);
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn never_repeats_back_to_back() {
+    let pics = ["a.jpg", "b.jpg", "c.jpg"];
+    let mut rng = thread_rng();
+    let mut previous = None;
+
+    for _ in 0..1000 {
+      let pick = pick_excluding(&pics, previous, &mut rng).unwrap();
+      assert_ne!(Some(pick), previous);
+      previous = Some(pick);
+    }
+  }
+
+  #[test]
+  fn handles_single_and_empty_lists() {
+    let mut rng = thread_rng();
+    assert_eq!(pick_excluding(&["only.jpg"], Some("only.jpg"), &mut rng), Some("only.jpg"));
+    assert_eq!(pick_excluding(&["", "  "], None, &mut rng), None);
+  }
 }
