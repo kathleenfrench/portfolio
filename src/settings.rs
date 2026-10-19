@@ -4,6 +4,10 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize, Clone)]
 pub struct Server {
     pub host: String,
+    // re-read templates from disk on every request (local dev only), so a
+    // `make dist` shows up without restarting the server
+    #[serde(default)]
+    pub reload_templates: bool,
 }
 
 #[derive(Debug, Deserialize, Clone)]
