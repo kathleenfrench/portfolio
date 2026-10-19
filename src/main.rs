@@ -24,6 +24,7 @@ async fn main() -> io::Result<()> {
 
     // templates are compiled once at startup and shared across worker threads
     let mut handlebars = Handlebars::new();
+    handlebars.set_dev_mode(CONFIG.server.reload_templates);
     let mut template_opts = DirectorySourceOptions::default();
     template_opts.tpl_extension = ".html".to_owned();
     handlebars

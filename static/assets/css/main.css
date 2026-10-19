@@ -83,20 +83,60 @@ html, body {
     overflow-x: hidden !important;
   }
 
-  #about p {
-    font-size: 16px !important;
-  }
-
-  .flex-container {
-    max-height: auto !important;
-  }
-
-  .flex-container img {
-    display: none !important;
-  }
-
   .visible {
     display: block !important;
+  }
+
+  /* about on phones: compact enough that the terminal prompt stays on screen.
+     photo + name side by side, bio underneath */
+  #about.visible {
+    display: grid !important;
+    grid-template-columns: 38% 1fr;
+    grid-template-areas:
+      "photo name"
+      "bio   bio";
+    column-gap: 1em;
+    align-items: center;
+    width: 100%;
+    padding-top: 1.5em; /* clear the help text bar */
+  }
+
+  #about.visible .flex-container {
+    max-height: none;
+    flex-direction: column;
+  }
+
+  #about.visible .flex-container:has(img) { grid-area: photo; }
+  #about.visible .flex-container:has(h1) { grid-area: name; align-items: flex-start; }
+  #about.visible .flex-container:has(p) { grid-area: bio; }
+
+  #about.visible img {
+    width: 100%;
+    max-width: none;
+    border-radius: 4px;
+  }
+
+  #about.visible h1 {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.15;
+  }
+
+  #about.visible .logo:empty {
+    display: none;
+  }
+
+  #about.visible h6 {
+    margin: 0.6em 0 0;
+    font-size: 12px;
+    font-weight: normal;
+    opacity: 0.8;
+  }
+
+  #about.visible p {
+    margin: 1em 0 0.5em;
+    font-size: 13px;
+    line-height: 1.5;
   }
 }
 
