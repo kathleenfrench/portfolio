@@ -168,9 +168,6 @@ impl PicDeck {
 pub fn about(term: &Terminal) {
   reset_window(&term);
   web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&VISIBLE_CLASS);
-  if !utils::is_mobile() {
-    term.writeln("~ moi ~");
-  }
 }
 
 pub fn resume(term: &Terminal, line: &str) {
