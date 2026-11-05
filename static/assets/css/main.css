@@ -43,6 +43,17 @@ html, body {
   padding: 5px;
 }
 
+/* xterm only blinks the cursor while the terminal has keyboard focus. phones
+   don't give it focus until you tap (focusing would pop the keyboard), so blink
+   the cursor layer ourselves: hard on/off, 1s, like a real terminal */
+#terminal .xterm:not(.focus) .xterm-cursor {
+  animation: cursor-blink 1s step-end infinite;
+}
+
+@keyframes cursor-blink {
+  50% { opacity: 0; }
+}
+
 .shrink {
   height: 10vh !important;
 }

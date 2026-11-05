@@ -123,16 +123,24 @@ pub async fn main() -> Result<(), JsValue> {
         cols = 60;
     }
 
-    let terminal: Terminal = Terminal::new(
-        TerminalOptions::new()
+    let options = TerminalOptions::new();
+    options
         .with_rows(50)
         .with_cols(cols)
         .with_cursor_blink(true)
         .with_cursor_width(10)
         .with_font_size(font_size)
         .with_draw_bold_text_in_bright_colors(true)
-        .with_right_click_selects_word(true),
-    );
+        .with_right_click_selects_word(true);
+
+    // keep the cursor a solid block when the terminal isn't focused (xterm 5.3+,
+    // not in xterm-js-rs's builder). phones don't focus it until you tap, and the
+    // default there is a hollow outline. the blink itself is in main.css
+    js_sys::Reflect::set(&options, &"cursorInactiveStyle".into(), &"block".into())?;
+    // same font as the rest of the site (main.js waits for it to load first)
+    js_sys::Reflect::set(&options, &"fontFamily".into(), &"'IBM Plex Mono', monospace".into())?;
+
+    let terminal: Terminal = Terminal::new(&options);
 
     let elem = web_sys::window().unwrap().document().unwrap().get_element_by_id("terminal").unwrap();
     let intro_elem = web_sys::window().unwrap().document().unwrap().get_element_by_id("intro-terminal").unwrap();
