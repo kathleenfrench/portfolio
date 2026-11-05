@@ -379,10 +379,14 @@ pub fn throw_hackerman(term: &Terminal) {
 pub fn show_image(term: &Terminal, file: &str) {
   reset_window(&term);
   let filepath = format!("/assets/images/{}", file);
-  let html = format!("<img src={}></img>", filepath);
+  // the page may be scrolled down from earlier output, which would leave only
+  // the bottom of the image showing above an empty terminal. scroll to the top
+  // now, and again once the image has loaded and taken up its space
+  let html = format!("<img src={} onload=\"scrollTo(0, 0)\"></img>", filepath);
   web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
   web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);
   clear(&term);
+  web_sys::window().unwrap().scroll_to_with_x_and_y(0.0, 0.0);
 }
 
 pub fn reset_window(term: &Terminal) {
