@@ -9,7 +9,7 @@
 // two puzzles live in here (`hint` walks you through the first):
 //   the hunt: .read_me -> history -> /tmp/.scratch -> su kathleen ->
 //             ~/treasure.txt -> goto l00t
-//   the ctf:  (as kathleen) ~/.bash_history -> crontab -l -> the_entertainment.sh
+//   the ctf:  (as kathleen) ~/.bash_history -> crontab -l -> the_site.sh
 //             (gpg) -> ~/.ssh/vault_key | base64 -d | xxd -r -p (a riddle) ->
 //             motel splendido -> gpg -d .vault -> goto kefahuchi
 use ansi_term::Colour;
@@ -85,12 +85,16 @@ const FS: &[Entry] = &[
   file!("/home/kathleen/.ssh/id_ed25519", false, "kathleen", 411, "Jan  5  2026", trout_key),
   file!("/home/kathleen/.ssh/vault_key", false, "kathleen", 73, "Nov  4 03:12", vault_key),
   dir!("/home/kathleen/Documents", false, "kathleen", "Oct 13 21:06"),
-  file!("/home/kathleen/Documents/reading_list.txt", false, "kathleen", 233, "Nov  4 20:58", reading_list),
+  file!("/home/kathleen/Documents/novel_draft_FINAL.docx", false, "kathleen", 18233, "Mar  2  2024", draft_final),
+  file!("/home/kathleen/Documents/novel_draft_FINAL_v2.docx", false, "kathleen", 18240, "Aug 19  2025", draft_final_v2),
+  file!("/home/kathleen/Documents/novel_draft_FINAL_v2_actually.docx", false, "kathleen", 18251, "Nov  4 21:58", draft_final_v2_actually),
+  file!("/home/kathleen/Documents/passwords.txt", false, "kathleen", 1337, "Jan  1  1970", passwords),
+  file!("/home/kathleen/Documents/heated_rivalry_fic_ch1.docx", false, "kathleen", 69420, "Nov  4 02:47", fanfic),
   // the ctf
   dir!("/opt/saudade", false, "kathleen", "Nov  4 03:10"),
   dir!("/opt/saudade/event_site", false, "kathleen", "Nov  4 03:11"),
   file!("/opt/saudade/event_site/README", false, "kathleen", 140, "Nov  4 03:11", event_site_readme),
-  file!("/opt/saudade/event_site/the_entertainment.sh", false, "kathleen", 214, "Nov  4 03:11", the_entertainment),
+  file!("/opt/saudade/event_site/the_site.sh", false, "kathleen", 214, "Nov  4 03:11", the_site),
   file!("/opt/saudade/event_site/.vault", false, "kathleen", 304, "Nov  4 03:12", vault),
 ];
 
@@ -135,7 +139,7 @@ fn treasure_txt() -> Vec<String> {
 
 fn kathleen_history() -> Vec<String> {
   lines(
-    "    1  cd /opt/saudade/event_site\n    2  ls -a\n    3  vim README\n    4  # watchman, what of the night?\n    5  crontab -e\n    6  cat ~/.ssh/vault_key\n    7  clear",
+    "    1  cd /opt/saudade/event_site\n    2  ls -a\n    3  vim README\n    4  crontab -e\n    5  cat ~/.ssh/vault_key\n    6  clear",
   )
 }
 
@@ -152,10 +156,50 @@ fn hex(bytes: &[u8]) -> String {
   bytes.iter().map(|b| format!("{:02x}", b)).collect()
 }
 
-fn reading_list() -> Vec<String> {
-  lines(
-    "* nightwood — djuna barnes\n* infinite jest — david foster wallace\n* a naked singularity — sergio de la pava\n* end zone — don delillo\n* light, nova swing, empty space — m. john harrison",
-  )
+// every writer's documents folder. cat-ing a .docx in a terminal gets you
+// binary soup, so that's what these are (the same soup every time)
+fn draft_final() -> Vec<String> {
+  binary_soup(1)
+}
+
+fn draft_final_v2() -> Vec<String> {
+  binary_soup(2)
+}
+
+fn draft_final_v2_actually() -> Vec<String> {
+  binary_soup(3)
+}
+
+/// a few lines of what a binary file looks like when you cat it: a zip header
+/// (a .docx is a zip) and then garbage, deterministic per `seed`
+fn binary_soup(seed: u64) -> Vec<String> {
+  const GLYPHS: &[char] = &[
+    '\u{fffd}', '\u{fffd}', '\u{fffd}', 'Ð', 'þ', 'ÿ', '¥', '§', 'µ', '¶', 'ß', 'Æ', 'ø', '¿', '¡', '¬', 'º', '¤',
+    '\u{2591}', '\u{2592}', 'x', 'K', 'q', '7', '@', '#', '%', '^', '~', '=', 'j', 'V', '0', '3', 'z', '!',
+  ];
+  let mut state = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+  let mut next = move || {
+    state = state.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+    (state >> 33) as usize
+  };
+
+  let mut out = vec!["PK\u{fffd}\u{fffd}\u{fffd}\u{fffd}[Content_Types].xml\u{fffd}\u{fffd}word/document.xml\u{fffd}".to_string()];
+  for _ in 0..7 {
+    let len = 48 + next() % 24;
+    out.push((0..len).map(|_| GLYPHS[next() % GLYPHS.len()]).collect());
+  }
+  out
+}
+
+// these two show a picture instead of text
+fn passwords() -> Vec<String> {
+  show_image("hackerman.png");
+  vec![]
+}
+
+fn fanfic() -> Vec<String> {
+  show_image("fanfic.jpg");
+  vec![]
 }
 
 fn event_site_readme() -> Vec<String> {
@@ -168,10 +212,9 @@ fn event_site_readme() -> Vec<String> {
   )
 }
 
-fn the_entertainment() -> Vec<String> {
+fn the_site() -> Vec<String> {
   lines(
     "#!/bin/sh
-# do not watch.
 # runs nightly (see crontab). checks the vault still opens.
 # the passphrase never leaves root.
 gpg --batch --passphrase-file /root/.vault_pass --decrypt /opt/saudade/event_site/.vault > /dev/null",
@@ -471,7 +514,7 @@ fn split_pipeline(line: &str) -> Vec<String> {
   stages
 }
 
-fn strip_ansi(s: &str) -> String {
+pub fn strip_ansi(s: &str) -> String {
   let mut out = String::new();
   let mut esc = false;
   for c in s.chars() {
@@ -698,7 +741,7 @@ pub fn env_vars() -> Vec<(&'static str, String)> {
 
 const BINARIES: &[&str] = &[
   "base64", "cat", "crontab", "curl", "date", "git", "grep", "hostname", "id", "less", "ls", "man", "mkdir", "nano",
-  "bash", "gpg", "ps", "python3", "rev", "rm", "sh", "ssh", "su", "touch", "tr", "uname", "vim", "wc", "wget", "whoami", "xxd", "zsh",
+  "bash", "gpg", "ps", "python3", "rev", "rm", "sh", "ssh", "su", "touch", "tr", "uname", "vim", "wc", "wget", "whoami", "xxd", "zsh", "neofetch", "top", "troutsay", "w", "who",
 ];
 const BUILTINS: &[&str] = &[".", "cd", "echo", "exec", "exit", "history", "pwd", "source", "which"];
 
@@ -757,7 +800,7 @@ pub fn crontab(args: &[String]) -> Vec<String> {
   match args.first().map(|s| s.as_str()) {
     Some("-l") if user() == "kathleen" => {
       mark("cron");
-      vec!["0 3 * * * /opt/saudade/event_site/the_entertainment.sh  # do not watch".into()]
+      vec!["0 3 * * * /opt/saudade/event_site/the_site.sh".into()]
     }
     Some("-l") => vec![format!("crontab: no crontab for {}", user())],
     Some("-e") | Some("-r") => vec![err(format!("crontab: permission denied for {}", user()))],
@@ -973,7 +1016,7 @@ pub fn exit() -> Vec<String> {
     logout();
     vec!["logout".into()]
   } else {
-    vec!["logout".into(), dim("...nice try. there's no leaving :)")]
+    vec!["logout".into(), dim("sry you're trapped here")]
   }
 }
 
@@ -1082,8 +1125,18 @@ const STEPS: &[Step] = &[
 const CTF_STEPS: &[&str] = &["ctf_history", "cron", "vault_key", "vault"];
 
 thread_local! {
-  // the terminal's width, for wrapping blockquotes (set by `run`)
+  // a picture a command wants shown (cat-ing certain files); `run` shows it
+  static IMAGE: RefCell<Option<&'static str>> = RefCell::new(None);
+}
+
+fn show_image(file: &'static str) {
+  IMAGE.with(|i| *i.borrow_mut() = Some(file));
+}
+
+thread_local! {
+  // the terminal's size, for wrapping blockquotes and neofetch (set by `run`)
   static WIDTH: RefCell<usize> = RefCell::new(80);
+  static HEIGHT: RefCell<usize> = RefCell::new(24);
 }
 
 /// a markdown-style blockquote: dim `>` on every line, then the attribution.
@@ -1313,6 +1366,9 @@ pub fn simple(cmd: &str, args: &[String], stdin: &Option<Vec<String>>) -> Option
     "base64" => base64(args, stdin),
     "gpg" | "gpg2" => gpg(args),
     "xxd" => xxd(args, stdin),
+    "neofetch" => crate::fun::neofetch(user(), WIDTH.with(|w| *w.borrow()), HEIGHT.with(|h| *h.borrow())),
+    "who" | "w" => crate::fun::who(),
+    "troutsay" => crate::fun::troutsay(args, stdin),
     "grep" => grep(args, stdin),
     "rev" => input_for("rev", &args.iter().collect::<Vec<_>>(), stdin).iter().map(|l| l.chars().rev().collect()).collect(),
     "wc" => vec![input_for("wc", &args.iter().filter(|a| !a.starts_with('-')).collect::<Vec<_>>(), stdin).len().to_string()],
@@ -1323,21 +1379,21 @@ pub fn simple(cmd: &str, args: &[String], stdin: &Option<Vec<String>>) -> Option
 /// run a pipeline (`a | b | c`). Err(command) if a command isn't one we know
 pub fn run_pipeline(line: &str, date: &dyn Fn() -> String) -> Result<Vec<String>, String> {
   let mut stdin: Option<Vec<String>> = None;
+  let mut out: Vec<String> = vec![];
   for stage in split_pipeline(line) {
     let words = split_args(&stage);
     let (cmd, args) = match words.split_first() {
       Some((c, a)) => (c.as_str(), a),
       None => return Ok(vec![err("zsh: parse error near `|'".into())]),
     };
-    let out = match cmd {
+    out = match cmd {
       "date" => vec![date()],
       _ => simple(cmd, args, &stdin).ok_or_else(|| cmd.to_string())?,
     };
-    // what flows down the pipe is plain text
+    // what flows down the pipe is plain text; the last stage keeps its colors
     stdin = Some(out.iter().map(|l| strip_ansi(l)).collect());
   }
 
-  let out = stdin.unwrap_or_default();
   if out.iter().any(|l| l.contains("goto kefahuchi")) {
     mark("vault");
   }
@@ -1347,10 +1403,14 @@ pub fn run_pipeline(line: &str, date: &dyn Fn() -> String) -> Result<Vec<String>
 /// run a command line. returns false if it isn't a command we know
 pub fn run(term: &Terminal, line: &str) -> bool {
   WIDTH.with(|w| *w.borrow_mut() = term.get_cols() as usize);
+  HEIGHT.with(|h| *h.borrow_mut() = term.get_rows() as usize);
   match run_pipeline(line, &now) {
     Ok(out) => {
       for l in out {
         crate::md::writeln(term, &l);
+      }
+      if let Some(image) = IMAGE.with(|i| i.borrow_mut().take()) {
+        crate::term::show_image(term, image);
       }
       true
     }
@@ -1585,14 +1645,14 @@ mod tests {
     assert_eq!(sh("gpg -d nope"), vec!["gpg: can't open 'nope': No such file or directory"]);
     sh("su kathleen");
     submit_password("fosterfail");
-    assert!(sh("cat ~/.bash_history").iter().any(|l| l.contains("watchman")));
-    assert!(sh("crontab -l")[0].contains("the_entertainment.sh"));
-    let script = sh("cat /opt/saudade/event_site/the_entertainment.sh").join("\n");
+    assert!(sh("cat ~/.bash_history").iter().any(|l| l.contains("crontab -e")));
+    assert!(sh("crontab -l")[0].contains("the_site.sh"));
+    let script = sh("cat /opt/saudade/event_site/the_site.sh").join("\n");
     assert!(script.contains("gpg --batch") && !script.contains("vault_key"), "the script shows gpg, not the key");
     let layer = sh("base64 -d ~/.ssh/vault_key");
     assert!(layer[0].starts_with("70773a"), "base64 hides hex: {:?}", layer);
     assert_eq!(sh("base64 -d ~/.ssh/vault_key | xxd -r -p").join("\n"), VAULT_RIDDLE);
-    assert_eq!(sh("ls -a /opt/saudade/event_site"), vec![".  ..  README  the_entertainment.sh  .vault"]);
+    assert_eq!(sh("ls -a /opt/saudade/event_site"), vec![".  ..  README  the_site.sh  .vault"]);
     assert_eq!(sh("cat /opt/saudade/event_site/.vault")[0], "-----BEGIN PGP MESSAGE-----");
 
     // interactive: prompts for the passphrase
@@ -1676,7 +1736,7 @@ mod tests {
     submit_password("fosterfail");
     sh("cd /opt/saudade/event_site");
     assert_eq!(sh("exec ./.vault"), vec!["zsh: permission denied: ./.vault"]);
-    assert_eq!(sh("./the_entertainment.sh"), vec!["zsh: permission denied: ./the_entertainment.sh"]);
+    assert_eq!(sh("./the_site.sh"), vec!["zsh: permission denied: ./the_site.sh"]);
     assert_eq!(sh("./nope"), vec!["zsh: no such file or directory: ./nope"]);
     assert_eq!(sh("sh .vault")[0], ".vault: line 1: -----BEGIN: command not found");
     assert_eq!(sh("exec pwd"), vec!["/opt/saudade/event_site"]);
@@ -1714,6 +1774,34 @@ mod tests {
     assert_eq!(sh("echo $(echo aGk=) | base64 -d"), vec!["hi"]);
     assert_eq!(sh("cat $(echo nope)"), vec!["cat: nope: No such file or directory"], "output becomes the argument, like a real shell");
     assert_eq!(sh("echo '$(whoami)'"), vec!["$(whoami)"], "not inside single quotes");
+  }
+
+  #[test]
+  fn output_keeps_its_colors() {
+    reset();
+    let raw = run_pipeline("cat nope", &|| "".into()).unwrap();
+    assert!(raw[0].contains('\x1b'), "the last command's colors survive: {:?}", raw);
+    let piped = run_pipeline("cat nope | grep cat", &|| "".into()).unwrap();
+    assert!(piped.iter().all(|l| !l.contains('\x1b')), "but piped text is plain");
+  }
+
+  #[test]
+  fn kathleens_documents() {
+    reset();
+    sh("su kathleen");
+    submit_password("fosterfail");
+    assert_eq!(
+      sh("ls ~/Documents"),
+      vec!["heated_rivalry_fic_ch1.docx  novel_draft_FINAL.docx  novel_draft_FINAL_v2.docx  novel_draft_FINAL_v2_actually.docx  passwords.txt"],
+    );
+    let draft = sh("cat ~/Documents/novel_draft_FINAL_v2_actually.docx");
+    assert!(draft[0].starts_with("PK"), "looks like a zip: {:?}", draft);
+    assert_eq!(draft, sh("cat ~/Documents/novel_draft_FINAL_v2_actually.docx"), "same soup every time");
+    assert_ne!(draft, sh("cat ~/Documents/novel_draft_FINAL.docx"), "each draft has its own");
+    assert!(sh("cat ~/Documents/passwords.txt").is_empty());
+    assert_eq!(IMAGE.with(|i| i.borrow_mut().take()), Some("hackerman.png"));
+    sh("cat ~/Documents/heated_rivalry_fic_ch1.docx");
+    assert_eq!(IMAGE.with(|i| i.borrow_mut().take()), Some("fanfic.jpg"));
   }
 
   #[test]

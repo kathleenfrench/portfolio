@@ -39,3 +39,24 @@ window.pterm = pterm;
 
 // built by `make wasm` (wasm-bindgen output); its start function boots the main terminal
 import('../pkg');
+
+// real server info for the terminal's `neofetch` and `who` (pterm/src/shell.rs
+// reads window.kfSysinfo / window.kfWho). each tab checks in once a minute while
+// it's visible, with a random id; the server keeps nothing else
+window.kfSessionId = Math.random().toString(36).slice(2, 12);
+fetch('/api/sysinfo').then((r) => r.json()).then((info) => { window.kfSysinfo = info; }).catch(() => {});
+
+function checkIn() {
+  if (document.hidden) return;
+  fetch('/api/who', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ id: window.kfSessionId }),
+  })
+    .then((r) => r.json())
+    .then((body) => { window.kfWho = body.sessions; })
+    .catch(() => {});
+}
+checkIn();
+setInterval(checkIn, 60 * 1000);
+document.addEventListener('visibilitychange', checkIn);

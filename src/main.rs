@@ -19,6 +19,7 @@ static CONFIG: LazyLock<settings::Settings> =
 async fn main() -> io::Result<()> {
     // local dev: pick up UPSTASH_* from a gitignored .env (prod uses heroku config vars)
     dotenvy::dotenv().ok();
+    routes::sysinfo::start_clock();
 
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or(format!(
         "portfolio={0},actix_web={0},actix_server={0}",

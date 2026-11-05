@@ -4,6 +4,8 @@ mod io;
 mod content;
 mod md;
 mod shell;
+mod fun;
+mod fx;
 mod sections;
 mod utils;
 mod term;
@@ -171,6 +173,16 @@ pub async fn main() -> Result<(), JsValue> {
     let key_editor = editor.clone();
     let callback = Closure::wrap(Box::new(move |e: OnKeyEvent| {
         let event = e.dom_event();
+
+        // top / the meltdown own the terminal while they run: q or ctrl+c stops top
+        if crate::fx::is_busy() {
+            let key = event.key();
+            if key == "q" || (event.ctrl_key() && event.key_code() == crate::term::KEY_C) {
+                crate::fx::stop();
+            }
+            return;
+        }
+
         let mut editing = key_editor.borrow_mut();
         let (line, cursor_col, recall) = &mut *editing;
 
@@ -227,6 +239,10 @@ pub async fn main() -> Result<(), JsValue> {
                                 crate::term::resume(&term, line_match);
                             } else if line_match.starts_with("goto ") {
                                 crate::term::goto_links(&term, line_match);
+                            } else if line_match == "top" || line_match == "htop" {
+                                crate::fx::top(term.clone().unchecked_into());
+                            } else if crate::fun::is_meltdown(line_match) {
+                                crate::fx::meltdown(term.clone().unchecked_into());
                             } else if !crate::shell::run(&term, line_match) {
                                 crate::shell::command_not_found(&term, line_match);
                             }
@@ -237,7 +253,9 @@ pub async fn main() -> Result<(), JsValue> {
                     *cursor_col = 0;
                 }
 
-                if crate::shell::is_awaiting_password() {
+                if crate::fx::is_busy() {
+                    // the animation prints the prompt when it's done
+                } else if crate::shell::is_awaiting_password() {
                     term.write(crate::shell::password_prompt());
                 } else {
                     crate::term::prompt(&term);

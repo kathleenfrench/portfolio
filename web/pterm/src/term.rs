@@ -372,8 +372,13 @@ pub fn is_privesc(input: &str) -> bool {
 }
 
 pub fn throw_hackerman(term: &Terminal) {
+  show_image(term, "hackerman.png");
+}
+
+/// clear the terminal and show an image from /assets/images above it
+pub fn show_image(term: &Terminal, file: &str) {
   reset_window(&term);
-  let filepath = "/assets/images/hackerman.png";
+  let filepath = format!("/assets/images/{}", file);
   let html = format!("<img src={}></img>", filepath);
   web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_inner_html(&html);
   web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&VISIBLE_CLASS);

@@ -1,6 +1,7 @@
-// finder counts for the treasure hunt and the ctf, kept in upstash redis via
-// its rest api. optional: without UPSTASH_REDIS_REST_URL/_TOKEN (e.g. no .env
-// locally) there's no counter, and the pages just leave the count out.
+// finder counts for the treasure hunt and the ctf, and who's on the site right
+// now (`who`), kept in upstash redis via its rest api. optional: without
+// UPSTASH_REDIS_REST_URL/_TOKEN (e.g. no .env locally) there's no counter, the
+// pages leave the count out and `who` only shows you.
 //
 // the token only ever lives here on the server; browsers just see the count.
 use std::collections::HashMap;
@@ -61,6 +62,42 @@ impl Counter {
         let now = Instant::now();
         seen.retain(|_, at| now.duration_since(*at) < REPEAT_WINDOW);
         seen.insert((visitor.to_string(), track), now).is_none()
+    }
+
+    /// `who`: mark this tab as active, and return the active tabs as
+    /// (id, seconds since last seen). a tab is active if it checked in within
+    /// the last two minutes. ids are random per tab; nothing else is stored
+    pub async fn presence(&self, id: &str, now: u64) -> Option<Vec<(String, u64)>> {
+        let key = format!("{}:who", self.prefix);
+        let stale = now.saturating_sub(120).to_string();
+        let now_s = now.to_string();
+        let body = serde_json::json!([
+            ["ZADD", key, now_s, id],
+            ["ZREMRANGEBYSCORE", key, "-inf", stale],
+            ["ZRANGE", key, "0", "-1", "WITHSCORES"],
+            ["EXPIRE", key, "600"],
+        ]);
+        let res = self
+            .http
+            .post(format!("{}/pipeline", self.url))
+            .bearer_auth(&self.token)
+            .json(&body)
+            .send()
+            .await
+            .map_err(|e| log::warn!("presence: {}", e))
+            .ok()?;
+        let results: Vec<serde_json::Value> = res.json().await.ok()?;
+        let flat = results.get(2)?["result"].as_array()?.clone();
+
+        Some(
+            flat.chunks(2)
+                .filter_map(|pair| {
+                    let id = pair.first()?.as_str()?.to_string();
+                    let seen: u64 = pair.get(1)?.as_str()?.parse::<f64>().ok()? as u64;
+                    Some((id, now.saturating_sub(seen)))
+                })
+                .collect(),
+        )
     }
 
     // upstash's rest api: GET {url}/{command}/{args...} -> {"result": ...}

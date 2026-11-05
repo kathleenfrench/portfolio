@@ -3,6 +3,7 @@ use actix_web::web::{get, post, resource, ServiceConfig};
 mod favicon;
 mod health;
 mod home;
+pub mod sysinfo;
 mod treasure;
 
 pub fn add_routes(s: &mut ServiceConfig) {
@@ -31,5 +32,15 @@ pub fn add_routes(s: &mut ServiceConfig) {
         resource("/api/found/{track}")
             .name("found")
             .route(post().to(treasure::found)),
+    )
+    .service(
+        resource("/api/sysinfo")
+            .name("sysinfo")
+            .route(get().to(sysinfo::sysinfo)),
+    )
+    .service(
+        resource("/api/who")
+            .name("who")
+            .route(post().to(sysinfo::who)),
     );
 }
