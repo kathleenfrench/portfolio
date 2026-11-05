@@ -79,6 +79,10 @@ mod anim {
     wasm_bindgen_futures::spawn_local(async move {
       let mut rng = thread_rng();
       let red = |s: &str| Colour::Red.paint(s).to_string();
+      // whatever image was up goes first (and the terminal moves up to fill
+      // the screen, so the whole meltdown is in view)
+      crate::term::hide_panels();
+      web_sys::window().unwrap().scroll_to_with_x_and_y(0.0, 0.0);
 
       for (i, path) in fun::DOOMED.iter().enumerate() {
         term.writeln(&format!("removed '{}'", path));
