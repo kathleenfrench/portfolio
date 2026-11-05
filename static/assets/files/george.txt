@@ -6,3 +6,16 @@ george_portrait_1.jpg
 george_ellie.jpg
 george_pool.jpg
 george_portrait_2.jpg
+george_puppy_grass.jpg
+george_dog_park.jpg
+george_cowboy.jpg
+george_window.jpg
+george_doorway.jpg
+george_hallway.jpg
+george_bed.jpg
+george_sunbeam.jpg
+george_patio.jpg
+george_balcony.jpg
+george_bench.jpg
+george_hug.jpg
+george_blanket.jpg
