@@ -29,7 +29,24 @@ extern "C" {
 }
 
 pub async fn delayed_print<S: Into<String>>(s: S, delay: u64) {
-  let input_arr = s.into().chars().map(|x| x.to_string()).collect::<Vec<String>>();
+  let s = s.into();
+
+  // no typing effect: write it all at once instead of a char at a time
+  if delay == 0 {
+    #[cfg(target_arch = "wasm32")]
+    pterm_write(&s);
+
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+      use std::io::{stdout, Write};
+      print!("{}", s);
+      stdout().flush().unwrap();
+    }
+
+    return;
+  }
+
+  let input_arr = s.chars().map(|x| x.to_string()).collect::<Vec<String>>();
 
   for i in input_arr {
     #[cfg(target_arch = "wasm32")] 
@@ -73,4 +90,15 @@ pub fn get_terminal_width() -> usize {
 #[wasm_bindgen(inline_js = "export function get_terminal_width() { return window.pterm.cols }")]
 extern "C" {
   pub fn get_terminal_width() -> usize;
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub fn get_terminal_rows() -> usize {
+  term_size::dimensions().expect("not attached to the terminal").1
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen(inline_js = "export function get_terminal_rows() { return window.pterm.rows }")]
+extern "C" {
+  pub fn get_terminal_rows() -> usize;
 }

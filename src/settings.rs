@@ -8,6 +8,21 @@ pub struct Server {
     // `make dist` shows up without restarting the server
     #[serde(default)]
     pub reload_templates: bool,
+    // send cache-control headers for /assets (prod). off in local dev, so
+    // browsers always pick up the latest css after a `make dist`
+    #[serde(default = "default_true")]
+    pub cache_assets: bool,
+    // namespaces the finder counts in upstash, so local dev never touches prod's
+    #[serde(default = "default_counter_prefix")]
+    pub counter_prefix: String,
+}
+
+fn default_counter_prefix() -> String {
+    "prod".into()
+}
+
+fn default_true() -> bool {
+    true
 }
 
 #[derive(Debug, Deserialize, Clone)]

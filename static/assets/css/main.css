@@ -7,8 +7,30 @@ body {
   margin: 0;
 }
 
+/* off-white on near-black; keep in sync with the xterm theme in
+   web/src/main.js and web/pterm/src/lib.rs */
+:root {
+  --bg: #111111;
+  --fg: #e6e6e6;
+  --dim: #808080;
+  /* left/right page margin, shared by the terminals and the top-right links */
+  --gutter: 24px;
+}
+
+@media (max-width: 500px) {
+  :root {
+    /* phones keep the original tight margin */
+    --gutter: 10px;
+  }
+
+  /* too cramped next to the terminal on a phone; contact/goto covers it */
+  nav#links {
+    display: none;
+  }
+}
+
 html {
-  background-color: black;
+  background-color: var(--bg);
 }
 
 html, body {
@@ -32,15 +54,36 @@ html, body {
   color: darkred;
 }
 
+/* the intro is a log stream whose long lines run off the right edge of the
+   window (main.js makes it 300 columns wide). .main clips it at the window
+   edge, with overflow-x: clip so there's no horizontal scrollbar */
 #intro-terminal {
-  width: 100vw;
+  width: 100%;
+  /* the intro keeps its original 10px left margin, whatever the gutter is */
+  margin-left: calc(10px - var(--gutter));
   height: 100vh;
+  height: 100dvh;
 }
 
+/* exactly as tall as the window (minus .main's top padding), so the fit addon
+   sizes the rows to the screen and the prompt never ends up below the fold.
+   dvh = the visible height on phones, excluding the browser's url bar */
 #terminal {
-  width: 100vw;
-  height: auto !important;
-  padding: 5px;
+  width: 100%;
+  height: calc(100vh - 20px) !important;
+  height: calc(100dvh - 20px) !important;
+  padding: 5px 0;
+}
+
+/* xterm only blinks the cursor while the terminal has keyboard focus. phones
+   don't give it focus until you tap (focusing would pop the keyboard), so blink
+   the cursor layer ourselves: hard on/off, 1s, like a real terminal */
+#terminal .xterm:not(.focus) .xterm-cursor {
+  animation: cursor-blink 1s step-end infinite;
+}
+
+@keyframes cursor-blink {
+  50% { opacity: 0; }
 }
 
 .shrink {
@@ -60,22 +103,8 @@ html, body {
 }
 
 .main {
-  padding: 10px;
-}
-
-#about {
-  display: inline-flex;
-  flex-direction: row;
-  flex-flow: row;
-  justify-content: space-between;
-  color: #ffffff;
-  width: 95vw;
-  position: relative;
-}
-
-#about p {
-  margin: 1em;
-  font-size: 12px;
+  padding: 10px var(--gutter);
+  overflow-x: clip;
 }
 
 @media (max-width: 500px) {
@@ -87,57 +116,6 @@ html, body {
     display: block !important;
   }
 
-  /* about on phones: compact enough that the terminal prompt stays on screen.
-     photo + name side by side, bio underneath */
-  #about.visible {
-    display: grid !important;
-    grid-template-columns: 38% 1fr;
-    grid-template-areas:
-      "photo name"
-      "bio   bio";
-    column-gap: 1em;
-    align-items: center;
-    width: 100%;
-    padding-top: 1.5em; /* clear the help text bar */
-  }
-
-  #about.visible .flex-container {
-    max-height: none;
-    flex-direction: column;
-  }
-
-  #about.visible .flex-container:has(img) { grid-area: photo; }
-  #about.visible .flex-container:has(h1) { grid-area: name; align-items: flex-start; }
-  #about.visible .flex-container:has(p) { grid-area: bio; }
-
-  #about.visible img {
-    width: 100%;
-    max-width: none;
-    border-radius: 4px;
-  }
-
-  #about.visible h1 {
-    margin: 0;
-    font-size: 24px;
-    line-height: 1.15;
-  }
-
-  #about.visible .logo:empty {
-    display: none;
-  }
-
-  #about.visible h6 {
-    margin: 0.6em 0 0;
-    font-size: 12px;
-    font-weight: normal;
-    opacity: 0.8;
-  }
-
-  #about.visible p {
-    margin: 1em 0 0.5em;
-    font-size: 13px;
-    line-height: 1.5;
-  }
 }
 
 #about h1 {
@@ -152,13 +130,6 @@ html, body {
   position: relative;
   width: 95vw;
   justify-self: center;
-}
-
-.flex-container {
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: space-around;
-  max-height: 230px;
 }
 
 .parent {
@@ -294,26 +265,53 @@ img#did-it-2 {
   }
 }
 
-small a {
-  color: aqua;
+/* treasure page: both links together in one bar at the bottom center, the
+   one spot the applause, gifs and orb leave clear. a dark strip keeps them
+   readable over the photo */
+.treasure-strip {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  margin: 0;
+  padding: 0.6em 1.2em;
+  background: rgba(17, 17, 17, 0.75);
+  backdrop-filter: blur(4px);
+  border-radius: 4px;
+  font-size: 13px;
+  white-space: nowrap;
 }
 
-#treasure-github-link {
-  float: right;
-  margin-right: 5vw;
+#treasure-links {
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 1.5em;
 }
 
-span#help-text-bar {
-  position: absolute;
-  float: right;
-  z-index: 1000;
-  top: 0;
-  right: 0;
+/* "you're the 12th person to find this · solved in 4m 12s", above the links */
+#found-stats {
+  bottom: 74px;
+  color: #e6e6e6;
 }
 
-p#help-text {
-  color: white;
-  font-size: 8px;
+#found-stats[hidden] {
+  display: none;
+}
+
+#treasure-links a {
+  color: #b3b3b3;
+  text-decoration: none;
+}
+
+#treasure-links a:hover {
+  color: #ffffff;
+}
+
+/* dim markdown markup, e.g. the `#` before headings */
+.md {
+  color: var(--dim);
+  font-weight: normal;
 }
 
 ul.applause-animation {
@@ -384,4 +382,251 @@ ul.applause-animation li:nth-child(7){
   animation-delay:-0.2s;
   background:#673ab7;
   box-shadow:0 0 50px #673ab7;
+}
+
+/* [ github ] [ linkedin ] [ email ], top right */
+nav#links {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 10px var(--gutter);
+  font-size: 12px;
+}
+
+/* hidden while the intro animation plays (first visit, or after `replay`).
+   the wasm adds .hidden to #intro-terminal when the intro is done */
+body:has(#intro-terminal:not(.hidden)) nav#links {
+  visibility: hidden;
+  opacity: 0;
+}
+
+nav#links {
+  transition: opacity 0.6s ease;
+}
+
+nav#links a {
+  color: var(--dim);
+  text-decoration: none;
+  margin-left: 1em;
+}
+
+nav#links a:hover {
+  color: var(--fg);
+}
+
+/* about: photo on the left, one text column on the right (name, tagline,
+   bio) so everything shares a left edge */
+#about.visible {
+  display: grid !important;
+  grid-template-columns: 280px minmax(0, 620px);
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "photo head"
+    "photo bio";
+  column-gap: 2.5em;
+  padding-top: 2em;
+  color: var(--fg);
+}
+
+#about .about-photo {
+  grid-area: photo;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  margin: 0;
+  border-radius: 4px;
+}
+
+#about .about-head {
+  grid-area: head;
+}
+
+#about h1 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+#about .tagline {
+  margin: 0.5em 0 0;
+  color: var(--dim);
+  font-size: 13px;
+}
+
+#about .about-bio {
+  grid-area: bio;
+  margin: 1.5em 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* phones: smaller photo beside the name, bio full width underneath, compact
+   enough that the terminal prompt stays on screen */
+@media (max-width: 500px) {
+  #about.visible {
+    grid-template-columns: 34% 1fr;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "photo head"
+      "bio   bio";
+    column-gap: 1em;
+    align-items: center;
+    padding-top: 0.5em;
+  }
+
+  #about h1 {
+    font-size: 20px;
+  }
+
+  #about .tagline {
+    font-size: 12px;
+  }
+
+  #about .about-bio {
+    margin-top: 1em;
+  }
+}
+
+
+/* the ctf's secret page: an ascii black hole behind a short message */
+body#event-horizon {
+  background: #050505;
+  color: var(--fg);
+  overflow: hidden;
+  height: 100vh;
+  height: 100dvh;
+}
+
+pre#horizon {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.2;
+  color: #d9c7a3; /* warm, like a lit disk */
+  user-select: none;
+}
+
+main#horizon-message {
+  position: fixed;
+  left: 50%;
+  bottom: 8vh;
+  transform: translateX(-50%);
+  width: min(560px, calc(100vw - 2 * var(--gutter)));
+  padding: 1.2em 1.5em;
+  background: rgba(5, 5, 5, 0.8);
+  backdrop-filter: blur(3px);
+  border-radius: 4px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+main#horizon-message h1 {
+  margin: 0.4em 0;
+  font-size: 18px;
+}
+
+main#horizon-message p {
+  margin: 0.4em 0;
+}
+
+main#horizon-message #found-stats[hidden] {
+  display: none;
+}
+
+main#horizon-message a {
+  color: var(--dim);
+  text-decoration: none;
+}
+
+main#horizon-message a:hover {
+  color: var(--fg);
+}
+
+/* treasure page on narrower screens: the wide layout positions everything by
+   percentages, so it collides below ~800px. title top-left, gifs in the
+   corners, the orb centered, and the bottom strips wrap */
+@media (max-width: 800px) {
+  #treasure-msg {
+    float: none;
+    margin: 1.5em 1em 0;
+  }
+
+  /* one line, sized to fit beside the top-right gif (17 chars of a ~1em font) */
+  .treasure-chest h2 {
+    font-size: clamp(10px, 3.6vw, 22px);
+    line-height: 1.5;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  ul.applause-animation {
+    transform: none;
+    margin: 0.6em 0 0;
+  }
+
+  ul.applause-animation li {
+    width: 22px;
+    height: 22px;
+  }
+
+  .you-did-it {
+    height: auto;
+  }
+
+  .you-did-it img {
+    position: fixed;
+    width: 30vw;
+    max-width: 170px;
+    height: auto;
+    margin: 0;
+  }
+
+  img#did-it-1 {
+    top: 12px;
+    right: 12px;
+  }
+
+  img#did-it-2 {
+    top: auto;
+    bottom: 150px;
+    left: 12px;
+  }
+
+  #treasure-content-container {
+    width: 72vw;
+    height: 72vw;
+    margin: 0;
+    left: 14vw;
+    top: calc(46vh - 36vw);
+    top: calc(46dvh - 36vw);
+    bottom: auto !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #treasure-content {
+    margin: 0 !important;
+  }
+
+  .treasure-strip {
+    white-space: normal;
+    text-align: center;
+    width: max-content;
+    max-width: calc(100vw - 24px);
+    box-sizing: border-box;
+  }
+
+  #treasure-links {
+    justify-content: center;
+    gap: 1em;
+  }
+
+  #found-stats {
+    bottom: 84px;
+  }
 }

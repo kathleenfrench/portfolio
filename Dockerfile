@@ -49,7 +49,7 @@ WORKDIR /src
 
 # build dependencies against a stub main.rs first, so they're cached in their
 # own docker layer and only our code recompiles when src/ changes
-COPY Cargo.toml Cargo.lock ./
+COPY Cargo.toml Cargo.lock build.rs ./
 RUN mkdir src && echo 'fn main() {}' > src/main.rs \
  && cargo build --release \
  && rm -rf src

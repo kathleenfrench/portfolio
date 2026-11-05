@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>{{name}}</title>
+  <meta charset="utf-8">
+  <title>l00t</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/main.css"/>
 
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r124/three.min.js" integrity="sha512-jeYvJdyAYkpQCY/omvCYQo89qA5YxDW4JBT7COPsHT2sOAanwxkZRFeP9gc69b5reSDpZIoyCqZQZcWZkbB5Gw==" crossorigin="anonymous"></script> -->
@@ -24,7 +26,6 @@
         </ul>
       </div>
     </div>
-    <small><a href="/">go home</a></small>
     <div class="you-did-it">
       <img id="did-it-1" src="/assets/images/you_did_it.gif">
     </div>
@@ -37,8 +38,13 @@
     <div class="you-did-it">
       <img id="did-it-2" src="/assets/images/you_did_it_2.gif">
     </div>
-    <small id="treasure-github-link"><a target="_blank" href="https://github.com/kathleenfrench/portfolio">check out the codebase on github &#128064;</a></small>
+    <p id="found-stats" class="treasure-strip" hidden></p>
+    <nav id="treasure-links" class="treasure-strip">
+      <a href="/">[ &larr; go home ]</a>
+      <a href="https://github.com/kathleenfrench/portfolio" target="_blank" rel="noopener">[ view the code &#128064; ]</a>
+    </nav>
   </div>
-  <script src="/assets/js/treasure.js"></script>
+  <script src="/assets/js/found.js"></script>
+  <script>showFound('hunt', document.getElementById('found-stats'));</script>
 </body>
 </html>
