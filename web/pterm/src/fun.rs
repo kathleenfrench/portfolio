@@ -192,7 +192,7 @@ pub const PROCS: &[Proc] = &[
   Proc { pid: 23, user: "root", cmd: "actix-web --workers 4", cpu: 2.0, jitter: 1.5, mem: 1.2 },
   Proc { pid: 42, user: "kathleen", cmd: "writing.sh --draft 14", cpu: 12.0, jitter: 6.0, mem: 2.4 },
   Proc { pid: 77, user: "trout", cmd: "beg --until=snack", cpu: 0.3, jitter: 0.3, mem: 0.2 },
-  Proc { pid: 81, user: "trout", cmd: "snore --during=my-work-meetings", cpu: 4.0, jitter: 3.0, mem: 0.1 },
+  Proc { pid: 81, user: "trout", cmd: "snore --during=meetings", cpu: 4.0, jitter: 3.0, mem: 0.1 },
   Proc { pid: 88, user: "kathleen", cmd: "procrastinate", cpu: 31.0, jitter: 8.0, mem: 8.0 },
   Proc { pid: 93, user: "kathleen", cmd: "kubectl get pods -w", cpu: 1.5, jitter: 1.0, mem: 0.6 },
   Proc { pid: 104, user: "root", cmd: "the_site.sh", cpu: 0.0, jitter: 0.0, mem: 0.1 },
