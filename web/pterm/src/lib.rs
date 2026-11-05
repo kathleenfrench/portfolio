@@ -2,6 +2,8 @@ pub mod app;
 
 mod io;
 mod content;
+mod md;
+mod shell;
 mod sections;
 mod utils;
 mod term;
@@ -108,7 +110,7 @@ pub async fn main() -> Result<(), JsValue> {
 
     *SPEED_FACTOR.lock().await = cfg.speed_factor;
 
-    if !local.get_intro_played() && !utils::is_mobile() {
+    if !local.get_intro_played() {
         run_intro(&cfg).await;
     }
 
@@ -140,12 +142,19 @@ pub async fn main() -> Result<(), JsValue> {
     // same font as the rest of the site (main.js waits for it to load first)
     js_sys::Reflect::set(&options, &"fontFamily".into(), &"'IBM Plex Mono', monospace".into())?;
 
+    // softer than pure white on black. keep in sync with main.js + main.css
+    let theme = js_sys::Object::new();
+    js_sys::Reflect::set(&theme, &"background".into(), &"#111111".into())?;
+    js_sys::Reflect::set(&theme, &"foreground".into(), &"#e6e6e6".into())?;
+    js_sys::Reflect::set(&theme, &"cursor".into(), &"#e6e6e6".into())?;
+    js_sys::Reflect::set(&options, &"theme".into(), &theme)?;
+
     let terminal: Terminal = Terminal::new(&options);
 
     let elem = web_sys::window().unwrap().document().unwrap().get_element_by_id("terminal").unwrap();
     let intro_elem = web_sys::window().unwrap().document().unwrap().get_element_by_id("intro-terminal").unwrap();
 
-    crate::term::help_text(&terminal);
+    crate::term::welcome(&terminal);
     terminal.open(elem.dyn_into()?);
     crate::term::prompt(&terminal);
 
@@ -159,11 +168,12 @@ pub async fn main() -> Result<(), JsValue> {
 
         match event.key_code() {
             crate::term::KEY_ENTER => {
+                crate::term::clear_hint(&term);
                 if !line.is_empty() {
                     crate::term::new_line(&term);
                     let line_match: &str = &line.trim();
                     match line_match {
-                        "help" => crate::term::help_text(&term),
+                        "help" | "?" => crate::term::help_text(&term),
                         "about" => crate::term::about(&term),
                         "resume" => crate::term::subcommand_help_text("resume", "resume xp", &term),
                         "contact" => crate::term::contact_info(&term),
@@ -172,11 +182,6 @@ pub async fn main() -> Result<(), JsValue> {
                         "george" => crate::term::random_george_pic(&term),
                         "henry" => crate::term::random_henry_pic(&term),
                         "trout" => crate::term::random_trout_pic(&term),
-                        "git" => crate::term::throw_git_error(&term),
-                        "sudo" => crate::term::throw_hackerman(&term),
-                        "pwd" => term.writeln("/home/stranger"),
-                        "ls" => crate::term::ls(&term, false),
-                        "cat" => crate::term::term_err(&term),
                         "env" => crate::term::env_text(&term),
                         "replay" => {
                             let window = web_sys::window().unwrap();
@@ -185,31 +190,17 @@ pub async fn main() -> Result<(), JsValue> {
                             window.location().reload().expect("could not reload");
                         },
                         "history" => crate::term::get_history(&term),
-                        "cat .read_me" => crate::term::read_me(&term),
-                        "cat /tmp/.top_secret" => crate::term::top_secret(&term),
                         _ => {
-                            if crate::term::deny_common_bins(line_match) {
-                                crate::term::permission_denied(&term);
-                            } else if crate::term::should_throw_hackerman(line_match) {
+                            if crate::term::is_privesc(line_match) {
                                 crate::term::throw_hackerman(&term);
-                            } else if crate::term::should_deny_ls(line_match) {
-                                crate::term::permission_denied(&term);
-                            } else if crate::term::should_ls_top_secret(line_match) {
-                                term.writeln(".top_secret");
-                            } else if line_match.contains("ls -") {
-                                crate::term::ls(&term, true);
-                            } else if line_match.contains("git ") {
-                                crate::term::throw_git_error(&term);
                             } else if line_match.contains("books") || line_match.contains("features") {
                                 crate::term::publications(&term, line_match);
-                            } else if line_match.contains("resume ") {
+                            } else if line_match.starts_with("resume ") {
                                 crate::term::resume(&term, line_match);
-                            } else if line_match.contains("goto ") {
+                            } else if line_match.starts_with("goto ") {
                                 crate::term::goto_links(&term, line_match);
-                            } else if line_match.contains("echo ") {
-                                crate::term::echo(&term, line_match);
-                            } else {
-                                crate::term::command_not_found(&term, line_match);
+                            } else if !crate::shell::run(&term, line_match) {
+                                crate::shell::command_not_found(&term, line_match);
                             }
                         },
                     }

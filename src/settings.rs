@@ -8,6 +8,14 @@ pub struct Server {
     // `make dist` shows up without restarting the server
     #[serde(default)]
     pub reload_templates: bool,
+    // send cache-control headers for /assets (prod). off in local dev, so
+    // browsers always pick up the latest css after a `make dist`
+    #[serde(default = "default_true")]
+    pub cache_assets: bool,
+}
+
+fn default_true() -> bool {
+    true
 }
 
 #[derive(Debug, Deserialize, Clone)]

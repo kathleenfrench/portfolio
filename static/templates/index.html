@@ -18,6 +18,12 @@
 <body>
 
   <!-- CONTENT -->
+  <nav id="links">
+    <a href="https://github.com/kathleenfrench" target="_blank" rel="noopener">[ github ]</a>
+    <a href="https://www.linkedin.com/in/frenchkathleen/" target="_blank" rel="noopener">[ linkedin ]</a>
+    <a href="mailto:kfrench.eng@gmail.com">[ email ]</a>
+  </nav>
+
   <div class="main">
     <!-- ANIMATIONS -->
     <div id="intro-terminal"></div>
@@ -26,23 +32,17 @@
 
     <!-- ABOUT SECTION -->
     <div class="hidden" id="about">
-      <div class="flex-container">
-        <img src="/assets/images/kf.jpg" alt="kathleen in a dark room, lit by a glowing monitor" width="600" height="700" loading="lazy" />
-      </div>
-      <div class="flex-container">
-        <p> 
-          kathleen french is a staff software engineer @ nvidia living in brooklyn. she received her b.a. in english from harvard and her m.f.a. in fiction from nyu. she has a foster fail named trout and the memory of her beloved boston terrier, george. he will be loved, cherished, and missed always.
-        </p>
-      </div>
-      <div class="flex-container">
-        <h1>kathleen french</h1>
-        <h2 class="logo"></h2>
-        <h6>software engineer | writer</h6> 
-      </div>
+      <img class="about-photo" src="/assets/images/kf.jpg" alt="kathleen in a dark room, lit by a glowing monitor" width="600" height="700" loading="lazy" />
+      <header class="about-head">
+        <h1><span class="md">#</span>&nbsp;kathleen french</h1>
+        <p class="tagline">software engineer | writer</p>
+      </header>
+      <p class="about-bio">
+        kathleen french is a staff software engineer @ nvidia living in brooklyn. she received her b.a. in english from harvard and her m.f.a. in fiction from nyu. she has a foster fail named trout and the memory of her beloved boston terrier, george. he will be loved, cherished, and missed always.
+      </p>
     </div>
 
     <!-- MAIN TERMINAL -->
-    <span id="help-text-bar"><p id="help-text">(you can always run `help` to display available commands)</p></span>
     <div id="terminal"></div>
 
   </div>

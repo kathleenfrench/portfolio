@@ -13,6 +13,8 @@ await Promise.all([
 
 const pterm = new Terminal({
   fontFamily: FONT,
+  // keep in sync with pterm/src/lib.rs + main.css
+  theme: { background: '#111111', foreground: '#e6e6e6', cursor: '#e6e6e6' },
   cursorBlink: true,
   fontSize: 12,
   cursorWidth: 8,
@@ -24,6 +26,10 @@ const fitAddon = new FitAddon();
 pterm.loadAddon(fitAddon);
 pterm.open(document.getElementById('intro-terminal'));
 fitAddon.fit();
+// the intro is a fake log stream: never wrap, let long lines run off the right
+// edge of the window like a real terminal (main.css clips it). wrapping also
+// breaks the animation, which rewrites lines in place with \r
+pterm.resize(Math.max(pterm.cols, 300), pterm.rows);
 
 window.pterm = pterm;
 

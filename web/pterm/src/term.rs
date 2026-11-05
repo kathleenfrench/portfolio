@@ -1,5 +1,5 @@
 use xterm_js_rs::Terminal;
-use ansi_term::Colour;
+use ansi_term::{Colour, Style};
 use rand::thread_rng;
 use rand::prelude::*;
 
@@ -7,6 +7,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 
 use crate::content;
+use crate::md;
 use crate::utils;
 
 pub const KEY_ENTER: u32 = 13;
@@ -27,55 +28,77 @@ lazy_static::lazy_static! {
   pub static ref PROMPT: String = Colour::Yellow.bold().paint("kathleenfrench@portfolio $ ").to_string();
 }
 
-lazy_static::lazy_static! {
-  pub static ref PERMISSION_DENIED_ERR: String = Colour::Red.bold().paint("Permission denied").to_string();
-}
 
-lazy_static::lazy_static! {
-  pub static ref TERMINAL_ERR: String = Colour::Red.paint("Error 2").to_string();
-}
 
 pub fn prompt(term: &Terminal) {
   term.writeln("");
   term.write(&PROMPT);
+  // tui-style hint on the line under the prompt: write it, then move back up
+  // to the end of the prompt (relative moves, so it works even if writing the
+  // hint scrolled the screen). lib.rs erases it when enter is pressed
+  term.write(&format!("\r\n{}\x1b[1A\x1b[{}G", md::DIM.paint(PROMPT_HINT), PROMPT_WIDTH + 1));
 }
 
-pub fn permission_denied(term: &Terminal) {
-  term.write(&PERMISSION_DENIED_ERR);
-  term.writeln("");
+pub const PROMPT_HINT: &str = "? for help";
+const PROMPT_WIDTH: usize = "kathleenfrench@portfolio $ ".len();
+
+/// erase the hint under the prompt (everything below the cursor)
+pub fn clear_hint(term: &Terminal) {
+  term.write("\x1b[J");
 }
+
 
 ///// commands
 pub fn help_text(term: &Terminal) {
   reset_window(&term);
   new_line(&term);
-  term.writeln("[COMMANDS]:");
+  commands(&term);
+}
+
+/// what you see on page load: a login greeting above the command list
+pub fn welcome(term: &Terminal) {
+  reset_window(&term);
   new_line(&term);
-  term.writeln(&format!("{}", Colour::Green.bold().paint("type a command and hit the 'Enter' key to execute").to_string()));
+  md::note(&term, &format!("last login: {} from somewhere on the internet", login_time()));
   new_line(&term);
-  term.writeln("about          learn more about me");
-  term.writeln("resume         view available subcommands");
-  term.writeln("george         show a random picture of george");
-  term.writeln("henry          show a random picture of henry");
-  term.writeln("trout          show a random picture of trout");
-  term.writeln("contact        contact me");
-  term.writeln("clear          clear the terminal window");
-  term.writeln("replay         replay the intro animation");
+  commands(&term);
+}
+
+// like a real terminal's: `wed nov 4 21:19:28`
+fn login_time() -> String {
+  let now = js_sys::Date::new_0();
+  let days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+  let months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+  format!(
+    "{} {} {} {:02}:{:02}:{:02}",
+    days[now.get_day() as usize], months[now.get_month() as usize], now.get_date(),
+    now.get_hours(), now.get_minutes(), now.get_seconds(),
+  )
+}
+
+fn commands(term: &Terminal) {
+  md::heading(&term, "commands");
+  md::item(&term, "about", 12, "learn more about me");
+  md::item(&term, "resume", 12, "view available subcommands");
+  md::item(&term, "george", 12, "show a random picture of george");
+  md::item(&term, "henry", 12, "show a random picture of henry");
+  md::item(&term, "trout", 12, "show a random picture of trout");
+  md::item(&term, "contact", 12, "contact me");
+  md::item(&term, "clear", 12, "clear the terminal window");
+  md::item(&term, "replay", 12, "replay the intro animation");
   new_line(&term);
-  term.writeln(&format!("{}", Colour::Green.bold().paint("run `help` at any point to show this screen").to_string()));
-  new_line(&term);
+  md::note(&term, "type a command and hit enter");
 }
 
 pub fn contact_info(term: &Terminal) {
   reset_window(&term);
   new_line(&term);
-  term.writeln(&format!("run '{}' from the list below to launch a separate service", Colour::Green.bold().paint("goto <link>").to_string()));
-  term.writeln(&format!("[example]: {}", Colour::Blue.bold().paint("goto github").to_string()));
+  md::heading(&term, "contact");
+  md::bullet(&term, "github");
+  md::bullet(&term, "linkedin");
+  md::bullet(&term, "email");
   new_line(&term);
-  term.writeln("- github");
-  term.writeln("- linkedin");
-  term.writeln("- email");
-  new_line(&term);
+  md::note(&term, "run `goto <link>` to open one, e.g. `goto github`");
 }
 
 pub fn goto_links(term: &Terminal, line: &str) {
@@ -177,70 +200,62 @@ pub fn resume(term: &Terminal, line: &str) {
 
   match sub_cmd {
       "help" => subcommand_help_text("resume", "resume edu", &term),
-      "languages" => {
-          let mut iter = crate::content::RESUME_LANGUAGES.iter();
-          while let Some(s) = iter.next() {
+      "languages" | "lang" => {
+          md::heading(&term, "languages");
+          for s in crate::content::RESUME_LANGUAGES.iter() {
               term.writeln(s);
           }
       },
-      "lang" => {
-          let mut iter = crate::content::RESUME_LANGUAGES.iter();
-          while let Some(s) = iter.next() {
-              term.writeln(s);
-          }
-      },
-      "technologies" => {
-          let mut iter = crate::content::RESUME_TECH.iter();
-          while let Some(s) = iter.next() {
-            colorize_lede(s, &term);
-          }
-      },
-      "tech" => {
-          let mut iter = crate::content::RESUME_TECH.iter();
-          while let Some(s) = iter.next() {
-            colorize_lede(s, &term);
-          }
-      },
-      "experience" => {
-          let mut iter = crate::content::RESUME_EXPERIENCE.iter();
-          while let Some(s) = iter.next() {
-            colorize_lede(s, &term);
-          }
-      },
-      "xp" => {
-          let mut iter = crate::content::RESUME_EXPERIENCE.iter();
-          while let Some(s) = iter.next() {
-              colorize_lede(s, &term);
-          }
-      },
-      "education" => {
-          let mut iter = crate::content::RESUME_EDUCATION.iter();
-          while let Some(s) = iter.next() {
-            colorize_lede(s, &term);
-          }
-      },
-      "edu" => {
-          let mut iter = crate::content::RESUME_EDUCATION.iter();
-          while let Some(s) = iter.next() {
-            colorize_lede(s, &term);
-          }
-      },
-      "awards" => {
-          let mut iter = crate::content::RESUME_AWARDS.iter();
-          while let Some(s) = iter.next() {
-            colorize_lede(s, &term);
-          }
-      },
-      "awd"  => {
-          let mut iter = crate::content::RESUME_AWARDS.iter();
-          while let Some(s) = iter.next() {
-            colorize_lede(s, &term);
-          }
-      },
+      "technologies" | "tech" => section(&term, "technologies", &crate::content::RESUME_TECH),
+      "experience" | "xp" => experience(&term),
+      "education" | "edu" => section(&term, "education", &crate::content::RESUME_EDUCATION),
+      "awards" | "awd" => section(&term, "awards", &crate::content::RESUME_AWARDS),
       "publications" => subcommand_help_text("publications", "resume publications books", &term),
       "pub" => subcommand_help_text("publications", "resume pub features", &term),
       _ => term.writeln(&format!("{} is not a valid subcommand for 'resume'", sub_cmd)),
   }
+}
+
+fn section(term: &Terminal, title: &str, lines: &[&'static str]) {
+  md::heading(&term, title);
+  for s in lines.iter() {
+    colorize_lede(s, &term);
+  }
+}
+
+// experience.txt lines look like `NVIDIA|   - NY, NY > staff software engineer   [2026 - present]`
+fn parse_experience(line: &str) -> Option<(String, String, String)> {
+  let (company, rest) = line.split_once('|')?;
+  let rest = rest.trim().trim_start_matches("- ");
+  let (role, years) = match rest.rfind('[') {
+    Some(i) => (rest[..i].trim(), rest[i..].trim_matches(|c| c == '[' || c == ']' || c == ' ')),
+    None => (rest.trim(), ""),
+  };
+  // drop the location ("NY, NY > ") since it's the same everywhere
+  let role = role.split_once(" > ").map(|(_, r)| r).unwrap_or(role);
+  Some((company.trim().to_lowercase(), role.to_string(), years.to_string()))
+}
+
+fn experience(term: &Terminal) {
+  md::heading(&term, "experience");
+  let jobs: Vec<(String, String, String)> = crate::content::RESUME_EXPERIENCE.iter().filter_map(|l| parse_experience(l)).collect();
+
+  if utils::is_mobile() {
+    // too narrow for a table
+    for (company, role, years) in &jobs {
+      md::bullet(&term, &Style::new().bold().paint(company.as_str()).to_string());
+      term.writeln(&format!("    {}", role));
+      term.writeln(&format!("    {}", md::DIM.paint(years.as_str())));
+      new_line(&term);
+    }
+    return;
+  }
+
+  let rows: Vec<Vec<String>> = jobs.into_iter().map(|(c, r, y)| vec![c, r, y]).collect();
+  md::table(&term, &["company", "role", "years"], &rows, |col, cell| match col {
+    0 => Style::new().bold().paint(cell).to_string(),
+    _ => cell.to_string(),
+  });
 }
 
 pub fn colorize_lede(input: &'static str, term: &Terminal) {
@@ -252,7 +267,7 @@ pub fn colorize_lede(input: &'static str, term: &Terminal) {
     rest.push_str(&v);
   }
 
-  term.writeln(&format!("{} {}", Colour::Cyan.bold().paint(title.to_string()).to_string(), &rest));
+  term.writeln(&format!("{} {}", Style::new().bold().paint(title.to_string()).to_string(), &rest));
 }
 
 pub fn publications(term: &Terminal, line: &str) {
@@ -280,47 +295,45 @@ pub fn publications(term: &Terminal, line: &str) {
 ///// subcommands
 pub fn subcommand_help_text(cmd: &str, example: &str, term: &Terminal) {
   reset_window(&term);
-
-  new_line(&term);
-  term.writeln("[SUBCOMMANDS]:");
-  new_line(&term);
-  term.writeln(&format!("{}: {} <subcommand>", Colour::Green.bold().paint("[usage]").to_string(), cmd));
-  term.writeln(&format!("{}: {}", Colour::Green.bold().paint("[example]").to_string(), example));
   new_line(&term);
 
   match cmd {
-      "resume" => resume_help_text(&term),
-      "publications" => publication_help_text(&term),
-      "pub" => publication_help_text(&term),
+      "resume" => {
+        md::heading(&term, "resume");
+        resume_help_text(&term);
+      },
+      "publications" | "pub" => {
+        md::heading(&term, "publications");
+        publication_help_text(&term);
+      },
       _ => term.writeln(&format!("{} is not a valid subcommand", cmd)),
   }
 
   new_line(&term);
-  new_line(&term);
+  md::note(&term, &format!("usage: {} <subcommand>, e.g. `{}`", cmd, example));
 }
 
 pub fn resume_help_text(term: &Terminal) {
-  term.writeln(&format!("languages     ({})", Colour::Blue.bold().paint("lang").to_string()));
-  term.writeln(&format!("technologies  ({})", Colour::Blue.bold().paint("tech").to_string()));
-  term.writeln(&format!("experience    ({})", Colour::Blue.bold().paint("xp").to_string()));
-  term.writeln(&format!("education     ({})", Colour::Blue.bold().paint("edu").to_string()));
-  term.writeln(&format!("awards        ({})", Colour::Blue.bold().paint("awd").to_string()));
-  term.writeln(&format!("publications  ({})", Colour::Blue.bold().paint("pub").to_string()));
+  md::item(&term, "languages", 16, "lang");
+  md::item(&term, "technologies", 16, "tech");
+  md::item(&term, "experience", 16, "xp");
+  md::item(&term, "education", 16, "edu");
+  md::item(&term, "awards", 16, "awd");
+  md::item(&term, "publications", 16, "pub");
 }
 
 pub fn publication_help_text(term: &Terminal) {
-  term.writeln(&format!("books     ({})", Colour::Blue.bold().paint("published books").to_string()));
-  term.writeln(&format!("features  ({})", Colour::Blue.bold().paint("published interviews, essays, & reviews").to_string()));
+  md::item(&term, "books", 12, "published books");
+  md::item(&term, "features", 12, "published interviews, essays, & reviews");
 }
 
 //// random
 
-pub fn should_throw_hackerman(input: &str) -> bool {
-  if input.contains("root") || input.contains("sudo ") || input.contains("chown ") || input.contains("chmod ") || input.contains("which ") {
-    return true;
-  }
-
-  false
+/// trying to escalate privileges gets you mr. robot
+pub fn is_privesc(input: &str) -> bool {
+  const CMDS: &[&str] = &["sudo", "su", "doas", "pkexec", "chmod", "chown", "chgrp", "passwd", "visudo"];
+  let first = input.split_whitespace().next().unwrap_or("");
+  CMDS.contains(&first) || input.contains("root") || input.contains("/etc/shadow") || input.contains("/etc/sudoers")
 }
 
 pub fn throw_hackerman(term: &Terminal) {
@@ -332,18 +345,6 @@ pub fn throw_hackerman(term: &Terminal) {
   clear(&term);
 }
 
-pub fn deny_common_bins(input: &str) -> bool {
-  if input.contains("cat ") && input != "cat .topsecret" || input.contains("cd ") || input.contains("ps ") || input.contains("/bin") {
-    return true;
-  }
-
-  false
-}
-
-pub fn throw_git_error(term: &Terminal) {
-  term.writeln(&format!("{}", Colour::Red.bold().paint("fatal: This operation must be run in a work tree").to_string()));
-}
-
 pub fn reset_window(term: &Terminal) {
   web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
   web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&HIDDEN);
@@ -351,7 +352,10 @@ pub fn reset_window(term: &Terminal) {
 }
 
 pub fn clear(term: &Terminal) {
-  term.write("\x1b[H\x1b[2J");
+  // home, erase screen, and erase scrollback (3J). xterm 5 moves erased screen
+  // content into scrollback, so without 3J the viewport can stay scrolled down
+  // to old output after a clear (easy to hit on phones, where output wraps)
+  term.write("\x1b[H\x1b[2J\x1b[3J");
 }
 
 pub fn new_line(term: &Terminal) {
@@ -359,41 +363,7 @@ pub fn new_line(term: &Terminal) {
 }
 
 pub fn whoami(term: &Terminal) {
-  term.writeln("stranger (danger)");
-}
-
-pub fn should_deny_ls(input: &str) -> bool {
-  if input.contains("ls ") {
-    if input.contains("/") && !input.contains("/tmp") || input.contains("Documents") || input.contains("Downloads") || input.contains("Pictures") {
-      return true
-    }
-  }
-
-  false
-}
-
-pub fn should_ls_top_secret(input: &str) -> bool {
-  if input.contains("ls ") && input.contains("/tmp") {
-    return true
-  }
-
-  false
-}
-
-pub fn ls(term: &Terminal, show_dotfiles: bool) {
-  if show_dotfiles {
-    term.writeln("Documents");
-    term.writeln("Downloads");
-    term.writeln("Pictures");
-    term.writeln(".ssh");
-    term.writeln(".bashrc");
-    term.writeln(".vimrc");
-    term.writeln(".read_me")
-  } else {
-    term.writeln("Documents");
-    term.writeln("Downloads");
-    term.writeln("Pictures");
-  }
+  term.writeln("stranger");
 }
 
 pub fn get_history(term: &Terminal) {
@@ -403,42 +373,10 @@ pub fn get_history(term: &Terminal) {
   }
 }
 
-pub fn top_secret(term: &Terminal) {
-  term.writeln("nice work :)");
-  term.writeln("run 'goto l00t' for a surprise...");
-  new_line(&term);
-}
-
-pub fn read_me(term: &Terminal) {
-  new_line(&term);
-  term.writeln("“History is the angle at which realities meet.”");
-  term.writeln("― Don DeLillo, End Zone");
-  new_line(&term);
-}
-
-pub fn command_not_found(term: &Terminal, line: &str) {
-  term.writeln(&format!("command not found: '{}'", line));
-}
-
-pub fn echo(term: &Terminal, line: &str) {
-  let stripped = line.replace("echo", "");
-  term.writeln(&stripped.replace("'", "").replace('"', "").trim());
-}
-
 pub fn env_text(term: &Terminal) {
-  term.writeln("EDITOR=vim");
-  term.writeln("HOME=/Users/stranger");
-  term.writeln("LANG=en_US.UTF-8");
-  term.writeln("LOGNAME=stranger");
-  term.writeln("PATH=/usr/local/bin");
-  term.writeln("PWD=/Users/stranger");
-  term.writeln("USER=stranger");
-  term.writeln("SHELL=/bin/sh");
-  term.writeln("TMPDIR=/var/folders/1_/hzsf_8wsg8sjdfjghasg/T/");
-}
-
-pub fn term_err(term: &Terminal) {
-  term.writeln(&TERMINAL_ERR);
+  for (k, v) in crate::shell::env_vars() {
+    term.writeln(&format!("{}={}", k, v));
+  }
 }
 
 #[cfg(test)]
@@ -470,6 +408,19 @@ mod tests {
       assert_ne!(pic, previous);
       previous = pic;
     }
+  }
+
+  #[test]
+  fn parses_experience_lines() {
+    assert_eq!(
+      parse_experience("NVIDIA|                        - NY, NY > staff software engineer                      [2026 - present]"),
+      Some(("nvidia".into(), "staff software engineer".into(), "2026 - present".into())),
+    );
+    assert_eq!(
+      parse_experience("GROQ|  - NY, NY > staff software engineer > inference  [2025 - 2026]"),
+      Some(("groq".into(), "staff software engineer > inference".into(), "2025 - 2026".into())),
+    );
+    assert_eq!(parse_experience(""), None);
   }
 
   #[test]

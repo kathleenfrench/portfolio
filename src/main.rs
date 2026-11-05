@@ -44,7 +44,11 @@ async fn main() -> io::Result<()> {
         App::new()
             .wrap(handlers::error_handlers())
             .wrap_fn(|req, srv| {
-                let policy = cache::policy_for(req.path());
+                let policy = if CONFIG.server.cache_assets {
+                    cache::policy_for(req.path())
+                } else {
+                    Some("no-cache")
+                };
                 let fut = srv.call(req);
                 async move {
                     let mut res = fut.await?;
