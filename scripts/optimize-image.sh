@@ -7,6 +7,7 @@
 #     -> static/assets/images/trout_bed.jpg (longest edge 1000px, ~100-200KB)
 #
 # photos are shown at most ~300px wide (600px on retina), so 1000px is plenty.
+# gps location data is stripped (see strip-gps.swift).
 set -euo pipefail
 
 in="${1:?usage: $0 <input> [output_name] [max_edge_px]}"
@@ -21,4 +22,6 @@ resize=()
 if (( w > max_edge || h > max_edge )); then resize=(-Z "$max_edge"); fi
 
 sips -s format jpeg -s formatOptions 80 ${resize[@]+"${resize[@]}"} "$in" --out "$out" >/dev/null
+# phone photos record where they were taken; never publish that
+swift "$(dirname "$0")/strip-gps.swift" "$out"
 echo "$(du -h "$out" | cut -f1)  $out"
