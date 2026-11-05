@@ -114,7 +114,7 @@ fn commands(term: &Terminal) {
   md::item(&term, "contact", 12, "contact me");
   md::item(&term, "clear", 12, "clear the terminal window");
   md::item(&term, "replay", 12, "replay the intro animation");
-  md::item(&term, "hint", 12, "a nudge, if you're looking for something");
+  md::item(&term, "hint", 12, "if you're looking for something");
   new_line(&term);
   md::note(&term, "type a command and hit enter");
 }
