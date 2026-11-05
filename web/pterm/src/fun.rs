@@ -137,11 +137,11 @@ const TROUT: &[&str] = &[
 ];
 
 const TROUT_THOUGHTS: &[&str] = &[
-  "is it dinner yet",
-  "i was a foster. i failed. i regret nothing.",
-  "the couch is mine now",
+  "is it second dinner yet?",
+  "oh i'm sorry did my snoring wake you?",
+  "a stranger called me an ozempic frenchie can you believe that",
   "have you tried turning the stranger off and on again",
-  "pls sponsor my fleet of 32 core instances",
+  "these ears were not made to listen",
 ];
 
 pub fn troutsay(args: &[String], stdin: &Option<Vec<String>>) -> Vec<String> {
