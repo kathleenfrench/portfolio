@@ -8,3 +8,6 @@ web/pterm/target
 
 notes.txt
 .maintenance.md
+
+# local secrets (upstash token etc). never commit
+.env

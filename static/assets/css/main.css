@@ -268,21 +268,35 @@ img#did-it-2 {
 /* treasure page: both links together in one bar at the bottom center, the
    one spot the applause, gifs and orb leave clear. a dark strip keeps them
    readable over the photo */
-#treasure-links {
+.treasure-strip {
   position: fixed;
-  bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
-  display: flex;
-  align-items: center;
-  gap: 1.5em;
+  margin: 0;
   padding: 0.6em 1.2em;
   background: rgba(17, 17, 17, 0.75);
   backdrop-filter: blur(4px);
   border-radius: 4px;
   font-size: 13px;
   white-space: nowrap;
+}
+
+#treasure-links {
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 1.5em;
+}
+
+/* "you're the 12th person to find this · solved in 4m 12s", above the links */
+#found-stats {
+  bottom: 74px;
+  color: #e6e6e6;
+}
+
+#found-stats[hidden] {
+  display: none;
 }
 
 #treasure-links a {
@@ -475,3 +489,144 @@ nav#links a:hover {
   }
 }
 
+
+/* the ctf's secret page: an ascii black hole behind a short message */
+body#event-horizon {
+  background: #050505;
+  color: var(--fg);
+  overflow: hidden;
+  height: 100vh;
+  height: 100dvh;
+}
+
+pre#horizon {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.2;
+  color: #d9c7a3; /* warm, like a lit disk */
+  user-select: none;
+}
+
+main#horizon-message {
+  position: fixed;
+  left: 50%;
+  bottom: 8vh;
+  transform: translateX(-50%);
+  width: min(560px, calc(100vw - 2 * var(--gutter)));
+  padding: 1.2em 1.5em;
+  background: rgba(5, 5, 5, 0.8);
+  backdrop-filter: blur(3px);
+  border-radius: 4px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+main#horizon-message h1 {
+  margin: 0.4em 0;
+  font-size: 18px;
+}
+
+main#horizon-message p {
+  margin: 0.4em 0;
+}
+
+main#horizon-message #found-stats[hidden] {
+  display: none;
+}
+
+main#horizon-message a {
+  color: var(--dim);
+  text-decoration: none;
+}
+
+main#horizon-message a:hover {
+  color: var(--fg);
+}
+
+/* treasure page on narrower screens: the wide layout positions everything by
+   percentages, so it collides below ~800px. title top-left, gifs in the
+   corners, the orb centered, and the bottom strips wrap */
+@media (max-width: 800px) {
+  #treasure-msg {
+    float: none;
+    margin: 1.5em 1em 0;
+  }
+
+  /* one line, sized to fit beside the top-right gif (17 chars of a ~1em font) */
+  .treasure-chest h2 {
+    font-size: clamp(10px, 3.6vw, 22px);
+    line-height: 1.5;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  ul.applause-animation {
+    transform: none;
+    margin: 0.6em 0 0;
+  }
+
+  ul.applause-animation li {
+    width: 22px;
+    height: 22px;
+  }
+
+  .you-did-it {
+    height: auto;
+  }
+
+  .you-did-it img {
+    position: fixed;
+    width: 30vw;
+    max-width: 170px;
+    height: auto;
+    margin: 0;
+  }
+
+  img#did-it-1 {
+    top: 12px;
+    right: 12px;
+  }
+
+  img#did-it-2 {
+    top: auto;
+    bottom: 150px;
+    left: 12px;
+  }
+
+  #treasure-content-container {
+    width: 72vw;
+    height: 72vw;
+    margin: 0;
+    left: 14vw;
+    top: calc(46vh - 36vw);
+    top: calc(46dvh - 36vw);
+    bottom: auto !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #treasure-content {
+    margin: 0 !important;
+  }
+
+  .treasure-strip {
+    white-space: normal;
+    text-align: center;
+    width: max-content;
+    max-width: calc(100vw - 24px);
+    box-sizing: border-box;
+  }
+
+  #treasure-links {
+    justify-content: center;
+    gap: 1em;
+  }
+
+  #found-stats {
+    bottom: 84px;
+  }
+}

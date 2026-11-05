@@ -30,6 +30,10 @@ fitAddon.fit();
 // edge of the window like a real terminal (main.css clips it). wrapping also
 // breaks the animation, which rewrites lines in place with \r
 pterm.resize(Math.max(pterm.cols, 300), pterm.rows);
+window.addEventListener('resize', () => {
+  fitAddon.fit();
+  pterm.resize(Math.max(pterm.cols, 300), pterm.rows);
+});
 
 window.pterm = pterm;
 

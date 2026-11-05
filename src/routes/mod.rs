@@ -1,4 +1,4 @@
-use actix_web::web::{get, resource, ServiceConfig};
+use actix_web::web::{get, post, resource, ServiceConfig};
 
 mod favicon;
 mod health;
@@ -21,5 +21,15 @@ pub fn add_routes(s: &mut ServiceConfig) {
         resource("/dr9lrf26db8ori9")
             .name("treasure")
             .route(get().to(treasure::find)),
+    )
+    .service(
+        resource("/tract-02732f49")
+            .name("event_horizon")
+            .route(get().to(treasure::event_horizon)),
+    )
+    .service(
+        resource("/api/found/{track}")
+            .name("found")
+            .route(post().to(treasure::found)),
     );
 }

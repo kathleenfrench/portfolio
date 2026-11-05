@@ -5,3 +5,4 @@ server:
   host: "127.0.0.1"
   reload_templates: true
   cache_assets: false
+  counter_prefix: "dev"

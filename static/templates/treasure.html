@@ -38,11 +38,13 @@
     <div class="you-did-it">
       <img id="did-it-2" src="/assets/images/you_did_it_2.gif">
     </div>
-    <nav id="treasure-links">
+    <p id="found-stats" class="treasure-strip" hidden></p>
+    <nav id="treasure-links" class="treasure-strip">
       <a href="/">[ &larr; go home ]</a>
       <a href="https://github.com/kathleenfrench/portfolio" target="_blank" rel="noopener">[ view the code &#128064; ]</a>
     </nav>
   </div>
-  <script src="/assets/js/treasure.js"></script>
+  <script src="/assets/js/found.js"></script>
+  <script>showFound('hunt', document.getElementById('found-stats'));</script>
 </body>
 </html>

@@ -7,6 +7,7 @@ use std::io;
 use std::sync::LazyLock;
 
 mod cache;
+mod counter;
 mod handlers;
 mod routes;
 mod settings;
@@ -16,6 +17,9 @@ static CONFIG: LazyLock<settings::Settings> =
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
+    // local dev: pick up UPSTASH_* from a gitignored .env (prod uses heroku config vars)
+    dotenvy::dotenv().ok();
+
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or(format!(
         "portfolio={0},actix_web={0},actix_server={0}",
         CONFIG.log.level
@@ -31,6 +35,12 @@ async fn main() -> io::Result<()> {
         .register_templates_directory(&CONFIG.static_paths.templates, template_opts)
         .expect("templates can't be loaded");
     let handlebars = web::Data::new(handlebars);
+
+    let counter = web::Data::new(counter::Counter::from_env(&CONFIG.server.counter_prefix));
+    match counter.as_ref() {
+        Some(_) => log::info!("finder counter: on ({})", CONFIG.server.counter_prefix),
+        None => log::info!("finder counter: off (no UPSTASH_REDIS_REST_URL/_TOKEN)"),
+    }
 
     let port: u16 = std::env::var("PORT")
         .unwrap_or_else(|_| "3000".into())
@@ -62,6 +72,7 @@ async fn main() -> io::Result<()> {
             .wrap(middleware::Compress::default())
             .wrap(middleware::Logger::default())
             .app_data(handlebars.clone())
+            .app_data(counter.clone())
             .service(Files::new("/assets", &CONFIG.static_paths.assets).use_last_modified(true))
             .configure(routes::add_routes)
     })

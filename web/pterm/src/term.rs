@@ -14,6 +14,10 @@ pub const KEY_ENTER: u32 = 13;
 pub const KEY_BACKSPACE: u32 = 8;
 pub const KEY_LEFT_ARROW: u32 = 37;
 pub const KEY_RIGHT_ARROW: u32 = 39;
+pub const KEY_UP_ARROW: u32 = 38;
+pub const KEY_DOWN_ARROW: u32 = 40;
+pub const KEY_HOME: u32 = 36;
+pub const KEY_END: u32 = 35;
 pub const KEY_C: u32 = 67;
 pub const KEY_L: u32 = 76;
 pub const KEY_U: u32 = 85;
@@ -24,23 +28,47 @@ pub const CURSOR_RIGHT: &str = "\x1b[C";
 pub const VISIBLE_CLASS: &str = "visible";
 pub const HIDDEN: &str = "hidden";
 
-lazy_static::lazy_static! {
-  pub static ref PROMPT: String = Colour::Yellow.bold().paint("kathleenfrench@portfolio $ ").to_string();
+
+
+
+/// scroll the page just enough to keep the cursor on screen (with a couple of
+/// lines of room under it, for the `? for help` hint). the terminal can
+/// be pushed down the page by a photo or the about section above it, and
+/// output would otherwise land below the fold. waits a frame for xterm to
+/// move its (hidden) input textarea, which tracks the cursor
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen::prelude::wasm_bindgen(inline_js = "export function follow_cursor() { requestAnimationFrame(() => requestAnimationFrame(() => { const t = document.querySelector('#terminal .xterm-helper-textarea'); if (!t) return; const r = t.getBoundingClientRect(); const room = 3 * r.height; if (r.bottom + room > innerHeight) window.scrollBy(0, r.bottom + room - innerHeight); else if (r.top < 0) window.scrollBy(0, r.top - room); })); }")]
+extern "C" {
+  pub fn follow_cursor();
 }
 
-
+#[cfg(not(target_arch = "wasm32"))]
+pub fn follow_cursor() {}
 
 pub fn prompt(term: &Terminal) {
+  // `user@portfolio dir $`, like zsh. once you've become kathleen
+  // (`su kathleen`), the name and colour say so
+  let (name, colour) = match crate::shell::user() {
+    "kathleen" => ("kathleen", Colour::Green),
+    _ => ("kathleenfrench", Colour::Yellow),
+  };
+  let dir = crate::shell::prompt_dir();
+  let width = format!("{}@portfolio {} $ ", name, dir).chars().count();
+
   term.writeln("");
-  term.write(&PROMPT);
+  term.write(&format!(
+    "{} {} {} ",
+    colour.bold().paint(format!("{}@portfolio", name)),
+    Colour::Fixed(110).bold().paint(dir),
+    colour.bold().paint("$"),
+  ));
   // tui-style hint on the line under the prompt: write it, then move back up
   // to the end of the prompt (relative moves, so it works even if writing the
   // hint scrolled the screen). lib.rs erases it when enter is pressed
-  term.write(&format!("\r\n{}\x1b[1A\x1b[{}G", md::DIM.paint(PROMPT_HINT), PROMPT_WIDTH + 1));
+  term.write(&format!("\r\n{}\x1b[1A\x1b[{}G", md::DIM.paint(PROMPT_HINT), width + 1));
 }
 
 pub const PROMPT_HINT: &str = "? for help";
-const PROMPT_WIDTH: usize = "kathleenfrench@portfolio $ ".len();
 
 /// erase the hint under the prompt (everything below the cursor)
 pub fn clear_hint(term: &Terminal) {
@@ -86,6 +114,7 @@ fn commands(term: &Terminal) {
   md::item(&term, "contact", 12, "contact me");
   md::item(&term, "clear", 12, "clear the terminal window");
   md::item(&term, "replay", 12, "replay the intro animation");
+  md::item(&term, "hint", 12, "a nudge, if you're looking for something");
   new_line(&term);
   md::note(&term, "type a command and hit enter");
 }
@@ -107,11 +136,11 @@ pub fn goto_links(term: &Terminal, line: &str) {
 
   match target {
       "github" => {
-          term.writeln(&format!("redirecting to {}...", target));
+          md::writeln(&term, &format!("redirecting to {}...", target));
           utils::open_in_new_tab("https://github.com/kathleenfrench");
       },
       "linkedin" => {
-          term.writeln(&format!("redirecting to {}...", target));
+          md::writeln(&term, &format!("redirecting to {}...", target));
           utils::open_in_new_tab("https://www.linkedin.com/in/frenchkathleen/");
       },
       "email" => {
@@ -120,7 +149,10 @@ pub fn goto_links(term: &Terminal, line: &str) {
       "l00t" => {
         utils::open_in_new_tab("/dr9lrf26db8ori9");
       },
-      _ => term.writeln(&format!("{} is not a valid input", target)),
+      "kefahuchi" => {
+        utils::open_in_new_tab("/tract-02732f49");
+      },
+      _ => md::writeln(&term, &format!("{} is not a valid input", target)),
   }
 }
 
@@ -203,7 +235,7 @@ pub fn resume(term: &Terminal, line: &str) {
       "languages" | "lang" => {
           md::heading(&term, "languages");
           for s in crate::content::RESUME_LANGUAGES.iter() {
-              term.writeln(s);
+              md::writeln(&term, s);
           }
       },
       "technologies" | "tech" => section(&term, "technologies", &crate::content::RESUME_TECH),
@@ -212,7 +244,7 @@ pub fn resume(term: &Terminal, line: &str) {
       "awards" | "awd" => section(&term, "awards", &crate::content::RESUME_AWARDS),
       "publications" => subcommand_help_text("publications", "resume publications books", &term),
       "pub" => subcommand_help_text("publications", "resume pub features", &term),
-      _ => term.writeln(&format!("{} is not a valid subcommand for 'resume'", sub_cmd)),
+      _ => md::writeln(&term, &format!("{} is not a valid subcommand for 'resume'", sub_cmd)),
   }
 }
 
@@ -244,8 +276,8 @@ fn experience(term: &Terminal) {
     // too narrow for a table
     for (company, role, years) in &jobs {
       md::bullet(&term, &Style::new().bold().paint(company.as_str()).to_string());
-      term.writeln(&format!("    {}", role));
-      term.writeln(&format!("    {}", md::DIM.paint(years.as_str())));
+      md::writeln(&term, &format!("    {}", role));
+      md::writeln(&term, &format!("    {}", md::DIM.paint(years.as_str())));
       new_line(&term);
     }
     return;
@@ -267,7 +299,7 @@ pub fn colorize_lede(input: &'static str, term: &Terminal) {
     rest.push_str(&v);
   }
 
-  term.writeln(&format!("{} {}", Style::new().bold().paint(title.to_string()).to_string(), &rest));
+  md::writeln(&term, &format!("{} {}", Style::new().bold().paint(title.to_string()).to_string(), &rest));
 }
 
 pub fn publications(term: &Terminal, line: &str) {
@@ -288,7 +320,7 @@ pub fn publications(term: &Terminal, line: &str) {
           colorize_lede(s, &term);
       }
     },
-    _ => term.writeln(&format!("{} is not a valid subcommand for 'publications'", sub_cmd)),
+    _ => md::writeln(&term, &format!("{} is not a valid subcommand for 'publications'", sub_cmd)),
   }
 }
 
@@ -306,7 +338,7 @@ pub fn subcommand_help_text(cmd: &str, example: &str, term: &Terminal) {
         md::heading(&term, "publications");
         publication_help_text(&term);
       },
-      _ => term.writeln(&format!("{} is not a valid subcommand", cmd)),
+      _ => md::writeln(&term, &format!("{} is not a valid subcommand", cmd)),
   }
 
   new_line(&term);
@@ -332,8 +364,11 @@ pub fn publication_help_text(term: &Terminal) {
 /// trying to escalate privileges gets you mr. robot
 pub fn is_privesc(input: &str) -> bool {
   const CMDS: &[&str] = &["sudo", "su", "doas", "pkexec", "chmod", "chown", "chgrp", "passwd", "visudo"];
-  let first = input.split_whitespace().next().unwrap_or("");
-  CMDS.contains(&first) || input.contains("root") || input.contains("/etc/shadow") || input.contains("/etc/sudoers")
+  let words: Vec<&str> = input.split_whitespace().collect();
+  let first = words.first().copied().unwrap_or("");
+  // `su kathleen` is part of the treasure hunt, not an attack
+  let su_to_a_user = first == "su" && words.iter().any(|w| *w == "kathleen" || *w == "stranger");
+  (CMDS.contains(&first) && !su_to_a_user) || input.contains("root") || input.contains("/etc/shadow") || input.contains("/etc/sudoers")
 }
 
 pub fn throw_hackerman(term: &Terminal) {
@@ -359,23 +394,14 @@ pub fn clear(term: &Terminal) {
 }
 
 pub fn new_line(term: &Terminal) {
-  term.writeln("");
+  md::writeln(&term, "");
 }
 
-pub fn whoami(term: &Terminal) {
-  term.writeln("stranger");
-}
 
-pub fn get_history(term: &Terminal) {
-  let mut iter = crate::content::HISTORY_HINT.iter();
-  while let Some(s) = iter.next() {
-      term.writeln(s);
-  }
-}
 
 pub fn env_text(term: &Terminal) {
   for (k, v) in crate::shell::env_vars() {
-    term.writeln(&format!("{}={}", k, v));
+    md::writeln(&term, &format!("{}={}", k, v));
   }
 }
 
