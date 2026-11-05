@@ -390,9 +390,14 @@ pub fn show_image(term: &Terminal, file: &str) {
 }
 
 pub fn reset_window(term: &Terminal) {
+  hide_panels();
+  clear(&term);
+}
+
+/// hide the about page and any image above the terminal, leaving its output be
+pub fn hide_panels() {
   web_sys::window().unwrap().document().unwrap().get_element_by_id("about").unwrap().set_class_name(&HIDDEN);
   web_sys::window().unwrap().document().unwrap().get_element_by_id("content").unwrap().set_class_name(&HIDDEN);
-  clear(&term);
 }
 
 pub fn clear(term: &Terminal) {
